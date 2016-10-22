@@ -1,0 +1,47 @@
+{
+  "name": "tminusten",
+  "version": "0.0.0",
+  "description": "Live launch app with websockets and fun tech",
+  "main": "app.js",
+  "scripts": {
+    "run-server": "node app.js",
+    "build-webpack": "webpack --watch",
+    "start": "webpack-dev-server --inline --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LukeNZ/tminusten.git"
+  },
+  "dependencies": {
+    "@angular/common": "~2.0.2",
+    "@angular/compiler": "~2.0.2",
+    "@angular/core": "~2.0.2",
+    "@angular/forms": "~2.0.2",
+    "@angular/http": "~2.0.2",
+    "@angular/platform-browser": "~2.0.2",
+    "@angular/platform-browser-dynamic": "~2.0.2",
+    "@angular/router": "~3.0.2",
+    "@angular/upgrade": "~2.0.2",
+    "angular-in-memory-web-api": "~0.1.5",
+    "body-parser": "~1.15.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.2.0",
+    "serve-favicon": "~2.3.0",
+    "core-js": "^2.4.1",
+    "express": "^4.14.0",
+    "reflect-metadata": "^0.1.8",
+    "rxjs": "5.0.0-beta.12",
+    "zone.js": "^0.6.25"
+  },
+  "devDependencies": {
+    "@types/core-js": "^0.9.32",
+    "@types/jasmine": "^2.2.34",
+    "@types/node": "^6.0.38",
+    "awesome-typescript-loader": "2.2.4",
+    "dotenv": "^2.0.0",
+    "typescript": "^2.0.3",
+    "typings": "^1.4.0",
+    "webpack": "2.1.0-beta.21",
+    "webpack-dev-server": "2.1.0-beta.2"
+  }
+}
