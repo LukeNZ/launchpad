@@ -1,0 +1,24 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": false,
+    "noImplicitAny": false,
+    "outDir":"public/angular"
+  },
+  "exclude": [
+    "node_modules",
+    "vendor"
+  ],
+  "typeRoots": [
+    "../node_modules/@types"
+  ],
+  "types": [
+    "core-js"
+  ]
+}
