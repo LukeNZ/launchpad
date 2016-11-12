@@ -1,10 +1,10 @@
 import {Component} from "@angular/core";
 
 @Component({
-    selector:'tmt-countdown',
+    selector:'tmt-settings',
     template: `
     `
 })
-export class CountdownComponent {
+export class SettingsComponent {
 
 }

@@ -4,7 +4,8 @@ var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
+var indexRoutes = require('./routes/index');
+var apiRoutes = require('./routes/api');
 
 var app = express();
 
@@ -19,7 +20,8 @@ app.use(cookieParser());
 app.use('/public', express.static(path.join(__dirname, '/../public')));
 app.use('/node_modules', express.static(path.join(__dirname, '/../node_modules')));
 
-app.use('/', routes);
+app.use('/', indexRoutes);
+app.use('/api', apiRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
