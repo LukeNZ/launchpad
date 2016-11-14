@@ -1,6 +1,6 @@
 var path = require('path');
 
-class ApiController {
+class TMinusTenController {
     /**
      * Returns the current status of the TMinusTen application.
      * GET:/api/status
@@ -8,7 +8,7 @@ class ApiController {
      * @param request
      * @param response
      */
-    getStatus(request, response) {
+    public getStatus(request, response) {
         response.send(JSON.stringify({
             isActive: false
         }));
@@ -21,7 +21,7 @@ class ApiController {
      * @param request
      * @param response
      */
-    getUpdates(request, response) {
+    public getUpdates(request, response) {
         response.send();
     }
 
@@ -32,9 +32,9 @@ class ApiController {
      * @param request
      * @param response
      */
-    getWebcasts(request, response) {
+    public getWebcasts(request, response) {
         response.send();
     }
 }
 
-module.exports = ApiController;
+module.exports = TMinusTenController;
