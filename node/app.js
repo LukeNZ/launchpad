@@ -7,6 +7,8 @@ var bodyParser = require('body-parser');
 var indexRoutes = require('./routes/index');
 var apiRoutes = require('./routes/api');
 
+var JwtAuthenticate =
+
 var app = express();
 
 // view engine setup
@@ -20,18 +22,18 @@ app.use(cookieParser());
 app.use('/public', express.static(path.join(__dirname, '/../public')));
 app.use('/node_modules', express.static(path.join(__dirname, '/../node_modules')));
 
-app.use('/', indexRoutes);
 app.use('/api', apiRoutes);
+app.use('/', indexRoutes);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // error handlers
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   res.status(err.status || 500);
   if (app.get('env') === 'development') {
     res.send({

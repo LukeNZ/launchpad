@@ -1,4 +1,5 @@
 import {Component, OnInit} from "@angular/core";
+import {Title} from "@angular/platform-browser";
 import {TMinusTenService} from "../Services/TMinusTenService";
 import {WebsocketService} from "../Services/WebsocketService";
 
@@ -23,8 +24,11 @@ export class HomeComponent implements OnInit {
     public isLoading : boolean = true;
     public isActive : boolean = false;
 
-    constructor(public tMinusTenService: TMinusTenService, public websocketService: WebsocketService) {
-
+    constructor(
+        public tMinusTenService: TMinusTenService,
+        public websocketService: WebsocketService,
+        public titleService: Title) {
+        this.titleService.setTitle("T Minus Ten");
     }
 
     /**

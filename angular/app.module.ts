@@ -12,11 +12,15 @@ import {HomeComponent} from "./Components/Home.component";
 import {TMinusTenService} from "./Services/TMinusTenService";
 import {WebsocketService} from "./Services/WebsocketService";
 import {LoginComponent} from "./Components/Login.component";
+import {NotificationBannerComponent} from "./Components/NotificationBanner.component";
+import {FormsModule} from "@angular/forms";
+import {AuthService} from "./Services/AuthService";
 
 @NgModule({
-    imports: [BrowserModule, HttpModule, routing],
-    providers: [TMinusTenService, WebsocketService],
-    declarations: [TMinusTenComponent, HomeComponent, LoginComponent, HeaderComponent, CountdownComponent, StatusBarComponent, UpdatesComponent, WebcastComponent],
+    imports: [BrowserModule, HttpModule, FormsModule, routing],
+    providers: [TMinusTenService, WebsocketService, AuthService],
+    declarations: [TMinusTenComponent, HomeComponent, LoginComponent, HeaderComponent, CountdownComponent, StatusBarComponent,
+        UpdatesComponent, WebcastComponent, NotificationBannerComponent],
     bootstrap: [TMinusTenComponent]
 })
 export class AppModule {}

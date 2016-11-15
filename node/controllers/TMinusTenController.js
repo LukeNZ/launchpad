@@ -8,7 +8,7 @@ class TMinusTenController {
      * @param request
      * @param response
      */
-    public getStatus(request, response) {
+    getStatus(request, response) {
         response.send(JSON.stringify({
             isActive: false
         }));
@@ -21,7 +21,7 @@ class TMinusTenController {
      * @param request
      * @param response
      */
-    public getUpdates(request, response) {
+    getUpdates(request, response) {
         response.send();
     }
 
@@ -32,7 +32,7 @@ class TMinusTenController {
      * @param request
      * @param response
      */
-    public getWebcasts(request, response) {
+    getWebcasts(request, response) {
         response.send();
     }
 }

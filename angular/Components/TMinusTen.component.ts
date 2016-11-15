@@ -1,4 +1,5 @@
 import {Component} from "@angular/core";
+import {AuthService} from "../Services/AuthService";
 
 @Component({
     selector:'body',
@@ -7,5 +8,5 @@ import {Component} from "@angular/core";
     `
 })
 export class TMinusTenComponent {
-
+    constructor(public authService: AuthService) {}
 }

@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Observable} from "rxjs/Rx";
+import {Observable} from "rxjs/Observable";
 var io = require('socket.io-client');
 
 @Injectable()
@@ -81,8 +81,8 @@ export class WebsocketService {
     /**
      *
      */
-    public appStatusesStream() : Observable<any> {
+    //public appStatusesStream() : Observable<any> {
 
-    }
+    //}
 
 }

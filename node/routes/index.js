@@ -6,6 +6,7 @@ var homeController = new HomeController();
 /* GET home page. */
 router.get('/', homeController.home);
 
+/* Wildcard route for frontend router */
 router.get('*', homeController.home);
 
 module.exports = router;
