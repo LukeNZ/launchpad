@@ -44,10 +44,23 @@ export class WebsocketService {
 
     /**
      *
-     * @param appStatus
+     * @param statusType
+     * @param data
      */
-    public emitAppStatus(appStatus: string) : void {
-        this.socket.emit("appStatus", appStatus);
+    public emitAppStatus(statusType: string, data? : any) : void {
+
+        if (!data) {
+            data = {};
+        }
+
+        console.log('called');
+
+        this.socket.emit("appStatus", {
+            user: "foo",
+            key: "bar",
+            statusType: statusType,
+            data: data
+        });
     }
 
     /**
@@ -55,13 +68,11 @@ export class WebsocketService {
      * @returns {Observable}
      */
     public launchUpdatesStream() : Observable<any> {
-        let observable = new Observable(observer => {
+        return new Observable(observer => {
 
             this.socket.on('launchUpdate', data => observer.next(data));
             return () => this.socket.disconnect();
         });
-
-        return observable;
     }
 
     /**
@@ -69,13 +80,11 @@ export class WebsocketService {
      * @returns {Observable}
      */
     public launchStatusesStream() : Observable<any> {
-        let observable = new Observable(observer => {
+        return new Observable(observer => {
 
             this.socket.on('launchStatus', data => observer.next(data));
             return () => this.socket.disconnect();
         });
-
-        return observable;
     }
 
     /**

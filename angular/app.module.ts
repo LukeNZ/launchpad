@@ -9,18 +9,20 @@ import {UpdatesComponent} from "./Components/Updates.component";
 import {WebcastComponent} from "./Components/Webcast.component";
 import {routing} from "./app.routes";
 import {HomeComponent} from "./Components/Home.component";
-import {TMinusTenService} from "./Services/TMinusTenService";
+import {InitializationService} from "./Services/InitializationService";
 import {WebsocketService} from "./Services/WebsocketService";
 import {LoginComponent} from "./Components/Login.component";
 import {NotificationBannerComponent} from "./Components/NotificationBanner.component";
 import {FormsModule} from "@angular/forms";
 import {AuthService} from "./Services/AuthService";
+import {TMinusTenService} from "./Services/TMinusTenService";
+import {SettingsComponent} from "./Components/Settings.component";
 
 @NgModule({
     imports: [BrowserModule, HttpModule, FormsModule, routing],
-    providers: [TMinusTenService, WebsocketService, AuthService],
+    providers: [InitializationService, WebsocketService, AuthService, TMinusTenService],
     declarations: [TMinusTenComponent, HomeComponent, LoginComponent, HeaderComponent, CountdownComponent, StatusBarComponent,
-        UpdatesComponent, WebcastComponent, NotificationBannerComponent],
+        UpdatesComponent, WebcastComponent, NotificationBannerComponent, SettingsComponent],
     bootstrap: [TMinusTenComponent]
 })
 export class AppModule {}

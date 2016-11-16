@@ -83,7 +83,7 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 io.on('connection', socket => {
-  socket.on('disconnect', () => {
-
+  socket.on('appStatus', (data) => {
+      console.log(data); // http://socket.io/docs/rooms-and-namespaces/#default-room
   });
 });

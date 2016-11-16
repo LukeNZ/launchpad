@@ -7,8 +7,6 @@ var bodyParser = require('body-parser');
 var indexRoutes = require('./routes/index');
 var apiRoutes = require('./routes/api');
 
-var JwtAuthenticate =
-
 var app = express();
 
 // view engine setup

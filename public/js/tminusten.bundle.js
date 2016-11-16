@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 162:
+/***/ 100:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21,7 +21,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var http_1 = __webpack_require__(51);
-var AbstractService_1 = __webpack_require__(267);
+var AbstractService_1 = __webpack_require__(268);
 var AuthService = (function (_super) {
     __extends(AuthService, _super);
     /**
@@ -87,7 +87,7 @@ exports.AuthService = AuthService;
 
 /***/ },
 
-/***/ 265:
+/***/ 163:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -102,41 +102,84 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var platform_browser_1 = __webpack_require__(37);
-var TMinusTenService_1 = __webpack_require__(268);
-var WebsocketService_1 = __webpack_require__(269);
 var Observable_1 = __webpack_require__(3);
-__webpack_require__(177);
-var HomeComponent = (function () {
-    function HomeComponent(tMinusTenService, websocketService, titleService) {
-        this.tMinusTenService = tMinusTenService;
-        this.websocketService = websocketService;
-        this.titleService = titleService;
-        this.isLoading = true;
-        this.isActive = false;
-        this.titleService.setTitle("T Minus Ten");
+var io = __webpack_require__(179);
+var WebsocketService = (function () {
+    function WebsocketService() {
+        this.socket = null;
+        this.socket = io.connect("localhost:3001");
     }
     /**
      *
+     * @param typingStatus
      */
-    HomeComponent.prototype.ngOnInit = function () {
-        var _this = this;
-        Observable_1.Observable.forkJoin(this.tMinusTenService.getStatus(), this.tMinusTenService.getUpdates(), this.tMinusTenService.getWebcasts()).subscribe(function (data) {
-            _this.isActive = data[0].isActive;
-            _this.isLoading = false;
+    WebsocketService.prototype.emitTypingStatus = function (typingStatus) {
+        this.socket.emit("typingStatus", typingStatus);
+    };
+    /**
+     *
+     * @param launchUpdate
+     */
+    WebsocketService.prototype.emitCreateLaunchUpdate = function (launchUpdate) {
+        this.socket.emit("launchUpdate", launchUpdate);
+    };
+    WebsocketService.prototype.emitEditLaunchUpdate = function (launchUpdateEdit) {
+    };
+    WebsocketService.prototype.emitDeleteLaunchUpdate = function (launchUpdateDeletion) {
+    };
+    /**
+     *
+     * @param launchStatus
+     */
+    WebsocketService.prototype.emitLaunchStatus = function (launchStatus) {
+        this.socket.emit("launchStatus", launchStatus);
+    };
+    /**
+     *
+     * @param statusType
+     * @param data
+     */
+    WebsocketService.prototype.emitAppStatus = function (statusType, data) {
+        if (!data) {
+            data = {};
+        }
+        console.log('called');
+        this.socket.emit("appStatus", {
+            user: "foo",
+            key: "bar",
+            statusType: statusType,
+            data: data
         });
     };
-    HomeComponent = __decorate([
-        core_1.Component({
-            selector: 'tmt-home',
-            template: "\n        <template [ngIf]=\"isActive\">\n            <tmt-header></tmt-header>\n            <tmt-webcast></tmt-webcast>\n            <tmt-statusbar></tmt-statusbar>\n            <tmt-updates></tmt-updates>\n        </template>\n        <p *ngIf=\"!isActive && !isLoading\">There's no current launch at this time.</p>\n    "
-        }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof TMinusTenService_1.TMinusTenService !== 'undefined' && TMinusTenService_1.TMinusTenService) === 'function' && _a) || Object, (typeof (_b = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _b) || Object, (typeof (_c = typeof platform_browser_1.Title !== 'undefined' && platform_browser_1.Title) === 'function' && _c) || Object])
-    ], HomeComponent);
-    return HomeComponent;
-    var _a, _b, _c;
+    /**
+     *
+     * @returns {Observable}
+     */
+    WebsocketService.prototype.launchUpdatesStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socket.on('launchUpdate', function (data) { return observer.next(data); });
+            return function () { return _this.socket.disconnect(); };
+        });
+    };
+    /**
+     *
+     * @returns {Observable}
+     */
+    WebsocketService.prototype.launchStatusesStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socket.on('launchStatus', function (data) { return observer.next(data); });
+            return function () { return _this.socket.disconnect(); };
+        });
+    };
+    WebsocketService = __decorate([
+        core_1.Injectable(), 
+        __metadata('design:paramtypes', [])
+    ], WebsocketService);
+    return WebsocketService;
 }());
-exports.HomeComponent = HomeComponent;
+exports.WebsocketService = WebsocketService;
 
 
 /***/ },
@@ -156,8 +199,64 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(162);
-var router_1 = __webpack_require__(104);
+var platform_browser_1 = __webpack_require__(37);
+var InitializationService_1 = __webpack_require__(269);
+var WebsocketService_1 = __webpack_require__(163);
+var AuthService_1 = __webpack_require__(100);
+var Observable_1 = __webpack_require__(3);
+__webpack_require__(178);
+var HomeComponent = (function () {
+    function HomeComponent(initializationService, authService, websocketService, titleService) {
+        this.initializationService = initializationService;
+        this.authService = authService;
+        this.websocketService = websocketService;
+        this.titleService = titleService;
+        this.isLoading = true;
+        this.isActive = false;
+        this.titleService.setTitle("T Minus Ten");
+    }
+    /**
+     * On component initialization, make three calls to fetch data from the server.
+     */
+    HomeComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        Observable_1.Observable.forkJoin(this.initializationService.getStatus(), this.initializationService.getUpdates(), this.initializationService.getWebcasts()).subscribe(function (data) {
+            _this.isActive = data[0].isActive;
+            _this.isLoading = false;
+        });
+    };
+    HomeComponent = __decorate([
+        core_1.Component({
+            selector: 'tmt-home',
+            template: "\n        <p *ngIf=\"isLoading\">Loading...</p>\n        \n        <!-- Only show the below contents if the application has loaded. -->\n        <template [ngIf]=\"!isLoading\">\n        \n            <!-- Only show if the application is not active. -->\n            <template [ngIf]=\"!isActive\">\n            \n                <!-- Allow a logged in user to access the application settings to start a launch. -->\n                <template [ngIf]=\"authService.isLoggedIn\">\n                    <tmt-settings></tmt-settings>\n                </template>\n                \n                <!-- If the application is not active, and the user is a visitor, \n                show the default message. -->\n                <template [ngIf]=\"!authService.isLoggedIn\">\n                    <p>There is no active launch at this time. Check back soon!</p>\n                </template>\n            </template>\n            \n            <!-- Show if the application is active. -->\n            <template [ngIf]=\"isActive\">\n                <tmt-header></tmt-header>\n                <tmt-webcast></tmt-webcast>\n                <tmt-statusbar></tmt-statusbar>\n                <tmt-updates></tmt-updates>\n            </template>  \n             \n        </template>     \n    "
+        }), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof InitializationService_1.InitializationService !== 'undefined' && InitializationService_1.InitializationService) === 'function' && _a) || Object, (typeof (_b = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _b) || Object, (typeof (_c = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _c) || Object, (typeof (_d = typeof platform_browser_1.Title !== 'undefined' && platform_browser_1.Title) === 'function' && _d) || Object])
+    ], HomeComponent);
+    return HomeComponent;
+    var _a, _b, _c, _d;
+}());
+exports.HomeComponent = HomeComponent;
+
+
+/***/ },
+
+/***/ 267:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var AuthService_1 = __webpack_require__(100);
+var router_1 = __webpack_require__(105);
 var platform_browser_1 = __webpack_require__(37);
 var LoginComponent = (function () {
     function LoginComponent(authService, router, titleService) {
@@ -176,7 +275,8 @@ var LoginComponent = (function () {
      *
      * When the login form is submitted, a request is made to login to T Minus Ten, passing in the
      * login model properties. If the request was successful, the router navigates back to the index page.
-     * If the request was not successful, ...
+     * If the request was not successful, display a message in the notification banner that your login was
+     * not successful.
      */
     LoginComponent.prototype.onSubmit = function () {
         var _this = this;
@@ -202,7 +302,7 @@ exports.LoginComponent = LoginComponent;
 
 /***/ },
 
-/***/ 267:
+/***/ 268:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -267,7 +367,7 @@ exports.AbstractService = AbstractService;
 
 /***/ },
 
-/***/ 268:
+/***/ 269:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -288,130 +388,41 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var http_1 = __webpack_require__(51);
-var AbstractService_1 = __webpack_require__(267);
-var TMinusTenService = (function (_super) {
-    __extends(TMinusTenService, _super);
-    function TMinusTenService(http) {
+var AbstractService_1 = __webpack_require__(268);
+var InitializationService = (function (_super) {
+    __extends(InitializationService, _super);
+    function InitializationService(http) {
         _super.call(this);
         this.http = http;
     }
     /**
      *
      */
-    TMinusTenService.prototype.getUpdates = function () {
+    InitializationService.prototype.getUpdates = function () {
         var _this = this;
         return this.http.get('/api/updates', this.headers()).map(function (res) { return _this.extractData(res); });
     };
     /**
      *
      */
-    TMinusTenService.prototype.getStatus = function () {
+    InitializationService.prototype.getStatus = function () {
         return this.http.get('/api/status', this.headers());
     };
     /**
      *
      * @returns {Observable<Response>}
      */
-    TMinusTenService.prototype.getWebcasts = function () {
+    InitializationService.prototype.getWebcasts = function () {
         return this.http.get('/api/webcasts', this.headers());
     };
-    TMinusTenService = __decorate([
+    InitializationService = __decorate([
         core_1.Injectable(), 
         __metadata('design:paramtypes', [(typeof (_a = typeof http_1.Http !== 'undefined' && http_1.Http) === 'function' && _a) || Object])
-    ], TMinusTenService);
-    return TMinusTenService;
+    ], InitializationService);
+    return InitializationService;
     var _a;
 }(AbstractService_1.AbstractService));
-exports.TMinusTenService = TMinusTenService;
-
-
-/***/ },
-
-/***/ 269:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var core_1 = __webpack_require__(0);
-var Observable_1 = __webpack_require__(3);
-var io = __webpack_require__(178);
-var WebsocketService = (function () {
-    function WebsocketService() {
-        this.socket = null;
-        this.socket = io.connect("localhost:3001");
-    }
-    /**
-     *
-     * @param typingStatus
-     */
-    WebsocketService.prototype.emitTypingStatus = function (typingStatus) {
-        this.socket.emit("typingStatus", typingStatus);
-    };
-    /**
-     *
-     * @param launchUpdate
-     */
-    WebsocketService.prototype.emitCreateLaunchUpdate = function (launchUpdate) {
-        this.socket.emit("launchUpdate", launchUpdate);
-    };
-    WebsocketService.prototype.emitEditLaunchUpdate = function (launchUpdateEdit) {
-    };
-    WebsocketService.prototype.emitDeleteLaunchUpdate = function (launchUpdateDeletion) {
-    };
-    /**
-     *
-     * @param launchStatus
-     */
-    WebsocketService.prototype.emitLaunchStatus = function (launchStatus) {
-        this.socket.emit("launchStatus", launchStatus);
-    };
-    /**
-     *
-     * @param appStatus
-     */
-    WebsocketService.prototype.emitAppStatus = function (appStatus) {
-        this.socket.emit("appStatus", appStatus);
-    };
-    /**
-     *
-     * @returns {Observable}
-     */
-    WebsocketService.prototype.launchUpdatesStream = function () {
-        var _this = this;
-        var observable = new Observable_1.Observable(function (observer) {
-            _this.socket.on('launchUpdate', function (data) { return observer.next(data); });
-            return function () { return _this.socket.disconnect(); };
-        });
-        return observable;
-    };
-    /**
-     *
-     * @returns {Observable}
-     */
-    WebsocketService.prototype.launchStatusesStream = function () {
-        var _this = this;
-        var observable = new Observable_1.Observable(function (observer) {
-            _this.socket.on('launchStatus', function (data) { return observer.next(data); });
-            return function () { return _this.socket.disconnect(); };
-        });
-        return observable;
-    };
-    WebsocketService = __decorate([
-        core_1.Injectable(), 
-        __metadata('design:paramtypes', [])
-    ], WebsocketService);
-    return WebsocketService;
-}());
-exports.WebsocketService = WebsocketService;
+exports.InitializationService = InitializationService;
 
 
 /***/ },
@@ -433,29 +444,31 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = __webpack_require__(0);
 var platform_browser_1 = __webpack_require__(37);
 var http_1 = __webpack_require__(51);
-var TMinusTen_component_1 = __webpack_require__(408);
+var TMinusTen_component_1 = __webpack_require__(409);
 var Header_component_1 = __webpack_require__(405);
 var Countdown_component_1 = __webpack_require__(404);
-var StatusBar_component_1 = __webpack_require__(407);
-var Updates_component_1 = __webpack_require__(409);
-var Webcast_component_1 = __webpack_require__(410);
-var app_routes_1 = __webpack_require__(411);
-var Home_component_1 = __webpack_require__(265);
-var TMinusTenService_1 = __webpack_require__(268);
-var WebsocketService_1 = __webpack_require__(269);
-var Login_component_1 = __webpack_require__(266);
+var StatusBar_component_1 = __webpack_require__(408);
+var Updates_component_1 = __webpack_require__(410);
+var Webcast_component_1 = __webpack_require__(411);
+var app_routes_1 = __webpack_require__(413);
+var Home_component_1 = __webpack_require__(266);
+var InitializationService_1 = __webpack_require__(269);
+var WebsocketService_1 = __webpack_require__(163);
+var Login_component_1 = __webpack_require__(267);
 var NotificationBanner_component_1 = __webpack_require__(406);
-var forms_1 = __webpack_require__(176);
-var AuthService_1 = __webpack_require__(162);
+var forms_1 = __webpack_require__(177);
+var AuthService_1 = __webpack_require__(100);
+var TMinusTenService_1 = __webpack_require__(412);
+var Settings_component_1 = __webpack_require__(407);
 var AppModule = (function () {
     function AppModule() {
     }
     AppModule = __decorate([
         core_1.NgModule({
             imports: [platform_browser_1.BrowserModule, http_1.HttpModule, forms_1.FormsModule, app_routes_1.routing],
-            providers: [TMinusTenService_1.TMinusTenService, WebsocketService_1.WebsocketService, AuthService_1.AuthService],
+            providers: [InitializationService_1.InitializationService, WebsocketService_1.WebsocketService, AuthService_1.AuthService, TMinusTenService_1.TMinusTenService],
             declarations: [TMinusTen_component_1.TMinusTenComponent, Home_component_1.HomeComponent, Login_component_1.LoginComponent, Header_component_1.HeaderComponent, Countdown_component_1.CountdownComponent, StatusBar_component_1.StatusBarComponent,
-                Updates_component_1.UpdatesComponent, Webcast_component_1.WebcastComponent, NotificationBanner_component_1.NotificationBannerComponent],
+                Updates_component_1.UpdatesComponent, Webcast_component_1.WebcastComponent, NotificationBanner_component_1.NotificationBannerComponent, Settings_component_1.SettingsComponent],
             bootstrap: [TMinusTen_component_1.TMinusTenComponent]
         }), 
         __metadata('design:paramtypes', [])
@@ -520,7 +533,7 @@ var HeaderComponent = (function () {
     HeaderComponent = __decorate([
         core_1.Component({
             selector: 'tmt-header',
-            template: "\n        <tmt-countdown></tmt-countdown>\n    "
+            template: "\n        <div class=\"header-area\">\n            <tmt-countdown></tmt-countdown>\n            \n        </div>       \n    "
         }), 
         __metadata('design:paramtypes', [])
     ], HeaderComponent);
@@ -578,19 +591,48 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var StatusBarComponent = (function () {
-    function StatusBarComponent() {
+var WebsocketService_1 = __webpack_require__(163);
+var SettingsSection;
+(function (SettingsSection) {
+    SettingsSection[SettingsSection["General"] = 0] = "General";
+    SettingsSection[SettingsSection["Countdown"] = 1] = "Countdown";
+    SettingsSection[SettingsSection["Introduction"] = 2] = "Introduction";
+    SettingsSection[SettingsSection["DescriptionSections"] = 3] = "DescriptionSections";
+    SettingsSection[SettingsSection["Resources"] = 4] = "Resources";
+    SettingsSection[SettingsSection["LaunchStatuses"] = 5] = "LaunchStatuses";
+    SettingsSection[SettingsSection["About"] = 6] = "About";
+})(SettingsSection || (SettingsSection = {}));
+var SettingsComponent = (function () {
+    function SettingsComponent(websocketService) {
+        this.websocketService = websocketService;
+        this.settingsSection = SettingsSection;
+        this.currentSection = this.settingsSection.General;
+        this.model = {
+            missionName: ""
+        };
+        this.settingsState = {
+            isLaunching: false,
+            isSaving: false
+        };
     }
-    StatusBarComponent = __decorate([
+    /**
+     *
+     */
+    SettingsComponent.prototype.launch = function () {
+        this.settingsState.isLaunching = true;
+        this.websocketService.emitAppStatus("foo", { missionName: this.model.missionName });
+    };
+    SettingsComponent = __decorate([
         core_1.Component({
-            selector: 'tmt-statusbar',
-            template: "\n    "
+            selector: 'tmt-settings',
+            template: "\n        <div>\n            <nav>\n                <ul>\n                    <li (click)=\"currentSection = settingsSection.General\">General</li>\n                    <li (click)=\"currentSection = settingsSection.Countdown\">Countdown</li>\n                    <li (click)=\"currentSection = settingsSection.Introduction\">Introduction</li>\n                    <li (click)=\"currentSection = settingsSection.DescriptionSections\">Description Sections</li>\n                    <li (click)=\"currentSection = settingsSection.Resources\">Resources</li>\n                    <li (click)=\"currentSection = settingsSection.LaunchStatuses\">Launch Statuses</li>\n                    <li (click)=\"currentSection = settingsSection.About\">About the App</li>\n                </ul>\n            </nav>\n            \n            <section [hidden]=\"currentSection != settingsSection.General\">\n                <h1>General</h1>\n                \n                <form>\n                    <label for=\"missionName\">Mission Name</label>\n                    <input type=\"text\" name=\"missionName\" [(ngModel)]=\"model.missionName\" placeholder=\"Mission Name\">\n                </form>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Countdown\">\n                <h1>Countdown</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Introduction\">\n                <h1>Introduction</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.DescriptionSections\">\n                <h1>Description Sections</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Resources\">\n                <h1>Resources</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.LaunchStatuses\">\n                <h1>Launch Statuses</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.About\">\n                <h1>About the App</h1>\n            </section>\n            \n            <div>\n                <button (click)=\"launch()\" [disabled]=\"settingsState.isLaunching\">\n                    {{ settingsState.isLaunching ? \"Launching...\" : \"Launch\" }}\n                </button>\n            </div>\n        </div>\n    "
         }), 
-        __metadata('design:paramtypes', [])
-    ], StatusBarComponent);
-    return StatusBarComponent;
+        __metadata('design:paramtypes', [(typeof (_a = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _a) || Object])
+    ], SettingsComponent);
+    return SettingsComponent;
+    var _a;
 }());
-exports.StatusBarComponent = StatusBarComponent;
+exports.SettingsComponent = SettingsComponent;
 
 
 /***/ },
@@ -610,7 +652,39 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(162);
+var StatusBarComponent = (function () {
+    function StatusBarComponent() {
+    }
+    StatusBarComponent = __decorate([
+        core_1.Component({
+            selector: 'tmt-statusbar',
+            template: "\n    "
+        }), 
+        __metadata('design:paramtypes', [])
+    ], StatusBarComponent);
+    return StatusBarComponent;
+}());
+exports.StatusBarComponent = StatusBarComponent;
+
+
+/***/ },
+
+/***/ 409:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var AuthService_1 = __webpack_require__(100);
 var TMinusTenComponent = (function () {
     function TMinusTenComponent(authService) {
         this.authService = authService;
@@ -618,7 +692,7 @@ var TMinusTenComponent = (function () {
     TMinusTenComponent = __decorate([
         core_1.Component({
             selector: 'body',
-            template: "\n        <router-outlet></router-outlet>\n    "
+            template: "\n        <tmt-notification-banner></tmt-notification-banner>\n        <router-outlet></router-outlet>\n    "
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _a) || Object])
     ], TMinusTenComponent);
@@ -630,7 +704,7 @@ exports.TMinusTenComponent = TMinusTenComponent;
 
 /***/ },
 
-/***/ 409:
+/***/ 410:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -662,7 +736,7 @@ exports.UpdatesComponent = UpdatesComponent;
 
 /***/ },
 
-/***/ 410:
+/***/ 411:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -694,14 +768,43 @@ exports.WebcastComponent = WebcastComponent;
 
 /***/ },
 
-/***/ 411:
+/***/ 412:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var router_1 = __webpack_require__(104);
-var Home_component_1 = __webpack_require__(265);
-var Login_component_1 = __webpack_require__(266);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var TMinusTenService = (function () {
+    function TMinusTenService() {
+    }
+    TMinusTenService = __decorate([
+        core_1.Injectable(), 
+        __metadata('design:paramtypes', [])
+    ], TMinusTenService);
+    return TMinusTenService;
+}());
+exports.TMinusTenService = TMinusTenService;
+
+
+/***/ },
+
+/***/ 413:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var router_1 = __webpack_require__(105);
+var Home_component_1 = __webpack_require__(266);
+var Login_component_1 = __webpack_require__(267);
 var appRoutes = [
     { path: '', component: Home_component_1.HomeComponent },
     { path: 'login', component: Login_component_1.LoginComponent }
@@ -712,12 +815,12 @@ exports.routedComponents = [Home_component_1.HomeComponent];
 
 /***/ },
 
-/***/ 467:
+/***/ 469:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var platform_browser_dynamic_1 = __webpack_require__(105);
+var platform_browser_dynamic_1 = __webpack_require__(106);
 var app_module_1 = __webpack_require__(293);
 platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1.AppModule)
     .then(function (success) { return console.log("Bootstrap success"); })
@@ -726,4 +829,4 @@ platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1
 
 /***/ }
 
-},[467]);
+},[469]);

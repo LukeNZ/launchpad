@@ -10,6 +10,7 @@ Used to indicate whether a privileged user is typing a message.
     {
         user: <string>,
         key: <string>,
+        uid: <string>,
         isTyping: <boolean>
     }
 
@@ -41,6 +42,7 @@ Acronyms will be expanded out into full form. "MECO" would become:
     {
         user: <string>,
         key: <string>,
+        uid: <string>,
         text: <string>
     }
 
@@ -67,6 +69,7 @@ Sent when a moderator or user wants to edit a launch update. When the server rec
     {
         user: <string>,
         key: <string>,
+        uid: <string>,
         update_id: <int>
     }
 
@@ -97,6 +100,7 @@ Occurs when a launch update is edited. Moderators may edit any launch update, ev
     {
         user: <string>,
         key: <string>,
+        uid: <string>,
         update_id: <int>,
         text: <string>
     }
@@ -164,6 +168,7 @@ A timestamp is attached, as well as an originating author.
     {
         user: <string>,
         key: <string>,
+        uid: <string>,
         statusType: <string>,
         data: {
             // Additional metadata
@@ -202,6 +207,7 @@ App statuses can be of the following types:
     {
         user: <string>,
         key: <string>,
+        uid: <string>,
         statusType: <string>,
         data: {
             // Additional metadata
@@ -215,6 +221,16 @@ App statuses can be of the following types:
         user: <string>,
         timestamp: <datetime>,
         statusType: <string>,
+        data: {
+            // Additional metadata
+        }
+    }
+
+## Acknowledgement to Originating Client
+
+    {
+        uid: <string>,
+        statusCode: <int>,
         data: {
             // Additional metadata
         }

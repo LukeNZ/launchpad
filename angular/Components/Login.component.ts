@@ -18,6 +18,10 @@ import {Title} from "@angular/platform-browser";
         </form>
     `
 })
+/**
+ * Component accessible from the '/login' route. Contains all functionality needed to authenticate with the T Minus Ten
+ * app.
+ */
 export class LoginComponent {
 
     public submitting: boolean = false;
@@ -37,7 +41,8 @@ export class LoginComponent {
      *
      * When the login form is submitted, a request is made to login to T Minus Ten, passing in the
      * login model properties. If the request was successful, the router navigates back to the index page.
-     * If the request was not successful, ...
+     * If the request was not successful, display a message in the notification banner that your login was
+     * not successful.
      */
     public onSubmit() : void {
         this.submitting = true;
