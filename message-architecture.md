@@ -1,4 +1,18 @@
-# typingStatus
+# msg:join
+
+**Sent to**: No one.
+**Created by**: Any user.
+
+Sent to the server by a client when they join the application. The client may include an optional authentication
+token if they would like to be identified as a privileged user or moderator. 
+
+## Client to Server
+
+    {
+        token: <string>
+    }
+
+# msg:typingStatus
 
 **Sent to**: All users with `moderator` and `privileges`.  
 **Created by**: All users with `moderator` and `privileges`.
@@ -22,7 +36,7 @@ Used to indicate whether a privileged user is typing a message.
         isTyping: <boolean>
     }
     
-# createLaunchUpdate
+# msg:createLaunchUpdate
 
 **Sent to**: All connections.  
 **Created by**: All users with `moderator` and `privileges`.
@@ -57,7 +71,7 @@ Acronyms will be expanded out into full form. "MECO" would become:
         text: <string>
     }
 
-# editLaunchUpdateRequest
+# msg:editLaunchUpdateRequest
 
 **Sent to**: All users with `moderator` and `privileges`.  
 **Created by**: All users with `moderator` and `privileges`.
@@ -81,14 +95,14 @@ Sent when a moderator or user wants to edit a launch update. When the server rec
         update_id: <int>
     }
 
-# editLaunchUpdateCancellation
+# msg:editLaunchUpdateCancellation
 
 **Sent to**: All users with `moderator` and `privileges`.  
 **Created by**: All users with `moderator` and `privileges`.
 
 Sent when a moderator or user cancels a launch update edit. When the server receives this, it will note the update as being unedited
 
-# editLaunchUpdate
+# msg:editLaunchUpdate
 
 **Sent to**: All connections.  
 **Created by**: All users with `moderator` and `privileges`.
@@ -115,7 +129,7 @@ Occurs when a launch update is edited. Moderators may edit any launch update, ev
     }
     
 
-# deleteLaunchUpdate
+# msg:deleteLaunchUpdate
 
 **Sent to**: All connections.
 **Created by**: All users with `moderator`.
@@ -188,7 +202,7 @@ A timestamp is attached, as well as an originating author.
         }
     }
 
-# appStatus
+# msg:appStatus
 
 **Sent to**: All connections.  
 **Created by**: All users with `moderator`.

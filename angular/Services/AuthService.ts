@@ -29,6 +29,15 @@ export class AuthService extends AbstractService {
     }
 
     /**
+     * Returns the token this user is authenticated with.
+     *
+     * @returns {string}    The auth token.
+     */
+    get authtoken() : string {
+        return localStorage.getItem('authtoken');
+    }
+
+    /**
      * Attempts to log the claimed identity of a user in. If successful, sets a token in the client,
      * if not; allows another attempt.
      *

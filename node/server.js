@@ -5,7 +5,7 @@
  */
 var app = require('./app');
 var http = require('http');
-var SocketServer = require('socket.io');
+var socket = require('./socket');
 
 /**
  * Get port from environment and store in Express.
@@ -14,10 +14,9 @@ var port = normalizePort(process.env.PORT || 3001);
 app.set('port', port);
 
 /**
- * Create HTTP server & websockets server.
+ * Create HTTP server server.
  */
 var server = http.createServer(app);
-var io = new SocketServer(server);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -81,9 +80,3 @@ function onListening() {
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-
-io.on('connection', socket => {
-  socket.on('appStatus', (data) => {
-      console.log(data); // http://socket.io/docs/rooms-and-namespaces/#default-room
-  });
-});

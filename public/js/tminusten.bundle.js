@@ -1,92 +1,5 @@
 webpackJsonp([0],{
 
-/***/ 100:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var core_1 = __webpack_require__(0);
-var http_1 = __webpack_require__(51);
-var AbstractService_1 = __webpack_require__(268);
-var AuthService = (function (_super) {
-    __extends(AuthService, _super);
-    /**
-     * Construct the service
-     *
-     * @param http
-     */
-    function AuthService(http) {
-        _super.call(this);
-        this.http = http;
-        this._isLoggedIn = false;
-        this._isLoggedIn = !!localStorage.getItem('authtoken');
-    }
-    Object.defineProperty(AuthService.prototype, "isLoggedIn", {
-        /**
-         * Retrieves whether the user is logged in or not.
-         *
-         * @returns {boolean}   Is the user logged in or not?
-         */
-        get: function () {
-            return this._isLoggedIn;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * Attempts to log the claimed identity of a user in. If successful, sets a token in the client,
-     * if not; allows another attempt.
-     *
-     * @param model  The username and password the user is attempting to login with.
-     *
-     * @returns {Observable<boolean>}
-     */
-    AuthService.prototype.login = function (model) {
-        var _this = this;
-        return this.http.post('/api/auth/login', { username: model.username, password: model.password }, this.headers())
-            .map(function (response) {
-            _this._isLoggedIn = true;
-            var authorizationHeader = response.headers.get('Authorization');
-            var authToken = authorizationHeader.split(" ").pop();
-            localStorage.setItem('authtoken', authToken); // TODO: Figure out why PHPStorm does not like model.authtoken ("unresolved variable")
-            return true;
-        })
-            .catch(this.handleError);
-    };
-    /**
-     * Log the user out of the application. Remove their localstorage token, and set the
-     * application state isLoggedIn property to false.
-     */
-    AuthService.prototype.logout = function () {
-        localStorage.removeItem('authtoken');
-        this._isLoggedIn = false;
-    };
-    AuthService = __decorate([
-        core_1.Injectable(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof http_1.Http !== 'undefined' && http_1.Http) === 'function' && _a) || Object])
-    ], AuthService);
-    return AuthService;
-    var _a;
-}(AbstractService_1.AbstractService));
-exports.AuthService = AuthService;
-
-
-/***/ },
-
 /***/ 163:
 /***/ function(module, exports, __webpack_require__) {
 
@@ -103,11 +16,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var Observable_1 = __webpack_require__(3);
+var AuthService_1 = __webpack_require__(66);
 var io = __webpack_require__(179);
 var WebsocketService = (function () {
-    function WebsocketService() {
+    function WebsocketService(authService) {
+        this.authService = authService;
         this.socket = null;
         this.socket = io.connect("localhost:3001");
+        if (authService.isLoggedIn) {
+            this.socket.emit('join', { token: authService.authtoken });
+        }
+        else {
+            this.socket.emit('join', {});
+        }
     }
     /**
      *
@@ -175,9 +96,10 @@ var WebsocketService = (function () {
     };
     WebsocketService = __decorate([
         core_1.Injectable(), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [(typeof (_a = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _a) || Object])
     ], WebsocketService);
     return WebsocketService;
+    var _a;
 }());
 exports.WebsocketService = WebsocketService;
 
@@ -202,7 +124,7 @@ var core_1 = __webpack_require__(0);
 var platform_browser_1 = __webpack_require__(37);
 var InitializationService_1 = __webpack_require__(269);
 var WebsocketService_1 = __webpack_require__(163);
-var AuthService_1 = __webpack_require__(100);
+var AuthService_1 = __webpack_require__(66);
 var Observable_1 = __webpack_require__(3);
 __webpack_require__(178);
 var HomeComponent = (function () {
@@ -255,7 +177,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(100);
+var AuthService_1 = __webpack_require__(66);
 var router_1 = __webpack_require__(105);
 var platform_browser_1 = __webpack_require__(37);
 var LoginComponent = (function () {
@@ -457,7 +379,7 @@ var WebsocketService_1 = __webpack_require__(163);
 var Login_component_1 = __webpack_require__(267);
 var NotificationBanner_component_1 = __webpack_require__(406);
 var forms_1 = __webpack_require__(177);
-var AuthService_1 = __webpack_require__(100);
+var AuthService_1 = __webpack_require__(66);
 var TMinusTenService_1 = __webpack_require__(412);
 var Settings_component_1 = __webpack_require__(407);
 var AppModule = (function () {
@@ -684,7 +606,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(100);
+var AuthService_1 = __webpack_require__(66);
 var TMinusTenComponent = (function () {
     function TMinusTenComponent(authService) {
         this.authService = authService;
@@ -825,6 +747,105 @@ var app_module_1 = __webpack_require__(293);
 platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1.AppModule)
     .then(function (success) { return console.log("Bootstrap success"); })
     .catch(function (error) { return console.log(error); });
+
+
+/***/ },
+
+/***/ 66:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var http_1 = __webpack_require__(51);
+var AbstractService_1 = __webpack_require__(268);
+var AuthService = (function (_super) {
+    __extends(AuthService, _super);
+    /**
+     * Construct the service
+     *
+     * @param http
+     */
+    function AuthService(http) {
+        _super.call(this);
+        this.http = http;
+        this._isLoggedIn = false;
+        this._isLoggedIn = !!localStorage.getItem('authtoken');
+    }
+    Object.defineProperty(AuthService.prototype, "isLoggedIn", {
+        /**
+         * Retrieves whether the user is logged in or not.
+         *
+         * @returns {boolean}   Is the user logged in or not?
+         */
+        get: function () {
+            return this._isLoggedIn;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AuthService.prototype, "authtoken", {
+        /**
+         * Returns the token this user is authenticated with.
+         *
+         * @returns {string}    The auth token.
+         */
+        get: function () {
+            return localStorage.getItem('authtoken');
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Attempts to log the claimed identity of a user in. If successful, sets a token in the client,
+     * if not; allows another attempt.
+     *
+     * @param model  The username and password the user is attempting to login with.
+     *
+     * @returns {Observable<boolean>}
+     */
+    AuthService.prototype.login = function (model) {
+        var _this = this;
+        return this.http.post('/api/auth/login', { username: model.username, password: model.password }, this.headers())
+            .map(function (response) {
+            _this._isLoggedIn = true;
+            var authorizationHeader = response.headers.get('Authorization');
+            var authToken = authorizationHeader.split(" ").pop();
+            localStorage.setItem('authtoken', authToken); // TODO: Figure out why PHPStorm does not like model.authtoken ("unresolved variable")
+            return true;
+        })
+            .catch(this.handleError);
+    };
+    /**
+     * Log the user out of the application. Remove their localstorage token, and set the
+     * application state isLoggedIn property to false.
+     */
+    AuthService.prototype.logout = function () {
+        localStorage.removeItem('authtoken');
+        this._isLoggedIn = false;
+    };
+    AuthService = __decorate([
+        core_1.Injectable(), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof http_1.Http !== 'undefined' && http_1.Http) === 'function' && _a) || Object])
+    ], AuthService);
+    return AuthService;
+    var _a;
+}(AbstractService_1.AbstractService));
+exports.AuthService = AuthService;
 
 
 /***/ }

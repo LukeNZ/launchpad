@@ -1,13 +1,20 @@
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
+import {AuthService} from "./AuthService";
 var io = require('socket.io-client');
 
 @Injectable()
 export class WebsocketService {
     public socket = null;
 
-    constructor() {
+    constructor(private authService: AuthService) {
         this.socket = io.connect("localhost:3001");
+
+        if (authService.isLoggedIn) {
+            this.socket.emit('join', { token: authService.authtoken });
+        } else {
+            this.socket.emit('join', {});
+        }
     }
 
     /**
