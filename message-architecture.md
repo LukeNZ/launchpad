@@ -1,6 +1,6 @@
 # msg:join
 
-**Sent to**: No one.
+**Sent to**: No one.  
 **Created by**: Any user.
 
 Sent to the server by a client when they join the application. The client may include an optional authentication

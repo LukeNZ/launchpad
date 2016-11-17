@@ -19,6 +19,11 @@ app.set('port', port);
 var server = http.createServer(app);
 
 /**
+ * Create Websocket server
+ */
+var websocketServer = socket.createServer(server);
+
+/**
  * Normalize a port into a number, string, or false.
  */
 function normalizePort(val) {

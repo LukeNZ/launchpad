@@ -84,22 +84,24 @@ class AuthenticationService {
      *
      * @param token
      *
-     * @returns User
+     * @returns Promise
      */
     getUser(token) {
         let decoded = jwt.verify(token, process.env.APP_KEY);
 
-        fs.readFile(this.filename, 'utf8', (err, data) => {
-            if (err) throw err;
+        return new Promise((resolve, reject) => {
+            fs.readFile(this.filename, 'utf8', (err, data) => {
+                if (err) throw reject(err);
 
-            let user = data.split(/\r?\n/)
-                .map(user => {
-                    let userArray = user.split();
-                    return new User(userArray[0], userArray[1], userArray.slice(2))
-                })
-                .find(user => user.username == decoded.payload.username);
+                let user = data.split(/\r?\n/)
+                    .map(user => {
+                        let userArray = user.split(" ");
+                        return new User(userArray[0], userArray[1], userArray.slice(2))
+                    })
+                    .find(user => user.username == decoded.username);
 
-            return user;
+                return resolve(user);
+            });
         });
     }
 }

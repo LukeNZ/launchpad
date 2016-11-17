@@ -11,9 +11,9 @@ export class WebsocketService {
         this.socket = io.connect("localhost:3001");
 
         if (authService.isLoggedIn) {
-            this.socket.emit('join', { token: authService.authtoken });
+            this.socket.emit('msg:join', { token: authService.authtoken });
         } else {
-            this.socket.emit('join', {});
+            this.socket.emit('msg:join', {});
         }
     }
 
