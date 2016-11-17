@@ -7,11 +7,12 @@ class AuthenticationService {
 
     constructor() {
         this.filename = './logins.txt';
+        this.cache = [];
     }
 
     /**
-     * Checks a given login is valid by reading a login from the logins file, and checking the username and
-     * password match.
+     * Checks a given login is valid by checking the username and password against a list of users.
+     * Preferentially checks an array of users before reading the users file.
      *
      * @param username The username of the user to check for.
      * @param password The password of the user to check for.
@@ -20,20 +21,21 @@ class AuthenticationService {
      */
     isLoginValid(username, password) {
         return new Promise((resolve, reject) => {
-            fs.readFile(this.filename, 'utf8', (err, data) => {
-                if (err) reject(err);
 
-                let user = data.split(/\r?\n/)
-                    .map(user => {
-                        let userArray = user.split(" ");
-                        return new User(userArray[0], userArray[1], userArray.slice(2))
-                    })
-                    .find(user => {
-                        return user.username == username && user.password == password;
-                    });
-
+            if (this.cache.length > 0) {
+                let user = this.cache.find(user => user.username == username && user.password == password);
                 resolve(user != undefined);
-            });
+
+            } else {
+                fs.readFile(this.filename, 'utf8', (err, data) => {
+                    if (err) reject(err);
+
+                    this.cache = JSON.parse(data).map(user => new User(user.username, user.password, user.permissions));
+
+                    let user = this.cache.find(user => user.username == username && user.password == password);
+                    resolve(user != undefined);
+                });
+            }
         });
     }
 
@@ -90,17 +92,41 @@ class AuthenticationService {
         let decoded = jwt.verify(token, process.env.APP_KEY);
 
         return new Promise((resolve, reject) => {
-            fs.readFile(this.filename, 'utf8', (err, data) => {
-                if (err) throw reject(err);
 
-                let user = data.split(/\r?\n/)
-                    .map(user => {
-                        let userArray = user.split(" ");
-                        return new User(userArray[0], userArray[1], userArray.slice(2))
-                    })
-                    .find(user => user.username == decoded.username);
+            if (this.cache.length > 0) {
+                resolve(this.cache.find(user => user.username == decoded.username));
 
-                return resolve(user);
+            } else {
+                fs.readFile(this.filename, 'utf8', (err, data) => {
+                    if (err) reject(err);
+
+                    this.cache = JSON.parse(data).map(user => new User(user.username, user.password, user.permissions));
+
+                    resolve(this.cache.find(user => user.username == decoded.username));
+                });
+            }
+        });
+    }
+
+    /**
+     * All-up method to check that a user has the provided permission. If the user does not have permission, if
+     * the user does not exist, if a token is incorrect, or no token exists, this promise will reject.
+     *
+     * @param permission
+     * @param token
+     *
+     * @returns {Promise}   Resolves if a user has the stated permission, rejects for any other reason.
+     */
+    userHasPermission(permission, token) {
+        return new Promise((resolve, reject) => {
+            if (!token || !authService.isJsonWebTokenCorrect(token)) {
+                return reject();
+            }
+            authService.getUser(token).then(user => {
+                if (!user || !user.permissions.includes(permission)) {
+                    return reject();
+                }
+                return resolve();
             });
         });
     }

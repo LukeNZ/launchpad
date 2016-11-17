@@ -26,15 +26,11 @@ module.exports = {
          * @param socket The socket of concern.
          */
         var joinFn = function(data, socket) {
-
             if (data.token && authenticationService.isJsonWebTokenCorrect(data.token)) {
 
-                authenticationService.getUser(data.token).then(user => {
-
-                    if (user.privileges.includes('moderator')) {
-                        socket.join('room:moderator');
-                        console.log('moderator joined');
-                    }
+                checkUserPermission("moderator", data.token, "moderator").then(() => {
+                    socket.join('room:moderator');
+                    console.log('moderator joined');
                 });
 
                 socket.join('room:privileges');
@@ -46,11 +42,24 @@ module.exports = {
         };
 
         /**
+         * `msg:appStatus`. Called when a sockets sends a message updating the status of the application. Th
          *
          * @param data
+         * @param socket
          */
-        var appStatusFn = function(data) {
-            console.log(data); // http://socket.io/docs/rooms-and-namespaces/#default-room
+        var appStatusFn = function(data, socket) {
+            // Ensure the socket user has the correct permissions
+            authenticationService.userHasPermission("moderator", data.token).then(() => {
+                let statusTypes = ["enableApp", "disableApp", "editWebcastData", "editLaunchData"];
+
+                if (!statusTypes.includes(data.statusType)) {
+                    socket.emit('response:appStatus', { uuid: data.uuid });
+                    return;
+                }
+
+            }, () => {
+                socket.emit('response:appStatus', { uuid: data.uuid });
+            });
         }
     }
 };

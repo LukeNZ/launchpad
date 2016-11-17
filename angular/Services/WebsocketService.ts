@@ -2,18 +2,26 @@ import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 import {AuthService} from "./AuthService";
 var io = require('socket.io-client');
+var uuid = require('node-uuid');
 
 @Injectable()
 export class WebsocketService {
-    public socket = null;
+    public socketClient = null;
 
+    /**
+     * Construct an instance of the websocket service. Automatically connect to the websocket
+     * server, and emit a join message. Depending on whether the user is authed or not, include
+     * the authentication token with the message.
+     *
+     * @param authService
+     */
     constructor(private authService: AuthService) {
-        this.socket = io.connect("localhost:3001");
+        this.socketClient = io.connect("localhost:3001");
 
         if (authService.isLoggedIn) {
-            this.socket.emit('msg:join', { token: authService.authtoken });
+            this.socketClient.emit('msg:join', { token: authService.authtoken });
         } else {
-            this.socket.emit('msg:join', {});
+            this.socketClient.emit('msg:join', {});
         }
     }
 
@@ -22,7 +30,7 @@ export class WebsocketService {
      * @param typingStatus
      */
     public emitTypingStatus(typingStatus : boolean) : void {
-        this.socket.emit("typingStatus", typingStatus);
+        this.socketClient.emit("typingStatus", typingStatus);
     }
 
     /**
@@ -30,7 +38,7 @@ export class WebsocketService {
      * @param launchUpdate
      */
     public emitCreateLaunchUpdate(launchUpdate : string) : void {
-        this.socket.emit("launchUpdate", launchUpdate);
+        this.socketClient.emit("launchUpdate", launchUpdate);
     }
 
     public emitEditLaunchUpdate(launchUpdateEdit: any) : void {
@@ -46,27 +54,35 @@ export class WebsocketService {
      * @param launchStatus
      */
     public emitLaunchStatus(launchStatus: string) : void {
-        this.socket.emit("launchStatus", launchStatus);
+        this.socketClient.emit("launchStatus", launchStatus);
     }
 
     /**
+     * Emit a app status to the server. This includes statuses such as `enableApp`, `disableApp`,
+     * `editWebcastData`, and `editLaunchData`.
      *
-     * @param statusType
-     * @param data
+     * @param statusType    One of  `enableApp`, `disableApp`,`editWebcastData`, and `editLaunchData`.
+     * @param data          Data to be sent up to the serveras payload.
      */
-    public emitAppStatus(statusType: string, data? : any) : void {
+    public emitAppStatus(statusType: string, data? : any) : Observable<any> {
 
-        if (!data) {
-            data = {};
-        }
+        let msgId = uuid.v4();
+        if (!data) { data = {}; }
 
-        console.log('called');
-
-        this.socket.emit("appStatus", {
-            user: "foo",
-            key: "bar",
+        this.socketClient.emit("msg:appStatus", {
+            token: this.authService.authtoken,
+            uuid: msgId,
             statusType: statusType,
             data: data
+        });
+
+        return new Observable(observer => {
+            this.socketClient.on('response:appStatus', data => {
+                if (data.uuid == msgId) {
+                    return observer.next(data);
+                }
+            });
+            return () => this.socketClient.disconnect();
         });
     }
 
@@ -76,9 +92,8 @@ export class WebsocketService {
      */
     public launchUpdatesStream() : Observable<any> {
         return new Observable(observer => {
-
-            this.socket.on('launchUpdate', data => observer.next(data));
-            return () => this.socket.disconnect();
+            this.socketClient.on('launchUpdate', data => observer.next(data));
+            return () => this.socketClient.disconnect();
         });
     }
 
@@ -89,8 +104,8 @@ export class WebsocketService {
     public launchStatusesStream() : Observable<any> {
         return new Observable(observer => {
 
-            this.socket.on('launchStatus', data => observer.next(data));
-            return () => this.socket.disconnect();
+            this.socketClient.on('launchStatus', data => observer.next(data));
+            return () => this.socketClient.disconnect();
         });
     }
 
@@ -100,5 +115,4 @@ export class WebsocketService {
     //public appStatusesStream() : Observable<any> {
 
     //}
-
 }

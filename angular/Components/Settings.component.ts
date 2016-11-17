@@ -87,6 +87,8 @@ export class SettingsComponent {
      */
     public launch(): void {
         this.settingsState.isLaunching = true;
-        this.websocketService.emitAppStatus("foo", { missionName: this.model.missionName });
+        this.websocketService.emitAppStatus("enableApp", { missionName: this.model.missionName }).subscribe(response => {
+            this.settingsState.isLaunching = false;
+        });
     }
 }

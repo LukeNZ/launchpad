@@ -209,20 +209,12 @@ A timestamp is attached, as well as an originating author.
 
 A status concerning the functionality of the application. This affects the display of the application in a substantial way (enabling and disabling of the application entirely, webcast enabling and disabling, etc).
 
-App statuses can be of the following types:
-
-* EnableApp
-* DisableApp
-* EditWebcastData
-* EditLaunchData
-
 ## Client to Server
 
     {
-        user: <string>,
-        key: <string>,
-        uid: <string>,
-        statusType: <string>,
+        token: <string>,
+        uuid: <string>,
+        statusType: "enableApp"|"disableApp"|"editWebcastData"|"editLaunchData",
         data: {
             // Additional metadata
         }
@@ -243,7 +235,7 @@ App statuses can be of the following types:
 ## Acknowledgement to Originating Client
 
     {
-        uid: <string>,
+        uuid: <string>,
         statusCode: <int>,
         data: {
             // Additional metadata

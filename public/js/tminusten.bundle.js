@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 163:
+/***/ 187:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15,19 +15,27 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var Observable_1 = __webpack_require__(3);
-var AuthService_1 = __webpack_require__(66);
-var io = __webpack_require__(179);
+var Observable_1 = __webpack_require__(5);
+var AuthService_1 = __webpack_require__(78);
+var io = __webpack_require__(215);
+var uuid = __webpack_require__(544);
 var WebsocketService = (function () {
+    /**
+     * Construct an instance of the websocket service. Automatically connect to the websocket
+     * server, and emit a join message. Depending on whether the user is authed or not, include
+     * the authentication token with the message.
+     *
+     * @param authService
+     */
     function WebsocketService(authService) {
         this.authService = authService;
-        this.socket = null;
-        this.socket = io.connect("localhost:3001");
+        this.socketClient = null;
+        this.socketClient = io.connect("localhost:3001");
         if (authService.isLoggedIn) {
-            this.socket.emit('msg:join', { token: authService.authtoken });
+            this.socketClient.emit('msg:join', { token: authService.authtoken });
         }
         else {
-            this.socket.emit('msg:join', {});
+            this.socketClient.emit('msg:join', {});
         }
     }
     /**
@@ -35,14 +43,14 @@ var WebsocketService = (function () {
      * @param typingStatus
      */
     WebsocketService.prototype.emitTypingStatus = function (typingStatus) {
-        this.socket.emit("typingStatus", typingStatus);
+        this.socketClient.emit("typingStatus", typingStatus);
     };
     /**
      *
      * @param launchUpdate
      */
     WebsocketService.prototype.emitCreateLaunchUpdate = function (launchUpdate) {
-        this.socket.emit("launchUpdate", launchUpdate);
+        this.socketClient.emit("launchUpdate", launchUpdate);
     };
     WebsocketService.prototype.emitEditLaunchUpdate = function (launchUpdateEdit) {
     };
@@ -53,23 +61,34 @@ var WebsocketService = (function () {
      * @param launchStatus
      */
     WebsocketService.prototype.emitLaunchStatus = function (launchStatus) {
-        this.socket.emit("launchStatus", launchStatus);
+        this.socketClient.emit("launchStatus", launchStatus);
     };
     /**
+     * Emit a app status to the server. This includes statuses such as `enableApp`, `disableApp`,
+     * `editWebcastData`, and `editLaunchData`.
      *
-     * @param statusType
-     * @param data
+     * @param statusType    One of  `enableApp`, `disableApp`,`editWebcastData`, and `editLaunchData`.
+     * @param data          Data to be sent up to the serveras payload.
      */
     WebsocketService.prototype.emitAppStatus = function (statusType, data) {
+        var _this = this;
+        var msgId = uuid.v4();
         if (!data) {
             data = {};
         }
-        console.log('called');
-        this.socket.emit("appStatus", {
-            user: "foo",
-            key: "bar",
+        this.socketClient.emit("msg:appStatus", {
+            token: this.authService.authtoken,
+            uuid: msgId,
             statusType: statusType,
             data: data
+        });
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('response:appStatus', function (data) {
+                if (data.uuid == msgId) {
+                    return observer.next(data);
+                }
+            });
+            return function () { return _this.socketClient.disconnect(); };
         });
     };
     /**
@@ -79,8 +98,8 @@ var WebsocketService = (function () {
     WebsocketService.prototype.launchUpdatesStream = function () {
         var _this = this;
         return new Observable_1.Observable(function (observer) {
-            _this.socket.on('launchUpdate', function (data) { return observer.next(data); });
-            return function () { return _this.socket.disconnect(); };
+            _this.socketClient.on('launchUpdate', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
         });
     };
     /**
@@ -90,8 +109,8 @@ var WebsocketService = (function () {
     WebsocketService.prototype.launchStatusesStream = function () {
         var _this = this;
         return new Observable_1.Observable(function (observer) {
-            _this.socket.on('launchStatus', function (data) { return observer.next(data); });
-            return function () { return _this.socket.disconnect(); };
+            _this.socketClient.on('launchStatus', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
         });
     };
     WebsocketService = __decorate([
@@ -106,7 +125,7 @@ exports.WebsocketService = WebsocketService;
 
 /***/ },
 
-/***/ 266:
+/***/ 306:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -121,12 +140,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var platform_browser_1 = __webpack_require__(37);
-var InitializationService_1 = __webpack_require__(269);
-var WebsocketService_1 = __webpack_require__(163);
-var AuthService_1 = __webpack_require__(66);
-var Observable_1 = __webpack_require__(3);
-__webpack_require__(178);
+var platform_browser_1 = __webpack_require__(44);
+var InitializationService_1 = __webpack_require__(309);
+var WebsocketService_1 = __webpack_require__(187);
+var AuthService_1 = __webpack_require__(78);
+var Observable_1 = __webpack_require__(5);
+__webpack_require__(214);
 var HomeComponent = (function () {
     function HomeComponent(initializationService, authService, websocketService, titleService) {
         this.initializationService = initializationService;
@@ -162,7 +181,7 @@ exports.HomeComponent = HomeComponent;
 
 /***/ },
 
-/***/ 267:
+/***/ 307:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -177,9 +196,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(66);
-var router_1 = __webpack_require__(105);
-var platform_browser_1 = __webpack_require__(37);
+var AuthService_1 = __webpack_require__(78);
+var router_1 = __webpack_require__(129);
+var platform_browser_1 = __webpack_require__(44);
 var LoginComponent = (function () {
     function LoginComponent(authService, router, titleService) {
         this.authService = authService;
@@ -224,13 +243,13 @@ exports.LoginComponent = LoginComponent;
 
 /***/ },
 
-/***/ 268:
+/***/ 308:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var http_1 = __webpack_require__(51);
-var Observable_1 = __webpack_require__(3);
+var http_1 = __webpack_require__(62);
+var Observable_1 = __webpack_require__(5);
 var AbstractService = (function () {
     function AbstractService() {
     }
@@ -289,7 +308,7 @@ exports.AbstractService = AbstractService;
 
 /***/ },
 
-/***/ 269:
+/***/ 309:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -309,8 +328,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var http_1 = __webpack_require__(51);
-var AbstractService_1 = __webpack_require__(268);
+var http_1 = __webpack_require__(62);
+var AbstractService_1 = __webpack_require__(308);
 var InitializationService = (function (_super) {
     __extends(InitializationService, _super);
     function InitializationService(http) {
@@ -349,7 +368,7 @@ exports.InitializationService = InitializationService;
 
 /***/ },
 
-/***/ 293:
+/***/ 354:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -364,24 +383,24 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var platform_browser_1 = __webpack_require__(37);
-var http_1 = __webpack_require__(51);
-var TMinusTen_component_1 = __webpack_require__(409);
-var Header_component_1 = __webpack_require__(405);
-var Countdown_component_1 = __webpack_require__(404);
-var StatusBar_component_1 = __webpack_require__(408);
-var Updates_component_1 = __webpack_require__(410);
-var Webcast_component_1 = __webpack_require__(411);
-var app_routes_1 = __webpack_require__(413);
-var Home_component_1 = __webpack_require__(266);
-var InitializationService_1 = __webpack_require__(269);
-var WebsocketService_1 = __webpack_require__(163);
-var Login_component_1 = __webpack_require__(267);
-var NotificationBanner_component_1 = __webpack_require__(406);
-var forms_1 = __webpack_require__(177);
-var AuthService_1 = __webpack_require__(66);
-var TMinusTenService_1 = __webpack_require__(412);
-var Settings_component_1 = __webpack_require__(407);
+var platform_browser_1 = __webpack_require__(44);
+var http_1 = __webpack_require__(62);
+var TMinusTen_component_1 = __webpack_require__(478);
+var Header_component_1 = __webpack_require__(474);
+var Countdown_component_1 = __webpack_require__(473);
+var StatusBar_component_1 = __webpack_require__(477);
+var Updates_component_1 = __webpack_require__(479);
+var Webcast_component_1 = __webpack_require__(480);
+var app_routes_1 = __webpack_require__(482);
+var Home_component_1 = __webpack_require__(306);
+var InitializationService_1 = __webpack_require__(309);
+var WebsocketService_1 = __webpack_require__(187);
+var Login_component_1 = __webpack_require__(307);
+var NotificationBanner_component_1 = __webpack_require__(475);
+var forms_1 = __webpack_require__(213);
+var AuthService_1 = __webpack_require__(78);
+var TMinusTenService_1 = __webpack_require__(481);
+var Settings_component_1 = __webpack_require__(476);
 var AppModule = (function () {
     function AppModule() {
     }
@@ -402,7 +421,7 @@ exports.AppModule = AppModule;
 
 /***/ },
 
-/***/ 404:
+/***/ 473:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -434,7 +453,7 @@ exports.CountdownComponent = CountdownComponent;
 
 /***/ },
 
-/***/ 405:
+/***/ 474:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -466,7 +485,7 @@ exports.HeaderComponent = HeaderComponent;
 
 /***/ },
 
-/***/ 406:
+/***/ 475:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -498,7 +517,7 @@ exports.NotificationBannerComponent = NotificationBannerComponent;
 
 /***/ },
 
-/***/ 407:
+/***/ 476:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -513,7 +532,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var WebsocketService_1 = __webpack_require__(163);
+var WebsocketService_1 = __webpack_require__(187);
 var SettingsSection;
 (function (SettingsSection) {
     SettingsSection[SettingsSection["General"] = 0] = "General";
@@ -541,8 +560,11 @@ var SettingsComponent = (function () {
      *
      */
     SettingsComponent.prototype.launch = function () {
+        var _this = this;
         this.settingsState.isLaunching = true;
-        this.websocketService.emitAppStatus("foo", { missionName: this.model.missionName });
+        this.websocketService.emitAppStatus("enableApp", { missionName: this.model.missionName }).subscribe(function (response) {
+            _this.settingsState.isLaunching = false;
+        });
     };
     SettingsComponent = __decorate([
         core_1.Component({
@@ -559,7 +581,7 @@ exports.SettingsComponent = SettingsComponent;
 
 /***/ },
 
-/***/ 408:
+/***/ 477:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -591,7 +613,7 @@ exports.StatusBarComponent = StatusBarComponent;
 
 /***/ },
 
-/***/ 409:
+/***/ 478:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -606,7 +628,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(66);
+var AuthService_1 = __webpack_require__(78);
 var TMinusTenComponent = (function () {
     function TMinusTenComponent(authService) {
         this.authService = authService;
@@ -626,7 +648,7 @@ exports.TMinusTenComponent = TMinusTenComponent;
 
 /***/ },
 
-/***/ 410:
+/***/ 479:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -658,7 +680,7 @@ exports.UpdatesComponent = UpdatesComponent;
 
 /***/ },
 
-/***/ 411:
+/***/ 480:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -690,7 +712,7 @@ exports.WebcastComponent = WebcastComponent;
 
 /***/ },
 
-/***/ 412:
+/***/ 481:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -719,14 +741,14 @@ exports.TMinusTenService = TMinusTenService;
 
 /***/ },
 
-/***/ 413:
+/***/ 482:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var router_1 = __webpack_require__(105);
-var Home_component_1 = __webpack_require__(266);
-var Login_component_1 = __webpack_require__(267);
+var router_1 = __webpack_require__(129);
+var Home_component_1 = __webpack_require__(306);
+var Login_component_1 = __webpack_require__(307);
 var appRoutes = [
     { path: '', component: Home_component_1.HomeComponent },
     { path: 'login', component: Login_component_1.LoginComponent }
@@ -737,13 +759,13 @@ exports.routedComponents = [Home_component_1.HomeComponent];
 
 /***/ },
 
-/***/ 469:
+/***/ 604:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var platform_browser_dynamic_1 = __webpack_require__(106);
-var app_module_1 = __webpack_require__(293);
+var platform_browser_dynamic_1 = __webpack_require__(130);
+var app_module_1 = __webpack_require__(354);
 platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1.AppModule)
     .then(function (success) { return console.log("Bootstrap success"); })
     .catch(function (error) { return console.log(error); });
@@ -751,7 +773,7 @@ platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1
 
 /***/ },
 
-/***/ 66:
+/***/ 78:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -771,8 +793,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var http_1 = __webpack_require__(51);
-var AbstractService_1 = __webpack_require__(268);
+var http_1 = __webpack_require__(62);
+var AbstractService_1 = __webpack_require__(308);
 var AuthService = (function (_super) {
     __extends(AuthService, _super);
     /**
@@ -850,4 +872,4 @@ exports.AuthService = AuthService;
 
 /***/ }
 
-},[469]);
+},[604]);

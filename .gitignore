@@ -41,4 +41,4 @@ jspm_packages
 .idea/
 .env
 
-logins.txt
+/logins.json
