@@ -6,7 +6,7 @@ var User = require("../models/User");
 class AuthenticationService {
 
     constructor() {
-        this.filename = './logins.txt';
+        this.filename = './logins.json';
         this.cache = [];
     }
 
@@ -101,7 +101,6 @@ class AuthenticationService {
                     if (err) reject(err);
 
                     this.cache = JSON.parse(data).map(user => new User(user.username, user.password, user.permissions));
-
                     resolve(this.cache.find(user => user.username == decoded.username));
                 });
             }
@@ -119,10 +118,10 @@ class AuthenticationService {
      */
     userHasPermission(permission, token) {
         return new Promise((resolve, reject) => {
-            if (!token || !authService.isJsonWebTokenCorrect(token)) {
+            if (!token || !this.isJsonWebTokenCorrect(token)) {
                 return reject();
             }
-            authService.getUser(token).then(user => {
+            this.getUser(token).then(user => {
                 if (!user || !user.permissions.includes(permission)) {
                     return reject();
                 }

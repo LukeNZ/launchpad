@@ -15,12 +15,13 @@ import {LoginComponent} from "./Components/Login.component";
 import {NotificationBannerComponent} from "./Components/NotificationBanner.component";
 import {FormsModule} from "@angular/forms";
 import {AuthService} from "./Services/AuthService";
-import {TMinusTenService} from "./Services/TMinusTenService";
+import {LaunchDataService} from "./Services/LaunchDataService";
 import {SettingsComponent} from "./Components/Settings.component";
+import {NotificationBannerService} from "./Services/NotificationBannerService";
 
 @NgModule({
     imports: [BrowserModule, HttpModule, FormsModule, routing],
-    providers: [InitializationService, WebsocketService, AuthService, TMinusTenService],
+    providers: [InitializationService, WebsocketService, AuthService, LaunchDataService, NotificationBannerService],
     declarations: [TMinusTenComponent, HomeComponent, LoginComponent, HeaderComponent, CountdownComponent, StatusBarComponent,
         UpdatesComponent, WebcastComponent, NotificationBannerComponent, SettingsComponent],
     bootstrap: [TMinusTenComponent]

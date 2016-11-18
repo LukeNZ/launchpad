@@ -1,6 +1,59 @@
 webpackJsonp([0],{
 
-/***/ 187:
+/***/ 120:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var Subject_1 = __webpack_require__(31);
+var NotificationBannerService = (function () {
+    function NotificationBannerService() {
+        this.notifySubject = new Subject_1.Subject();
+        this.notificationsObservable = this.notifySubject.asObservable();
+    }
+    /**
+     * Notify subscribers of the notification banner service of a new notification.
+     *
+     * @param message   The message contained within the notification.
+     */
+    NotificationBannerService.prototype.notify = function (message) {
+        this.notifySubject.next(message);
+    };
+    Object.defineProperty(NotificationBannerService.prototype, "notifications", {
+        /**
+         * Return the notification stream that can be subscribed to. Only entities that want to listen
+         * for new notifications should subscribe to this.
+         *
+         * @returns {Observable<string>}    A stream of notifications.
+         */
+        get: function () {
+            return this.notificationsObservable;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    NotificationBannerService = __decorate([
+        core_1.Injectable(), 
+        __metadata('design:paramtypes', [])
+    ], NotificationBannerService);
+    return NotificationBannerService;
+}());
+exports.NotificationBannerService = NotificationBannerService;
+
+
+/***/ },
+
+/***/ 191:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16,9 +69,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var Observable_1 = __webpack_require__(5);
-var AuthService_1 = __webpack_require__(78);
-var io = __webpack_require__(215);
-var uuid = __webpack_require__(544);
+var AuthService_1 = __webpack_require__(80);
+var io = __webpack_require__(222);
+var uuid = __webpack_require__(220);
 var WebsocketService = (function () {
     /**
      * Construct an instance of the websocket service. Automatically connect to the websocket
@@ -125,7 +178,7 @@ exports.WebsocketService = WebsocketService;
 
 /***/ },
 
-/***/ 306:
+/***/ 311:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -140,20 +193,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var platform_browser_1 = __webpack_require__(44);
-var InitializationService_1 = __webpack_require__(309);
-var WebsocketService_1 = __webpack_require__(187);
-var AuthService_1 = __webpack_require__(78);
+var platform_browser_1 = __webpack_require__(37);
+var InitializationService_1 = __webpack_require__(314);
+var WebsocketService_1 = __webpack_require__(191);
+var AuthService_1 = __webpack_require__(80);
+var LaunchDataService_1 = __webpack_require__(610);
 var Observable_1 = __webpack_require__(5);
-__webpack_require__(214);
+__webpack_require__(221);
 var HomeComponent = (function () {
-    function HomeComponent(initializationService, authService, websocketService, titleService) {
+    function HomeComponent(initializationService, authService, websocketService, launchModel, titleService) {
         this.initializationService = initializationService;
         this.authService = authService;
         this.websocketService = websocketService;
+        this.launchModel = launchModel;
         this.titleService = titleService;
         this.isLoading = true;
-        this.isActive = false;
         this.titleService.setTitle("T Minus Ten");
     }
     /**
@@ -161,27 +215,29 @@ var HomeComponent = (function () {
      */
     HomeComponent.prototype.ngOnInit = function () {
         var _this = this;
-        Observable_1.Observable.forkJoin(this.initializationService.getStatus(), this.initializationService.getUpdates(), this.initializationService.getWebcasts()).subscribe(function (data) {
-            _this.isActive = data[0].isActive;
+        Observable_1.Observable.forkJoin(this.initializationService.getLaunch(), this.initializationService.getUpdates(), this.initializationService.getStatus()).subscribe(function (data) {
+            _this.launchModel.setLaunch(data[0]);
+            _this.launchModel.setUpdates(data[1]);
+            _this.launchModel.isActive = data[2];
             _this.isLoading = false;
         });
     };
     HomeComponent = __decorate([
         core_1.Component({
             selector: 'tmt-home',
-            template: "\n        <p *ngIf=\"isLoading\">Loading...</p>\n        \n        <!-- Only show the below contents if the application has loaded. -->\n        <template [ngIf]=\"!isLoading\">\n        \n            <!-- Only show if the application is not active. -->\n            <template [ngIf]=\"!isActive\">\n            \n                <!-- Allow a logged in user to access the application settings to start a launch. -->\n                <template [ngIf]=\"authService.isLoggedIn\">\n                    <tmt-settings></tmt-settings>\n                </template>\n                \n                <!-- If the application is not active, and the user is a visitor, \n                show the default message. -->\n                <template [ngIf]=\"!authService.isLoggedIn\">\n                    <p>There is no active launch at this time. Check back soon!</p>\n                </template>\n            </template>\n            \n            <!-- Show if the application is active. -->\n            <template [ngIf]=\"isActive\">\n                <tmt-header></tmt-header>\n                <tmt-webcast></tmt-webcast>\n                <tmt-statusbar></tmt-statusbar>\n                <tmt-updates></tmt-updates>\n            </template>  \n             \n        </template>     \n    "
+            template: "\n        <p *ngIf=\"isLoading\">Loading...</p>\n        \n        <!-- Only show the below contents if the application has loaded. -->\n        <template [ngIf]=\"!isLoading\">\n        \n            <!-- Only show if the application is not active. -->\n            <template [ngIf]=\"!launchModel.isActive\">\n            \n                <!-- Allow a logged in user to access the application settings to start a launch. -->\n                <template [ngIf]=\"authService.isLoggedIn\">\n                    <tmt-settings></tmt-settings>\n                </template>\n                \n                <!-- If the application is not active, and the user is a visitor, \n                show the default message. -->\n                <template [ngIf]=\"!authService.isLoggedIn\">\n                    <p>There is no active launch at this time. Check back soon!</p>\n                </template>\n            </template>\n            \n            <!-- Show if the application is active. -->\n            <template [ngIf]=\"isActive\">\n                <tmt-header></tmt-header>\n                <tmt-webcast></tmt-webcast>\n                <tmt-statusbar></tmt-statusbar>\n                <tmt-updates></tmt-updates>\n            </template>  \n             \n        </template>     \n    "
         }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof InitializationService_1.InitializationService !== 'undefined' && InitializationService_1.InitializationService) === 'function' && _a) || Object, (typeof (_b = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _b) || Object, (typeof (_c = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _c) || Object, (typeof (_d = typeof platform_browser_1.Title !== 'undefined' && platform_browser_1.Title) === 'function' && _d) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof InitializationService_1.InitializationService !== 'undefined' && InitializationService_1.InitializationService) === 'function' && _a) || Object, (typeof (_b = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _b) || Object, (typeof (_c = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _c) || Object, (typeof (_d = typeof LaunchDataService_1.LaunchDataService !== 'undefined' && LaunchDataService_1.LaunchDataService) === 'function' && _d) || Object, (typeof (_e = typeof platform_browser_1.Title !== 'undefined' && platform_browser_1.Title) === 'function' && _e) || Object])
     ], HomeComponent);
     return HomeComponent;
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
 }());
 exports.HomeComponent = HomeComponent;
 
 
 /***/ },
 
-/***/ 307:
+/***/ 312:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -196,9 +252,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(78);
-var router_1 = __webpack_require__(129);
-var platform_browser_1 = __webpack_require__(44);
+var AuthService_1 = __webpack_require__(80);
+var router_1 = __webpack_require__(131);
+var platform_browser_1 = __webpack_require__(37);
 var LoginComponent = (function () {
     function LoginComponent(authService, router, titleService) {
         this.authService = authService;
@@ -243,7 +299,7 @@ exports.LoginComponent = LoginComponent;
 
 /***/ },
 
-/***/ 308:
+/***/ 313:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -308,7 +364,7 @@ exports.AbstractService = AbstractService;
 
 /***/ },
 
-/***/ 309:
+/***/ 314:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -329,7 +385,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var http_1 = __webpack_require__(62);
-var AbstractService_1 = __webpack_require__(308);
+var AbstractService_1 = __webpack_require__(313);
+var Launch_1 = __webpack_require__(611);
 var InitializationService = (function (_super) {
     __extends(InitializationService, _super);
     function InitializationService(http) {
@@ -337,24 +394,35 @@ var InitializationService = (function (_super) {
         this.http = http;
     }
     /**
+     * Fetches the status of the application.
      *
-     */
-    InitializationService.prototype.getUpdates = function () {
-        var _this = this;
-        return this.http.get('/api/updates', this.headers()).map(function (res) { return _this.extractData(res); });
-    };
-    /**
-     *
+     * @returns {Observable<R>}
      */
     InitializationService.prototype.getStatus = function () {
-        return this.http.get('/api/status', this.headers());
+        return this.http.get('/api/status', this.headers())
+            .map(this.extractData);
     };
     /**
+     * Fetches all current launch updates from the server.
      *
-     * @returns {Observable<Response>}
+     * @returns {Observable<Update[]>}
      */
-    InitializationService.prototype.getWebcasts = function () {
-        return this.http.get('/api/webcasts', this.headers());
+    InitializationService.prototype.getUpdates = function () {
+        return this.http.get('/api/updates', this.headers())
+            .map(this.extractData);
+    };
+    /**
+     * Fetches the current launch status from the server. This includes all webcasts, descriptions,
+     * resources, and current state of the launch.
+     *
+     * @returns {Observable<Launch>}
+     */
+    InitializationService.prototype.getLaunch = function () {
+        return this.http.get('/api/launch', this.headers())
+            .map(this.extractData)
+            .map(function (data) {
+            return Launch_1.Launch.create(data);
+        });
     };
     InitializationService = __decorate([
         core_1.Injectable(), 
@@ -368,7 +436,7 @@ exports.InitializationService = InitializationService;
 
 /***/ },
 
-/***/ 354:
+/***/ 360:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -383,31 +451,32 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var platform_browser_1 = __webpack_require__(44);
+var platform_browser_1 = __webpack_require__(37);
 var http_1 = __webpack_require__(62);
-var TMinusTen_component_1 = __webpack_require__(478);
-var Header_component_1 = __webpack_require__(474);
-var Countdown_component_1 = __webpack_require__(473);
-var StatusBar_component_1 = __webpack_require__(477);
-var Updates_component_1 = __webpack_require__(479);
-var Webcast_component_1 = __webpack_require__(480);
-var app_routes_1 = __webpack_require__(482);
-var Home_component_1 = __webpack_require__(306);
-var InitializationService_1 = __webpack_require__(309);
-var WebsocketService_1 = __webpack_require__(187);
-var Login_component_1 = __webpack_require__(307);
-var NotificationBanner_component_1 = __webpack_require__(475);
-var forms_1 = __webpack_require__(213);
-var AuthService_1 = __webpack_require__(78);
-var TMinusTenService_1 = __webpack_require__(481);
-var Settings_component_1 = __webpack_require__(476);
+var TMinusTen_component_1 = __webpack_require__(484);
+var Header_component_1 = __webpack_require__(480);
+var Countdown_component_1 = __webpack_require__(479);
+var StatusBar_component_1 = __webpack_require__(483);
+var Updates_component_1 = __webpack_require__(485);
+var Webcast_component_1 = __webpack_require__(486);
+var app_routes_1 = __webpack_require__(488);
+var Home_component_1 = __webpack_require__(311);
+var InitializationService_1 = __webpack_require__(314);
+var WebsocketService_1 = __webpack_require__(191);
+var Login_component_1 = __webpack_require__(312);
+var NotificationBanner_component_1 = __webpack_require__(481);
+var forms_1 = __webpack_require__(219);
+var AuthService_1 = __webpack_require__(80);
+var LaunchDataService_1 = __webpack_require__(610);
+var Settings_component_1 = __webpack_require__(482);
+var NotificationBannerService_1 = __webpack_require__(120);
 var AppModule = (function () {
     function AppModule() {
     }
     AppModule = __decorate([
         core_1.NgModule({
             imports: [platform_browser_1.BrowserModule, http_1.HttpModule, forms_1.FormsModule, app_routes_1.routing],
-            providers: [InitializationService_1.InitializationService, WebsocketService_1.WebsocketService, AuthService_1.AuthService, TMinusTenService_1.TMinusTenService],
+            providers: [InitializationService_1.InitializationService, WebsocketService_1.WebsocketService, AuthService_1.AuthService, LaunchDataService_1.LaunchDataService, NotificationBannerService_1.NotificationBannerService],
             declarations: [TMinusTen_component_1.TMinusTenComponent, Home_component_1.HomeComponent, Login_component_1.LoginComponent, Header_component_1.HeaderComponent, Countdown_component_1.CountdownComponent, StatusBar_component_1.StatusBarComponent,
                 Updates_component_1.UpdatesComponent, Webcast_component_1.WebcastComponent, NotificationBanner_component_1.NotificationBannerComponent, Settings_component_1.SettingsComponent],
             bootstrap: [TMinusTen_component_1.TMinusTenComponent]
@@ -421,7 +490,7 @@ exports.AppModule = AppModule;
 
 /***/ },
 
-/***/ 473:
+/***/ 479:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -453,7 +522,7 @@ exports.CountdownComponent = CountdownComponent;
 
 /***/ },
 
-/***/ 474:
+/***/ 480:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -485,7 +554,7 @@ exports.HeaderComponent = HeaderComponent;
 
 /***/ },
 
-/***/ 475:
+/***/ 481:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -500,24 +569,41 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
+var NotificationBannerService_1 = __webpack_require__(120);
 var NotificationBannerComponent = (function () {
-    function NotificationBannerComponent() {
+    function NotificationBannerComponent(notificationBannerService) {
+        var _this = this;
+        this.notificationBannerService = notificationBannerService;
+        this.WORDS_PER_SECOND = 200 / 60;
+        this.hasNotification = false;
+        this.notification = "";
+        notificationBannerService.notifications.subscribe(function (message) {
+            _this.hasNotification = true;
+            _this.notification = message;
+            var defaultTime = 2000;
+            var excessTime = Math.round((message.split(" ").length / _this.WORDS_PER_SECOND) * 1000);
+            window.setTimeout(function () {
+                _this.hasNotification = false;
+                _this.notification = "";
+            }, defaultTime + excessTime);
+        });
     }
     NotificationBannerComponent = __decorate([
         core_1.Component({
             selector: 'tmt-notification-banner',
-            template: "\n    <div class=\"notification-banner\">\n        <p>{{ notification }}</p>\n    </div>\n    "
+            template: "\n    <div class=\"notification-banner\" [style.active]=\"hasNotification\">\n        <p>{{ notification }}</p>\n    </div>\n    "
         }), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [(typeof (_a = typeof NotificationBannerService_1.NotificationBannerService !== 'undefined' && NotificationBannerService_1.NotificationBannerService) === 'function' && _a) || Object])
     ], NotificationBannerComponent);
     return NotificationBannerComponent;
+    var _a;
 }());
 exports.NotificationBannerComponent = NotificationBannerComponent;
 
 
 /***/ },
 
-/***/ 476:
+/***/ 482:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -532,7 +618,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var WebsocketService_1 = __webpack_require__(187);
+var WebsocketService_1 = __webpack_require__(191);
+var NotificationBannerService_1 = __webpack_require__(120);
+var LaunchDataService_1 = __webpack_require__(610);
 var SettingsSection;
 (function (SettingsSection) {
     SettingsSection[SettingsSection["General"] = 0] = "General";
@@ -544,44 +632,45 @@ var SettingsSection;
     SettingsSection[SettingsSection["About"] = 6] = "About";
 })(SettingsSection || (SettingsSection = {}));
 var SettingsComponent = (function () {
-    function SettingsComponent(websocketService) {
+    function SettingsComponent(websocketService, notificationBannerService, launchModel) {
         this.websocketService = websocketService;
+        this.notificationBannerService = notificationBannerService;
+        this.launchModel = launchModel;
         this.settingsSection = SettingsSection;
         this.currentSection = this.settingsSection.General;
-        this.model = {
-            missionName: ""
-        };
         this.settingsState = {
             isLaunching: false,
             isSaving: false
         };
     }
     /**
-     *
+     * Functionality to activate the T Minus Ten app. Is called by clicking the `launch` button from within the settings
+     * menu. Emits an `appStatus` to the server of type "enableApp".
      */
     SettingsComponent.prototype.launch = function () {
         var _this = this;
         this.settingsState.isLaunching = true;
-        this.websocketService.emitAppStatus("enableApp", { missionName: this.model.missionName }).subscribe(function (response) {
+        this.websocketService.emitAppStatus("enableApp", { missionName: this.launchModel.launch.name }).subscribe(function (response) {
             _this.settingsState.isLaunching = false;
+            _this.notificationBannerService.notify("App Enabled.");
         });
     };
     SettingsComponent = __decorate([
         core_1.Component({
             selector: 'tmt-settings',
-            template: "\n        <div>\n            <nav>\n                <ul>\n                    <li (click)=\"currentSection = settingsSection.General\">General</li>\n                    <li (click)=\"currentSection = settingsSection.Countdown\">Countdown</li>\n                    <li (click)=\"currentSection = settingsSection.Introduction\">Introduction</li>\n                    <li (click)=\"currentSection = settingsSection.DescriptionSections\">Description Sections</li>\n                    <li (click)=\"currentSection = settingsSection.Resources\">Resources</li>\n                    <li (click)=\"currentSection = settingsSection.LaunchStatuses\">Launch Statuses</li>\n                    <li (click)=\"currentSection = settingsSection.About\">About the App</li>\n                </ul>\n            </nav>\n            \n            <section [hidden]=\"currentSection != settingsSection.General\">\n                <h1>General</h1>\n                \n                <form>\n                    <label for=\"missionName\">Mission Name</label>\n                    <input type=\"text\" name=\"missionName\" [(ngModel)]=\"model.missionName\" placeholder=\"Mission Name\">\n                </form>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Countdown\">\n                <h1>Countdown</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Introduction\">\n                <h1>Introduction</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.DescriptionSections\">\n                <h1>Description Sections</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Resources\">\n                <h1>Resources</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.LaunchStatuses\">\n                <h1>Launch Statuses</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.About\">\n                <h1>About the App</h1>\n            </section>\n            \n            <div>\n                <button (click)=\"launch()\" [disabled]=\"settingsState.isLaunching\">\n                    {{ settingsState.isLaunching ? \"Launching...\" : \"Launch\" }}\n                </button>\n            </div>\n        </div>\n    "
+            template: "\n        <div>\n            <nav>\n                <ul>\n                    <li (click)=\"currentSection = settingsSection.General\">General</li>\n                    <li (click)=\"currentSection = settingsSection.Countdown\">Countdown</li>\n                    <li (click)=\"currentSection = settingsSection.Introduction\">Introduction</li>\n                    <li (click)=\"currentSection = settingsSection.DescriptionSections\">Description Sections</li>\n                    <li (click)=\"currentSection = settingsSection.Resources\">Resources</li>\n                    <li (click)=\"currentSection = settingsSection.LaunchStatuses\">Launch Statuses</li>\n                    <li (click)=\"currentSection = settingsSection.About\">About the App</li>\n                </ul>\n            </nav>\n            \n            <!-- GENERAL -->\n            <section [hidden]=\"currentSection != settingsSection.General\">\n                <h1>General</h1>\n                <p>General launch details and application settings.</p>\n                \n                <p *ngIf=\"launchModel.launch.name\">Will appear on Reddit as: <span class=\"title\">r/SpaceX {{ launchModel.launch.name }} Official Launch Discussion & Updates Thread</span></p>\n                <form>\n                    <label for=\"missionName\">Mission Name</label>\n                    <input type=\"text\" name=\"missionName\" [(ngModel)]=\"launchModel.launch.name\" placeholder=\"Mission Name\">\n                </form>\n            </section>\n            \n            <!-- COUNTDOWN -->\n            <section [hidden]=\"currentSection != settingsSection.Countdown\">\n                <h1>Countdown</h1>\n                \n                <form>\n                    <select name=\"liftoffHour\">\n                    \n                    </select>\n                    <select name=\"liftoffMinute\">\n                    \n                    </select>\n                     <select name=\"liftoffSecond\">\n                    \n                    </select>\n                    <select name=\"liftoffDate\">\n                    \n                    </select>\n                    <select name=\"liftoffMonth\">\n                    \n                    </select>\n                    <select name=\"liftoffYear\">\n                    \n                    </select>\n                </form>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Introduction\">\n                <h1>Introduction</h1>\n                <form>\n                    <textarea [(ngModel)]=\"launchModel.launch.introduction\" placeholder=\"Introduction.\"></textarea>\n                </form>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.DescriptionSections\">\n                <h1>Description Sections</h1>\n                \n                <template ngFor let-section [ngForOf]=\"launchModel.launch.descriptionSections\">\n                    <input type=\"text\" placeholder=\"Section title\" />\n                    <textarea placeholder=\"Section description\">\n                    \n                    </textarea>\n                </template>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Resources\">\n                <h1>Resources</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.LaunchStatuses\">\n                <h1>Launch Statuses</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.About\">\n                <h1>About the App</h1>\n                <p>Written by Luke.</p>\n            </section>\n            \n            <div>\n                <button (click)=\"launch()\" [disabled]=\"settingsState.isLaunching\">\n                    {{ settingsState.isLaunching ? \"Launching...\" : \"Launch\" }}\n                </button>\n            </div>\n        </div>\n    "
         }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _a) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _a) || Object, (typeof (_b = typeof NotificationBannerService_1.NotificationBannerService !== 'undefined' && NotificationBannerService_1.NotificationBannerService) === 'function' && _b) || Object, (typeof (_c = typeof LaunchDataService_1.LaunchDataService !== 'undefined' && LaunchDataService_1.LaunchDataService) === 'function' && _c) || Object])
     ], SettingsComponent);
     return SettingsComponent;
-    var _a;
+    var _a, _b, _c;
 }());
 exports.SettingsComponent = SettingsComponent;
 
 
 /***/ },
 
-/***/ 477:
+/***/ 483:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -613,7 +702,7 @@ exports.StatusBarComponent = StatusBarComponent;
 
 /***/ },
 
-/***/ 478:
+/***/ 484:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -628,27 +717,38 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(78);
+var AuthService_1 = __webpack_require__(80);
+var NotificationBannerService_1 = __webpack_require__(120);
+var LaunchDataService_1 = __webpack_require__(610);
 var TMinusTenComponent = (function () {
-    function TMinusTenComponent(authService) {
+    /**
+     * Construct globally available services.
+     *
+     * @param authService
+     * @param notificationBannerService
+     * @param launchDataService
+     */
+    function TMinusTenComponent(authService, notificationBannerService, launchDataService) {
         this.authService = authService;
+        this.notificationBannerService = notificationBannerService;
+        this.launchDataService = launchDataService;
     }
     TMinusTenComponent = __decorate([
         core_1.Component({
             selector: 'body',
             template: "\n        <tmt-notification-banner></tmt-notification-banner>\n        <router-outlet></router-outlet>\n    "
         }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _a) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _a) || Object, (typeof (_b = typeof NotificationBannerService_1.NotificationBannerService !== 'undefined' && NotificationBannerService_1.NotificationBannerService) === 'function' && _b) || Object, (typeof (_c = typeof LaunchDataService_1.LaunchDataService !== 'undefined' && LaunchDataService_1.LaunchDataService) === 'function' && _c) || Object])
     ], TMinusTenComponent);
     return TMinusTenComponent;
-    var _a;
+    var _a, _b, _c;
 }());
 exports.TMinusTenComponent = TMinusTenComponent;
 
 
 /***/ },
 
-/***/ 479:
+/***/ 485:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -680,7 +780,7 @@ exports.UpdatesComponent = UpdatesComponent;
 
 /***/ },
 
-/***/ 480:
+/***/ 486:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -712,7 +812,39 @@ exports.WebcastComponent = WebcastComponent;
 
 /***/ },
 
-/***/ 481:
+/***/ 488:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var router_1 = __webpack_require__(131);
+var Home_component_1 = __webpack_require__(311);
+var Login_component_1 = __webpack_require__(312);
+var appRoutes = [
+    { path: '', component: Home_component_1.HomeComponent },
+    { path: 'login', component: Login_component_1.LoginComponent }
+];
+exports.routing = router_1.RouterModule.forRoot(appRoutes);
+exports.routedComponents = [Home_component_1.HomeComponent];
+
+
+/***/ },
+
+/***/ 608:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var platform_browser_dynamic_1 = __webpack_require__(132);
+var app_module_1 = __webpack_require__(360);
+platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1.AppModule)
+    .then(function (success) { return console.log("Bootstrap success"); })
+    .catch(function (error) { return console.log(error); });
+
+
+/***/ },
+
+/***/ 610:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -727,53 +859,127 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var TMinusTenService = (function () {
-    function TMinusTenService() {
+var LaunchDataService = (function () {
+    function LaunchDataService() {
     }
-    TMinusTenService = __decorate([
+    /**
+     * Sets the launch model of the service.
+     *
+     * @param launch
+     */
+    LaunchDataService.prototype.setLaunch = function (launch) {
+        this._launch = launch;
+    };
+    Object.defineProperty(LaunchDataService.prototype, "launch", {
+        /**
+         * Accessor for the launch model.
+         *
+         * @returns {Launch}
+         */
+        get: function () {
+            return this._launch;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Sets the array of updates.
+     *
+     * @param updates
+     */
+    LaunchDataService.prototype.setUpdates = function (updates) {
+        this._updates = updates;
+    };
+    /**
+     * Pushes an update to the end of the updates array.
+     *
+     * @param update The update to append to the end of the array.
+     */
+    LaunchDataService.prototype.addUpdate = function (update) {
+        if (!this._updates) {
+            this._updates = [];
+        }
+        this._updates.push(update);
+    };
+    /**
+     * Deletes an update from the updates array.
+     *
+     * @param update
+     *
+     * @returns {boolean} True if the update was deleted, false if the update was not deleted.
+     */
+    LaunchDataService.prototype.deleteUpdate = function (update) {
+        var index = this._updates.indexOf(update);
+        if (index > -1) {
+            this._updates.splice(index, 1);
+            return true;
+        }
+        return false;
+    };
+    Object.defineProperty(LaunchDataService.prototype, "updates", {
+        /**
+         * Accessor for updates.
+         *
+         * @returns {Update[]}
+         */
+        get: function () {
+            return this._updates;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    LaunchDataService = __decorate([
         core_1.Injectable(), 
         __metadata('design:paramtypes', [])
-    ], TMinusTenService);
-    return TMinusTenService;
+    ], LaunchDataService);
+    return LaunchDataService;
 }());
-exports.TMinusTenService = TMinusTenService;
+exports.LaunchDataService = LaunchDataService;
 
 
 /***/ },
 
-/***/ 482:
-/***/ function(module, exports, __webpack_require__) {
+/***/ 611:
+/***/ function(module, exports) {
 
 "use strict";
 "use strict";
-var router_1 = __webpack_require__(129);
-var Home_component_1 = __webpack_require__(306);
-var Login_component_1 = __webpack_require__(307);
-var appRoutes = [
-    { path: '', component: Home_component_1.HomeComponent },
-    { path: 'login', component: Login_component_1.LoginComponent }
-];
-exports.routing = router_1.RouterModule.forRoot(appRoutes);
-exports.routedComponents = [Home_component_1.HomeComponent];
+var Launch = (function () {
+    /**
+     *
+     *
+     * @param name
+     * @param began_at
+     * @param introduction
+     * @param webcasts
+     * @param resources
+     * @param descriptionSections
+     */
+    function Launch(name, began_at, introduction, webcasts, resources, descriptionSections) {
+        this.name = name;
+        this.began_at = began_at;
+        this.introduction = introduction;
+        this.webcasts = webcasts;
+        this.resources = resources;
+        this.descriptionSections = descriptionSections;
+    }
+    /**
+     * Static helper to construct a Launch object.
+     *
+     * @param model
+     * @returns {Launch}
+     */
+    Launch.create = function (model) {
+        return new Launch(model.name, model.began_at, model.introduction, model.webcasts, model.resources, model.descriptionSections);
+    };
+    return Launch;
+}());
+exports.Launch = Launch;
 
 
 /***/ },
 
-/***/ 604:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var platform_browser_dynamic_1 = __webpack_require__(130);
-var app_module_1 = __webpack_require__(354);
-platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1.AppModule)
-    .then(function (success) { return console.log("Bootstrap success"); })
-    .catch(function (error) { return console.log(error); });
-
-
-/***/ },
-
-/***/ 78:
+/***/ 80:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -794,7 +1000,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var http_1 = __webpack_require__(62);
-var AbstractService_1 = __webpack_require__(308);
+var AbstractService_1 = __webpack_require__(313);
 var AuthService = (function (_super) {
     __extends(AuthService, _super);
     /**
@@ -872,4 +1078,4 @@ exports.AuthService = AuthService;
 
 /***/ }
 
-},[604]);
+},[608]);

@@ -11,7 +11,7 @@ router.get('/updates', tMinusTenController.getUpdates);
 
 router.get('/status', tMinusTenController.getStatus);
 
-router.get('/webcasts', tMinusTenController.getWebcasts);
+router.get('/launch', tMinusTenController.getLaunch);
 
 router.post('/auth/login', authController.login.bind(authController));
 

@@ -3,10 +3,10 @@ import {Title} from "@angular/platform-browser";
 import {InitializationService} from "../Services/InitializationService";
 import {WebsocketService} from "../Services/WebsocketService";
 import {AuthService} from "../Services/AuthService";
+import {LaunchDataService} from "../Services/LaunchDataService";
 
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-
 
 @Component({
     selector:'tmt-home',
@@ -17,7 +17,7 @@ import 'rxjs/add/observable/forkJoin';
         <template [ngIf]="!isLoading">
         
             <!-- Only show if the application is not active. -->
-            <template [ngIf]="!isActive">
+            <template [ngIf]="!launchModel.isActive">
             
                 <!-- Allow a logged in user to access the application settings to start a launch. -->
                 <template [ngIf]="authService.isLoggedIn">
@@ -49,12 +49,12 @@ import 'rxjs/add/observable/forkJoin';
 export class HomeComponent implements OnInit {
 
     public isLoading : boolean = true;
-    public isActive : boolean = false;
 
     constructor(
         public initializationService: InitializationService,
         public authService: AuthService,
         public websocketService: WebsocketService,
+        public launchModel: LaunchDataService,
         public titleService: Title) {
         this.titleService.setTitle("T Minus Ten");
     }
@@ -64,11 +64,13 @@ export class HomeComponent implements OnInit {
      */
     public ngOnInit() : void {
         Observable.forkJoin(
-            this.initializationService.getStatus(),
+            this.initializationService.getLaunch(),
             this.initializationService.getUpdates(),
-            this.initializationService.getWebcasts()
+            this.initializationService.getStatus()
         ).subscribe(data => {
-            this.isActive = data[0].isActive;
+            this.launchModel.setLaunch(data[0]);
+            this.launchModel.setUpdates(data[1]);
+            this.launchModel.isActive = data[2];
             this.isLoading = false;
         });
     }

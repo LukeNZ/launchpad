@@ -28,7 +28,7 @@ module.exports = {
         var joinFn = function(data, socket) {
             if (data.token && authenticationService.isJsonWebTokenCorrect(data.token)) {
 
-                checkUserPermission("moderator", data.token, "moderator").then(() => {
+                authenticationService.userHasPermission("moderator", data.token).then(() => {
                     socket.join('room:moderator');
                     console.log('moderator joined');
                 });
@@ -50,13 +50,12 @@ module.exports = {
         var appStatusFn = function(data, socket) {
             // Ensure the socket user has the correct permissions
             authenticationService.userHasPermission("moderator", data.token).then(() => {
-                let statusTypes = ["enableApp", "disableApp", "editWebcastData", "editLaunchData"];
+                //let statusTypes = ["enableApp", "disableApp", "editWebcastData", "editLaunchData"];
 
-                if (!statusTypes.includes(data.statusType)) {
+                //if (!statusTypes.includes(data.statusType)) {
                     socket.emit('response:appStatus', { uuid: data.uuid });
                     return;
-                }
-
+                //}
             }, () => {
                 socket.emit('response:appStatus', { uuid: data.uuid });
             });

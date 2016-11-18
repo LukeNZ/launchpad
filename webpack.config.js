@@ -29,9 +29,20 @@ module.exports = {
     plugins: [
         new webpack.optimize.CommonsChunkPlugin({
             name: ['tminusten', 'vendor']
-        })
+        }),
+        new webpack.ContextReplacementPlugin(
+            // The (\\|\/) piece accounts for path separators in *nix and Windows
+            /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
+            root('./src') // location of your src
+        )
     ],
     node: {
         fs: "empty"
     }
 };
+
+// ContextReplacementPlugin and the below root function is a temporary fix until
+// https://github.com/angular/angular/issues/11580 is closed.
+function root(__path) {
+    return path.join(__dirname, __path);
+}

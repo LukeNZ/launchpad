@@ -1,5 +1,7 @@
 import {Component} from "@angular/core";
 import {AuthService} from "../Services/AuthService";
+import {NotificationBannerService} from "../Services/NotificationBannerService";
+import {LaunchDataService} from "../Services/LaunchDataService";
 
 @Component({
     selector:'body',
@@ -13,5 +15,16 @@ import {AuthService} from "../Services/AuthService";
  * all child components. Also holds the notification banner to display app wide information.
  */
 export class TMinusTenComponent {
-    constructor(public authService: AuthService) {}
+
+    /**
+     * Construct globally available services.
+     *
+     * @param authService
+     * @param notificationBannerService
+     * @param launchDataService
+     */
+    constructor(
+        public authService: AuthService,
+        public notificationBannerService: NotificationBannerService,
+        public launchDataService: LaunchDataService) {}
 }

@@ -1,9 +1,10 @@
 import {Component} from "@angular/core";
+import {NotificationBannerService} from "../Services/NotificationBannerService";
 
 @Component({
     selector: 'tmt-notification-banner',
     template: `
-    <div class="notification-banner">
+    <div class="notification-banner" [style.active]="hasNotification">
         <p>{{ notification }}</p>
     </div>
     `
@@ -13,5 +14,23 @@ import {Component} from "@angular/core";
  * to. The banner will calculate how long to display the message based on the message's length.
  */
 export class NotificationBannerComponent {
+    public readonly WORDS_PER_SECOND = 200 / 60;
 
+    public hasNotification: boolean = false;
+    public notification : string = "";
+
+    constructor(public notificationBannerService: NotificationBannerService) {
+        notificationBannerService.notifications.subscribe(message => {
+            this.hasNotification = true;
+            this.notification = message;
+
+            let defaultTime = 2000;
+            let excessTime = Math.round((message.split(" ").length / this.WORDS_PER_SECOND) * 1000);
+
+            window.setTimeout(() => {
+                this.hasNotification = false;
+                this.notification = "";
+            }, defaultTime + excessTime);
+        });
+    }
 }

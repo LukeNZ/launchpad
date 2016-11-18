@@ -26,13 +26,13 @@ class TMinusTenController {
     }
 
     /**
-     * Returns the current webcast streams.
-     * GET:/api/webcasts
+     * Returns the current launch data.
+     * GET:/api/launch
      *
      * @param request
      * @param response
      */
-    getWebcasts(request, response) {
+    getLaunch(request, response) {
         response.send();
     }
 }

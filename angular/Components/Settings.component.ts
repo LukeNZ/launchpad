@@ -1,5 +1,7 @@
 import {Component} from "@angular/core";
 import {WebsocketService} from "../Services/WebsocketService";
+import {NotificationBannerService} from "../Services/NotificationBannerService";
+import {LaunchDataService} from "../Services/LaunchDataService";
 
 enum SettingsSection {
     General, Countdown, Introduction, DescriptionSections, Resources, LaunchStatuses, About
@@ -21,25 +23,60 @@ enum SettingsSection {
                 </ul>
             </nav>
             
+            <!-- GENERAL -->
             <section [hidden]="currentSection != settingsSection.General">
                 <h1>General</h1>
+                <p>General launch details and application settings.</p>
                 
+                <p *ngIf="launchModel.launch.name">Will appear on Reddit as: <span class="title">r/SpaceX {{ launchModel.launch.name }} Official Launch Discussion & Updates Thread</span></p>
                 <form>
                     <label for="missionName">Mission Name</label>
-                    <input type="text" name="missionName" [(ngModel)]="model.missionName" placeholder="Mission Name">
+                    <input type="text" name="missionName" [(ngModel)]="launchModel.launch.name" placeholder="Mission Name">
                 </form>
             </section>
             
+            <!-- COUNTDOWN -->
             <section [hidden]="currentSection != settingsSection.Countdown">
                 <h1>Countdown</h1>
+                
+                <form>
+                    <select name="liftoffHour">
+                    
+                    </select>
+                    <select name="liftoffMinute">
+                    
+                    </select>
+                     <select name="liftoffSecond">
+                    
+                    </select>
+                    <select name="liftoffDate">
+                    
+                    </select>
+                    <select name="liftoffMonth">
+                    
+                    </select>
+                    <select name="liftoffYear">
+                    
+                    </select>
+                </form>
             </section>
             
             <section [hidden]="currentSection != settingsSection.Introduction">
                 <h1>Introduction</h1>
+                <form>
+                    <textarea [(ngModel)]="launchModel.launch.introduction" placeholder="Introduction."></textarea>
+                </form>
             </section>
             
             <section [hidden]="currentSection != settingsSection.DescriptionSections">
                 <h1>Description Sections</h1>
+                
+                <template ngFor let-section [ngForOf]="launchModel.launch.descriptionSections">
+                    <input type="text" placeholder="Section title" />
+                    <textarea placeholder="Section description">
+                    
+                    </textarea>
+                </template>
             </section>
             
             <section [hidden]="currentSection != settingsSection.Resources">
@@ -52,6 +89,7 @@ enum SettingsSection {
             
             <section [hidden]="currentSection != settingsSection.About">
                 <h1>About the App</h1>
+                <p>Written by Luke.</p>
             </section>
             
             <div>
@@ -71,24 +109,26 @@ export class SettingsComponent {
     public settingsSection = SettingsSection;
     public currentSection: SettingsSection = this.settingsSection.General;
 
-    public model = {
-        missionName: ""
-    };
-
     public settingsState = {
         isLaunching: false,
         isSaving: false
     };
 
-    constructor(public websocketService : WebsocketService) {}
+    constructor(
+        public websocketService : WebsocketService,
+        public notificationBannerService: NotificationBannerService,
+        public launchModel: LaunchDataService
+    ) {}
 
     /**
-     *
+     * Functionality to activate the T Minus Ten app. Is called by clicking the `launch` button from within the settings
+     * menu. Emits an `appStatus` to the server of type "enableApp".
      */
     public launch(): void {
         this.settingsState.isLaunching = true;
-        this.websocketService.emitAppStatus("enableApp", { missionName: this.model.missionName }).subscribe(response => {
+        this.websocketService.emitAppStatus("enableApp", { missionName: this.launchModel.launch.name }).subscribe(response => {
             this.settingsState.isLaunching = false;
+            this.notificationBannerService.notify("App Enabled.");
         });
     }
 }
