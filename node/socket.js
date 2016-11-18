@@ -1,5 +1,6 @@
 var SocketServer = require('socket.io');
 var AuthenticationService = require('./services/AuthenticationService');
+var StorageService = require('./services/StorageService');
 
 module.exports = {
     createServer: function(server) {

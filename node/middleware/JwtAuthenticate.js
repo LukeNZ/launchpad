@@ -1,6 +1,10 @@
 var jwt = require('jsonwebtoken');
 var AuthenticationService = new require('./services/AuthenticationService')();
 
+/**
+ * Authenticates incoming ajax requests that require authorization to proceed by parsing and processing
+ * the attached JSON Web Token.
+ */
 class JwtAuthenticate {
 
     construct() {

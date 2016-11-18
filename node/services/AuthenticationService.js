@@ -3,6 +3,10 @@ var fs = require('fs');
 var jwt = require('jsonwebtoken');
 var User = require("../models/User");
 
+/**
+ * Manages application authentication through JSON Web Tokens, ensures users have the correct
+ * roles to perform actions.
+ */
 class AuthenticationService {
 
     constructor() {
