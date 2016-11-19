@@ -66,22 +66,16 @@ export class WebsocketService {
      */
     public emitAppStatus(statusType: string, data? : any) : Observable<any> {
 
-        let msgId = uuid.v4();
         if (!data) { data = {}; }
 
         this.socketClient.emit("msg:appStatus", {
             token: this.authService.authtoken,
-            uuid: msgId,
             statusType: statusType,
             data: data
         });
 
         return new Observable(observer => {
-            this.socketClient.on('response:appStatus', data => {
-                if (data.uuid == msgId) {
-                    return observer.next(data);
-                }
-            });
+            this.socketClient.on('response:appStatus', observer.next);
             return () => this.socketClient.disconnect();
         });
     }

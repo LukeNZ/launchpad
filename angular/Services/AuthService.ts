@@ -16,7 +16,7 @@ export class AuthService extends AbstractService {
      */
     constructor(private http: Http) {
         super();
-        this._isLoggedIn = !!localStorage.getItem('authtoken');
+        this._isLoggedIn = !!localStorage.getItem('auth:token');
     }
 
     /**
@@ -34,7 +34,7 @@ export class AuthService extends AbstractService {
      * @returns {string}    The auth token.
      */
     get authtoken() : string {
-        return localStorage.getItem('authtoken');
+        return localStorage.getItem('auth:token');
     }
 
     /**
@@ -51,7 +51,7 @@ export class AuthService extends AbstractService {
                 this._isLoggedIn = true;
                 let authorizationHeader = response.headers.get('Authorization');
                 let authToken = authorizationHeader.split(" ").pop();
-                localStorage.setItem('authtoken', authToken); // TODO: Figure out why PHPStorm does not like model.authtoken ("unresolved variable")
+                localStorage.setItem('auth:token', authToken); // TODO: Figure out why PHPStorm does not like model.authtoken ("unresolved variable")
                 return true;
             })
             .catch(this.handleError);
@@ -62,7 +62,7 @@ export class AuthService extends AbstractService {
      * application state isLoggedIn property to false.
      */
     public logout() : void {
-        localStorage.removeItem('authtoken');
+        localStorage.removeItem('auth:token');
         this._isLoggedIn = false;
     }
 }

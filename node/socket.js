@@ -1,11 +1,12 @@
 var SocketServer = require('socket.io');
 var AuthenticationService = require('./services/AuthenticationService');
-var StorageService = require('./services/StorageService');
+var RedisStore = require('./services/StorageService');
 
 module.exports = {
     createServer: function(server) {
         var io = new SocketServer(server);
         var authenticationService = new AuthenticationService();
+        var redisStore = new RedisStore();
 
         /**
          * Handle incoming events.
@@ -29,7 +30,7 @@ module.exports = {
         var joinFn = function(data, socket) {
             if (data.token && authenticationService.isJsonWebTokenCorrect(data.token)) {
 
-                authenticationService.userHasPermission("moderator", data.token).then(() => {
+                authenticationService.userHasPermission("moderator", data.token).then(user => {
                     socket.join('room:moderator');
                     console.log('moderator joined');
                 });
@@ -50,15 +51,38 @@ module.exports = {
          */
         var appStatusFn = function(data, socket) {
             // Ensure the socket user has the correct permissions
-            authenticationService.userHasPermission("moderator", data.token).then(() => {
-                //let statusTypes = ["enableApp", "disableApp", "editWebcastData", "editLaunchData"];
+            authenticationService.userHasPermission("moderator", data.token)
+            .then(user => {
+                delete data.token;
 
-                //if (!statusTypes.includes(data.statusType)) {
-                    socket.emit('response:appStatus', { uuid: data.uuid });
-                    return;
-                //}
+                let statusTypes = ["enableApp", "disableApp", "editLivestreamData", "editLaunchData"];
+
+                // If the statusType is not one of the permitted status types, return an error code
+                // to the originating socket.
+                if (!statusTypes.includes(data.statusType)) {
+                    throw new Error(422);
+                }
+
+                // build broadcasted message and log it to redis.
+                return redisStore.logEvent("msg:appStatus",
+                    {
+                        user: user.username,
+                        statusType: data.statusType,
+                        data: data.data
+                    }
+                );
             }, () => {
-                socket.emit('response:appStatus', { uuid: data.uuid });
+                throw new Error(400);
+
+            }).then(message => {
+                // Data manipulation here.
+
+                // Broadcast a response
+                socket.broadcast.emit("msg:appStatus", message);
+                socket.emit("response:appStatus", { statusCode: 200 });
+
+            }).catch(error => {
+                socket.emit('response:appStatus', { statusCode: error.message });
             });
         }
     }

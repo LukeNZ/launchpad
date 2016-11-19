@@ -129,7 +129,7 @@ class AuthenticationService {
                 if (!user || !user.permissions.includes(permission)) {
                     return reject();
                 }
-                return resolve();
+                return resolve(user);
             });
         });
     }

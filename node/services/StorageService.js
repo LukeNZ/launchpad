@@ -23,6 +23,24 @@ class StorageService {
         this.client = redis.createClient();
     }
 
+    logEvent(eventName, data) {
+        return new Promise((resolve, reject) => {
+
+            // Append a timestamp to the data
+            data.timestamp = (new Date()).toISOString();
+
+            this.client.rpush("events", JSON.stringify({
+                event: eventName,
+                body: data
+            }), (err, response) => {
+                if (err) reject(err);
+
+                data.event_id = response;
+                return resolve(data);
+            });
+        });
+    }
+
     /**
      * Getter and setter for the app activity status. If a boolean argument is passed through, the app activity status
      * will be set to the value of the arg. If `isAppActiveSetter` is undefined, the current app activity status
@@ -47,6 +65,12 @@ class StorageService {
             }
 
             return reject();
+        });
+    }
+
+    getUpdates() {
+        return new Promise((resolve, reject) => {
+
         });
     }
 }

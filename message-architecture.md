@@ -213,7 +213,6 @@ A status concerning the functionality of the application. This affects the displ
 
     {
         token: <string>,
-        uuid: <string>,
         statusType: "enableApp"|"disableApp"|"editWebcastData"|"editLaunchData",
         data: {
             // Additional metadata
@@ -235,7 +234,6 @@ A status concerning the functionality of the application. This affects the displ
 ## Acknowledgement to Originating Client
 
     {
-        uuid: <string>,
         statusCode: <int>,
         data: {
             // Additional metadata
