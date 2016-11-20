@@ -4,7 +4,9 @@ import {Webcast} from "../Interfaces/Webcast";
 
 export class Launch {
     public name : string;
-    public began_at: Date;
+    public beganAt: Date;
+    public countdown: Date;
+    public isPaused: boolean;
     public introduction: string;
     public webcasts: Webcast[];
     public resources: Resource[];
@@ -14,15 +16,19 @@ export class Launch {
      *
      *
      * @param name
-     * @param began_at
+     * @param beganAt
+     * @param countdown
+     * @param isPaused
      * @param introduction
      * @param webcasts
      * @param resources
      * @param descriptionSections
      */
-    constructor(name: string, began_at: Date, introduction: string, webcasts: Webcast[], resources: Resource[], descriptionSections: DescriptionSection[]) {
+    constructor(name: string, beganAt: Date, countdown: Date, isPaused: boolean, introduction: string, webcasts: Webcast[], resources: Resource[], descriptionSections: DescriptionSection[]) {
         this.name = name;
-        this.began_at = began_at;
+        this.beganAt = beganAt;
+        this.countdown = countdown;
+        this.isPaused = isPaused;
         this.introduction = introduction;
         this.webcasts = webcasts;
         this.resources = resources;
@@ -36,6 +42,7 @@ export class Launch {
      * @returns {Launch}
      */
     static create(model: any) : Launch {
-        return new Launch(model.name, model.began_at, model.introduction, model.webcasts, model.resources, model.descriptionSections);
+        return new Launch(model.name, model.beganAt, model.countdown, model.isPaused,
+            model.introduction, model.webcasts, model.resources, model.descriptionSections);
     }
 }

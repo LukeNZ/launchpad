@@ -1,64 +1,80 @@
 import {Injectable} from "@angular/core";
 import {Launch} from "../Classes/Launch";
-import {Update} from "../Interfaces/Update";
+import {Status} from "../Interfaces/Status";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Observable} from "rxjs/Observable";
 
 @Injectable()
 export class LaunchDataService {
     private _launch: Launch;
-    private _updates: Update[];
+    private _launchSubject = new BehaviorSubject<Launch>(this._launch);
+    private _launchObservable = this._launchSubject.asObservable;
+
+    private _statuses: Status[];
 
     public isActive: boolean;
 
     /**
-     * Sets the launch model of the service.
+     * Sets the launch model of the service, and also sets the subject
+     * for any subscribers listening for updates.
      *
-     * @param launch
+     * @param launch    The new launch value.
      */
     public setLaunch(launch: Launch) : void {
         this._launch = launch;
+        this._launchSubject.next(launch);
     }
 
     /**
-     * Accessor for the launch model.
+     * Plain accessor for the launch model.
      *
-     * @returns {Launch}
+     * @returns {Launch} The launch model.
      */
     get launch() : Launch {
         return this._launch;
     }
 
     /**
-     * Sets the array of updates.
+     * Returns an observable for the launch model
      *
-     * @param updates
+     * @returns {Observable<Launch>} An observable of the launch model.
      */
-    public setUpdates(updates: Update[]) : void {
-        this._updates = updates;
+    public launchObservable() : Observable<Launch> {
+        return this._launchObservable();
     }
 
     /**
-     * Pushes an update to the end of the updates array.
+     * Sets the array of statuses.
      *
-     * @param update The update to append to the end of the array.
+     * @param statuses
      */
-    public addUpdate(update: Update) : void {
-        if (!this._updates) {
-            this._updates = [];
+    public setStatuses(statuses: Status[]) : void {
+        this._statuses = statuses;
+    }
+
+    /**
+     * Pushes an status to the end of the updates array.
+     *
+     * @param status {Status} The status to append to the end of the array.
+     */
+    public addStatus(status: Status) : void {
+        if (!this._statuses) {
+            this._statuses = [];
         }
-        this._updates.push(update);
+        this._statuses.push(status);
     }
 
     /**
-     * Deletes an update from the updates array.
+     * Deletes an status from the updates array.
      *
-     * @param update
+     * @param status {Status}
      *
-     * @returns {boolean} True if the update was deleted, false if the update was not deleted.
+     * @returns {boolean} True if the status was deleted, false if the status was not deleted.
      */
-    public deleteUpdate(update: Update) : boolean {
-        let index = this._updates.indexOf(update);
+    public deleteStatus(status: Status) : boolean {
+        let index = this._statuses.indexOf(status);
         if (index > -1) {
-            this._updates.splice(index, 1);
+            this.setStatuses(this._statuses.splice(index, 1));
             return true;
         }
         return false;
@@ -67,9 +83,9 @@ export class LaunchDataService {
     /**
      * Accessor for updates.
      *
-     * @returns {Update[]}
+     * @returns {Status[]}
      */
-    get updates() : Update[] {
-        return this._updates;
+    get statuses() : Status[] {
+        return this._statuses;
     }
 }

@@ -1,5 +1,5 @@
-export interface Update {
-    update_id: number;
+export interface Status {
+    status_id: number;
     timestamp: Date;
     source: string;
     author: string;

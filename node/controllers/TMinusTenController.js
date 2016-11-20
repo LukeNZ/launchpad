@@ -1,6 +1,11 @@
 var path = require('path');
+var Store = require('../services/StoreService');
 
 class TMinusTenController {
+
+    constructor() {
+        this.store = new Store();
+    }
     /**
      * Returns the current status of the TMinusTen application.
      * GET:/api/status
@@ -9,9 +14,13 @@ class TMinusTenController {
      * @param response
      */
     getStatus(request, response) {
-        response.send(JSON.stringify({
-            isActive: false
-        }));
+        this.store.isAppActive().then(activity => {
+            response.send(JSON.stringify({
+                isActive: activity
+            }));
+        }, () => {
+           response.status(500).end();
+        });
     }
 
     /**
@@ -33,7 +42,11 @@ class TMinusTenController {
      * @param response
      */
     getLaunch(request, response) {
-        response.send();
+        this.store.getLaunch().then(launch => {
+            response.send(launch);
+        }, () => {
+            response.status(500).end();
+        })
     }
 }
 

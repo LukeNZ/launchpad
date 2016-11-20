@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 import {Http} from "@angular/http";
 import {AbstractService} from "../Services/AbstractService";
-import {Update} from "../Interfaces/Update";
+import {Status} from "../Interfaces/Status";
 import {Launch} from "../Classes/Launch";
 
 @Injectable()
@@ -25,9 +25,9 @@ export class InitializationService extends AbstractService {
     /**
      * Fetches all current launch updates from the server.
      *
-     * @returns {Observable<Update[]>}
+     * @returns {Observable<Status[]>}
      */
-    public getUpdates() : Observable<Update[]> {
+    public getUpdates() : Observable<Status[]> {
         return this.http.get('/api/updates', this.headers())
             .map(this.extractData);
     }

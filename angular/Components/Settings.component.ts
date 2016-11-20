@@ -4,7 +4,8 @@ import {NotificationBannerService} from "../Services/NotificationBannerService";
 import {LaunchDataService} from "../Services/LaunchDataService";
 
 enum SettingsSection {
-    General, Countdown, Introduction, DescriptionSections, Resources, LaunchStatuses, About
+    Display, Notifications, General, Countdown, Introduction,
+    DescriptionSections, Resources, LaunchStatuses, About
 }
 
 @Component({
@@ -13,6 +14,8 @@ enum SettingsSection {
         <div>
             <nav>
                 <ul>
+                    <li (click)="currentSection = settingsSection.Display">Display</li>
+                    <li (click)="currentSection = settingsSection.Notifications">Notifications</li>
                     <li (click)="currentSection = settingsSection.General">General</li>
                     <li (click)="currentSection = settingsSection.Countdown">Countdown</li>
                     <li (click)="currentSection = settingsSection.Introduction">Introduction</li>
@@ -23,6 +26,19 @@ enum SettingsSection {
                 </ul>
             </nav>
             
+            <section [hidden]="currentSection != settingsSection.Display">
+                <h1>Display</h1>
+                
+                <p>Increase text size</p>
+                <p>Density settings</p>
+            </section>
+            
+            <section [hidden]="currentSection != settingsSection.Notifications">
+                <h1>Notifications</h1>
+                
+                <p>Play ping when a new update arrives when tab inactive</p>
+            </section>
+            
             <!-- GENERAL -->
             <section [hidden]="currentSection != settingsSection.General">
                 <h1>General</h1>
@@ -30,8 +46,8 @@ enum SettingsSection {
                 
                 <p *ngIf="launchModel.launch.name">Will appear on Reddit as: <span class="title">r/SpaceX {{ launchModel.launch.name }} Official Launch Discussion & Updates Thread</span></p>
                 <form>
-                    <label for="missionName">Mission Name</label>
-                    <input type="text" name="missionName" [(ngModel)]="launchModel.launch.name" placeholder="Mission Name">
+                    <label for="mission">Mission Name</label>
+                    <input type="text" name="mission" [(ngModel)]="launchModel.launch.name" placeholder="Mission Name">
                 </form>
             </section>
             
@@ -64,7 +80,7 @@ enum SettingsSection {
             <section [hidden]="currentSection != settingsSection.Introduction">
                 <h1>Introduction</h1>
                 <form>
-                    <textarea [(ngModel)]="launchModel.launch.introduction" placeholder="Introduction."></textarea>
+                    <textarea name="introduction" [(ngModel)]="launchModel.launch.introduction" placeholder="Introduction."></textarea>
                 </form>
             </section>
             

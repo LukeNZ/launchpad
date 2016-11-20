@@ -32,7 +32,7 @@ import 'rxjs/add/observable/forkJoin';
             </template>
             
             <!-- Show if the application is active. -->
-            <template [ngIf]="isActive">
+            <template [ngIf]="launchModel.isActive">
                 <tmt-header></tmt-header>
                 <tmt-webcast></tmt-webcast>
                 <tmt-statusbar></tmt-statusbar>
@@ -60,7 +60,8 @@ export class HomeComponent implements OnInit {
     }
 
     /**
-     * On component initialization, make three calls to fetch data from the server.
+     * On component initialization, make three calls to fetch data from the server, so we are
+     * up to date with respect to the current application's state.
      */
     public ngOnInit() : void {
         Observable.forkJoin(
@@ -69,8 +70,8 @@ export class HomeComponent implements OnInit {
             this.initializationService.getStatus()
         ).subscribe(data => {
             this.launchModel.setLaunch(data[0]);
-            this.launchModel.setUpdates(data[1]);
-            this.launchModel.isActive = data[2];
+            this.launchModel.setStatuses(data[1]);
+            this.launchModel.isActive = data[2].isActive;
             this.isLoading = false;
         });
     }
