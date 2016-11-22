@@ -89,10 +89,16 @@ class StoreService {
     getLaunch(launchProperty) {
         return new Promise((resolve, reject) => {
             if (launchProperty == undefined) {
-                return this.client.hgetall("launch", (err, reply) => resolve(reply));
+                return this.client.hgetall("launch", (err, reply) => {
+                    Object.keys(reply).forEach(key => {
+                        reply[key] = JSON.parse(reply[key]);
+                    });
+
+                    return resolve(reply);
+                });
 
             } else if (typeof launchProperty === "string") {
-                return this.client.hget("launch", launchProperty, (err, reply) => resolve(reply));
+                return this.client.hget("launch", launchProperty, (err, reply) => resolve(JSON.parse(reply)));
 
             }
             return reject();
@@ -112,6 +118,11 @@ class StoreService {
      */
     setLaunch(dataObj) {
         return new Promise((resolve, reject) => {
+
+            Object.keys(dataObj).forEach(key => {
+                dataObj[key] = JSON.stringify(dataObj[key]);
+            });
+
             if (dataObj != null) {
                 return this.client.hmset("launch", dataObj, (err, reply) => resolve(reply));
             }

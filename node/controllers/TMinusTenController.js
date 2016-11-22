@@ -8,12 +8,12 @@ class TMinusTenController {
     }
     /**
      * Returns the current status of the TMinusTen application.
-     * GET:/api/status
+     * GET:/api/tminusten
      *
      * @param request
      * @param response
      */
-    getStatus(request, response) {
+    getTMinusTen(request, response) {
         this.store.isAppActive().then(activity => {
             response.send(JSON.stringify({
                 isActive: activity
@@ -24,13 +24,13 @@ class TMinusTenController {
     }
 
     /**
-     * Returns the currently posted updates.
-     * GET:/api/updates
+     * Returns the currently posted statuses.
+     * GET:/api/statuses
      *
      * @param request
      * @param response
      */
-    getUpdates(request, response) {
+    getStatuses(request, response) {
         response.send();
     }
 

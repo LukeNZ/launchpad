@@ -7,9 +7,9 @@ var AuthController = require('../controllers/AuthController');
 var tMinusTenController = new TMinusTenController();
 var authController = new AuthController();
 
-router.get('/updates', tMinusTenController.getUpdates.bind(tMinusTenController));
+router.get('/tminusten', tMinusTenController.getTMinusTen.bind(tMinusTenController));
 
-router.get('/status', tMinusTenController.getStatus.bind(tMinusTenController));
+router.get('/statuses', tMinusTenController.getStatuses.bind(tMinusTenController));
 
 router.get('/launch', tMinusTenController.getLaunch.bind(tMinusTenController));
 

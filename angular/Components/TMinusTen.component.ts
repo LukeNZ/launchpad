@@ -11,6 +11,7 @@ import {LaunchDataService} from "../Services/LaunchDataService";
     `
 })
 /**
+ * @class
  * Global application component. Instantiate authService here to ensure the same instance is globally available across
  * all child components. Also holds the notification banner to display app wide information.
  */

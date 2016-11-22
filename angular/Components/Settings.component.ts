@@ -2,10 +2,13 @@ import {Component} from "@angular/core";
 import {WebsocketService} from "../Services/WebsocketService";
 import {NotificationBannerService} from "../Services/NotificationBannerService";
 import {LaunchDataService} from "../Services/LaunchDataService";
+import {Launch} from "../Classes/Launch";
+import {DescriptionSection} from "../Interfaces/DescriptionSection";
+import {Resource} from "../Interfaces/Resource";
 
 enum SettingsSection {
     Display, Notifications, General, Countdown, Introduction,
-    DescriptionSections, Resources, LaunchStatuses, About
+    DescriptionSections, Resources, LaunchEventTemplates, About
 }
 
 @Component({
@@ -21,11 +24,12 @@ enum SettingsSection {
                     <li (click)="currentSection = settingsSection.Introduction">Introduction</li>
                     <li (click)="currentSection = settingsSection.DescriptionSections">Description Sections</li>
                     <li (click)="currentSection = settingsSection.Resources">Resources</li>
-                    <li (click)="currentSection = settingsSection.LaunchStatuses">Launch Statuses</li>
+                    <li (click)="currentSection = settingsSection.LaunchEventTemplates">Launch Event Templates</li>
                     <li (click)="currentSection = settingsSection.About">About the App</li>
                 </ul>
             </nav>
             
+            <!-- DISPLAY -->
             <section [hidden]="currentSection != settingsSection.Display">
                 <h1>Display</h1>
                 
@@ -33,6 +37,7 @@ enum SettingsSection {
                 <p>Density settings</p>
             </section>
             
+            <!-- NOTIFICATIONS -->
             <section [hidden]="currentSection != settingsSection.Notifications">
                 <h1>Notifications</h1>
                 
@@ -44,10 +49,10 @@ enum SettingsSection {
                 <h1>General</h1>
                 <p>General launch details and application settings.</p>
                 
-                <p *ngIf="launchModel.launch.name">Will appear on Reddit as: <span class="title">r/SpaceX {{ launchModel.launch.name }} Official Launch Discussion & Updates Thread</span></p>
+                <p *ngIf="launch.name">Will appear on Reddit as: <span class="title">r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread</span></p>
                 <form>
                     <label for="mission">Mission Name</label>
-                    <input type="text" name="mission" [(ngModel)]="launchModel.launch.name" placeholder="Mission Name">
+                    <input type="text" name="mission" [(ngModel)]="launch.name" placeholder="Mission Name">
                 </form>
             </section>
             
@@ -56,67 +61,70 @@ enum SettingsSection {
                 <h1>Countdown</h1>
                 
                 <form>
-                    <select name="liftoffHour">
-                    
-                    </select>
-                    <select name="liftoffMinute">
-                    
-                    </select>
-                     <select name="liftoffSecond">
-                    
-                    </select>
-                    <select name="liftoffDate">
-                    
-                    </select>
-                    <select name="liftoffMonth">
-                    
-                    </select>
-                    <select name="liftoffYear">
-                    
-                    </select>
+                    <tmt-datetimeentry [id]="'countdown'" [date]="launch.countdown" (dateChange)="onCountdownChanged($event)"></tmt-datetimeentry>
                 </form>
+                
+                <p *ngIf="launchDataService.launch.countdown != launch.countdown">New countdown of {{ launch.countdown.toISOString() }}</p>
             </section>
             
+            <!-- INTRODUCTION -->
             <section [hidden]="currentSection != settingsSection.Introduction">
                 <h1>Introduction</h1>
                 <form>
-                    <textarea name="introduction" [(ngModel)]="launchModel.launch.introduction" placeholder="Introduction."></textarea>
+                    <textarea name="introduction" [(ngModel)]="launch.introduction" placeholder="Introductory paragraph about the launch."></textarea>
+                    <span>{{ launch.introduction?.length }} + characters.</span>
                 </form>
             </section>
             
+            <!-- DESCRIPTION SECTIONS -->
             <section [hidden]="currentSection != settingsSection.DescriptionSections">
                 <h1>Description Sections</h1>
                 
-                <template ngFor let-section [ngForOf]="launchModel.launch.descriptionSections">
-                    <input type="text" placeholder="Section title" />
-                    <textarea placeholder="Section description">
-                    
-                    </textarea>
-                </template>
+                <button (click)="addDescriptionSection()">Add Section</button>
+                
+                <ng-container *ngFor="let section of launch.descriptionSections">
+                    <input type="text" placeholder="Section title" [(ngModel)]="section.title" />
+                    <textarea placeholder="Section description" [(ngModel)]="section.description" ></textarea>
+                    <button (click)="removeDescriptionSection(section)">Remove</button>
+                </ng-container>
             </section>
             
+            <!-- RESOURCES -->
             <section [hidden]="currentSection != settingsSection.Resources">
                 <h1>Resources</h1>
+                
+                <button (click)="addResource()">Add Resource</button>
+                
+                <ng-container *ngFor="let resource of launch.resources">
+                    <input type="text" placeholder="Resource Title" [(ngModel)]="resource.title" />
+                    <input type="text" placeholder="Resource URL" [(ngModel)]="resource.url" />
+                    <input type="text" placeholder="Resource Note" [(ngModel)]="resource.note" />          
+                    <button (click)="removeResource(resource)">Remove</button>
+                </ng-container>
             </section>
             
-            <section [hidden]="currentSection != settingsSection.LaunchStatuses">
-                <h1>Launch Statuses</h1>
+            <!-- LAUNCH EVENT TEMPLATES -->
+            <section [hidden]="currentSection != settingsSection.LaunchEventTemplates">
+                <h1>Launch Event Templates</h1>
             </section>
             
+            <!-- ABOUT -->
             <section [hidden]="currentSection != settingsSection.About">
                 <h1>About the App</h1>
-                <p>Written by Luke.</p>
+                <p>Written by Luke. View on GitHub here: https://github.com/LukeNZ/tminusten.</p>
             </section>
             
+            <!-- GLOBAL SETTINGS OPTIONS -->
             <div>
-                <button (click)="launch()" [disabled]="settingsState.isLaunching">
-                    {{ settingsState.isLaunching ? "Launching..." : "Launch" }}
+                <button (click)="liftoff()" [disabled]="settingsState.isLiftingOff">
+                    {{ settingsState.isLiftingOff ? "Lifting off..." : "Liftoff" }}
                 </button>
             </div>
         </div>
     `
 })
 /**
+ * @class
  * Settings. Appears as an overlaid window within the application either if no launch is actively running, or if the cog
  * settings icon is clicked. From here, changes to the description, title, webcasts, and other functionality can be made.
  */
@@ -125,26 +133,100 @@ export class SettingsComponent {
     public settingsSection = SettingsSection;
     public currentSection: SettingsSection = this.settingsSection.General;
 
+    public launch: Launch = new Launch();
+
     public settingsState = {
-        isLaunching: false,
-        isSaving: false
+        isLiftingOff: false,
+        isSaving: false,
+        tempCountdown: null
     };
 
     constructor(
         public websocketService : WebsocketService,
         public notificationBannerService: NotificationBannerService,
-        public launchModel: LaunchDataService
+        public launchDataService: LaunchDataService
     ) {}
 
     /**
      * Functionality to activate the T Minus Ten app. Is called by clicking the `launch` button from within the settings
      * menu. Emits an `appStatus` to the server of type "enableApp".
      */
-    public launch(): void {
-        this.settingsState.isLaunching = true;
-        this.websocketService.emitAppStatus("enableApp", { missionName: this.launchModel.launch.name }).subscribe(response => {
-            this.settingsState.isLaunching = false;
+    public liftoff(): void {
+        let data = {
+            name: this.launch.name,
+            countdown: this.launch.countdown.toISOString(),
+            introduction: this.launch.introduction,
+            resources: this.launch.resources,
+            descriptionSections: this.launch.descriptionSections
+        };
+
+        this.settingsState.isLiftingOff = true;
+        this.websocketService.emitAppStatus("enableApp", data).subscribe(response => {
+            this.settingsState.isLiftingOff = false;
             this.notificationBannerService.notify("App Enabled.");
         });
+    }
+
+    /**
+     * Called when the countdown date within the countdowns tab is adjusted. Sets the `countdown` field on the
+     * local `launch` property.
+     *
+     * @param newCountdown {Date} The new temporary countdown value.
+     */
+    public onCountdownChanged(newCountdown: Date) : void {
+        this.launch.countdown = newCountdown;
+    }
+
+    /**
+     * Adds a description section to the array of description sections.
+     */
+    public addDescriptionSection() : void {
+        let descriptionSection: DescriptionSection = {
+            title: null,
+            description: null
+        };
+
+        if (!this.launch.descriptionSections) {
+            this.launch.descriptionSections = [];
+        }
+
+        this.launch.descriptionSections.push(descriptionSection);
+    }
+
+    /**
+     * Removes the given description section from the description sections array.
+     *
+     * @param descriptionSection {DescriptionSection} The section to remove.
+     */
+    public removeDescriptionSection(descriptionSection: DescriptionSection) : void {
+        let index = this.launch.descriptionSections.indexOf(descriptionSection);
+        this.launch.descriptionSections.splice(index, 1);
+    }
+
+    /**
+     * Adds a resource to the array of resources.
+     */
+    public addResource() : void {
+        let resource: Resource = {
+            title: null,
+            url: null,
+            note: null
+        };
+
+        if (!this.launch.resources) {
+            this.launch.resources = [];
+        }
+
+        this.launch.resources.push(resource);
+    }
+
+    /**
+     * Removes the given resource from the resources array.
+     *
+     * @param resource {Resource} The resource to remove.
+     */
+    public removeResource(resource: Resource) : void {
+        let index = this.launch.resources.indexOf(resource);
+        this.launch.resources.splice(index, 1);
     }
 }

@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 121:
+/***/ 105:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15,7 +15,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var Subject_1 = __webpack_require__(31);
+var Subject_1 = __webpack_require__(28);
 var NotificationBannerService = (function () {
     function NotificationBannerService() {
         this.notifySubject = new Subject_1.Subject();
@@ -53,7 +53,7 @@ exports.NotificationBannerService = NotificationBannerService;
 
 /***/ },
 
-/***/ 193:
+/***/ 170:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -68,10 +68,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var Observable_1 = __webpack_require__(5);
-var AuthService_1 = __webpack_require__(80);
-var io = __webpack_require__(223);
-var uuid = __webpack_require__(221);
+var Observable_1 = __webpack_require__(4);
+var AuthService_1 = __webpack_require__(69);
+var io = __webpack_require__(296);
 var WebsocketService = (function () {
     /**
      * Construct an instance of the websocket service. Automatically connect to the websocket
@@ -270,7 +269,7 @@ var WebsocketService = (function () {
             data: data
         });
         return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('response:appStatus', observer.next);
+            _this.socketClient.on('response:appStatus', function (data) { return observer.next(data); });
             return function () { return _this.socketClient.disconnect(); };
         });
     };
@@ -286,7 +285,54 @@ exports.WebsocketService = WebsocketService;
 
 /***/ },
 
-/***/ 312:
+/***/ 381:
+/***/ function(module, exports) {
+
+"use strict";
+"use strict";
+var Launch = (function () {
+    /**
+     *
+     *
+     * @param name
+     * @param beganAt
+     * @param countdown
+     * @param isPaused
+     * @param introduction
+     * @param webcasts
+     * @param resources
+     * @param descriptionSections
+     */
+    function Launch(name, beganAt, countdown, isPaused, introduction, webcasts, resources, descriptionSections) {
+        this.webcasts = [];
+        this.resources = [];
+        this.descriptionSections = [];
+        this.name = name;
+        this.beganAt = beganAt;
+        this.countdown = countdown;
+        this.isPaused = isPaused;
+        this.introduction = introduction;
+        this.webcasts = webcasts;
+        this.resources = resources;
+        this.descriptionSections = descriptionSections;
+    }
+    /**
+     * Static helper to construct a Launch object.
+     *
+     * @param model
+     * @returns {Launch}
+     */
+    Launch.create = function (model) {
+        return new Launch(model.name, model.beganAt, model.countdown, model.isPaused, model.introduction, model.webcasts, model.resources, model.descriptionSections);
+    };
+    return Launch;
+}());
+exports.Launch = Launch;
+
+
+/***/ },
+
+/***/ 382:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -301,13 +347,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var platform_browser_1 = __webpack_require__(37);
-var InitializationService_1 = __webpack_require__(315);
-var WebsocketService_1 = __webpack_require__(193);
-var AuthService_1 = __webpack_require__(80);
-var LaunchDataService_1 = __webpack_require__(81);
-var Observable_1 = __webpack_require__(5);
-__webpack_require__(222);
+var platform_browser_1 = __webpack_require__(34);
+var InitializationService_1 = __webpack_require__(385);
+var WebsocketService_1 = __webpack_require__(170);
+var AuthService_1 = __webpack_require__(69);
+var LaunchDataService_1 = __webpack_require__(70);
+var Observable_1 = __webpack_require__(4);
+__webpack_require__(295);
 var HomeComponent = (function () {
     function HomeComponent(initializationService, authService, websocketService, launchModel, titleService) {
         this.initializationService = initializationService;
@@ -324,7 +370,7 @@ var HomeComponent = (function () {
      */
     HomeComponent.prototype.ngOnInit = function () {
         var _this = this;
-        Observable_1.Observable.forkJoin(this.initializationService.getLaunch(), this.initializationService.getUpdates(), this.initializationService.getStatus()).subscribe(function (data) {
+        Observable_1.Observable.forkJoin(this.initializationService.getLaunch(), this.initializationService.getStatuses(), this.initializationService.getTMinusTen()).subscribe(function (data) {
             _this.launchModel.setLaunch(data[0]);
             _this.launchModel.setStatuses(data[1]);
             _this.launchModel.isActive = data[2].isActive;
@@ -346,7 +392,7 @@ exports.HomeComponent = HomeComponent;
 
 /***/ },
 
-/***/ 313:
+/***/ 383:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -361,9 +407,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(80);
-var router_1 = __webpack_require__(133);
-var platform_browser_1 = __webpack_require__(37);
+var AuthService_1 = __webpack_require__(69);
+var router_1 = __webpack_require__(110);
+var platform_browser_1 = __webpack_require__(34);
 var LoginComponent = (function () {
     function LoginComponent(authService, router, titleService) {
         this.authService = authService;
@@ -408,13 +454,13 @@ exports.LoginComponent = LoginComponent;
 
 /***/ },
 
-/***/ 314:
+/***/ 384:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var http_1 = __webpack_require__(62);
-var Observable_1 = __webpack_require__(5);
+var http_1 = __webpack_require__(52);
+var Observable_1 = __webpack_require__(4);
 var AbstractService = (function () {
     function AbstractService() {
     }
@@ -473,7 +519,7 @@ exports.AbstractService = AbstractService;
 
 /***/ },
 
-/***/ 315:
+/***/ 385:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -493,9 +539,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var http_1 = __webpack_require__(62);
-var AbstractService_1 = __webpack_require__(314);
-var Launch_1 = __webpack_require__(480);
+var http_1 = __webpack_require__(52);
+var AbstractService_1 = __webpack_require__(384);
+var Launch_1 = __webpack_require__(381);
 var InitializationService = (function (_super) {
     __extends(InitializationService, _super);
     function InitializationService(http) {
@@ -503,21 +549,21 @@ var InitializationService = (function (_super) {
         this.http = http;
     }
     /**
-     * Fetches the status of the application.
+     * Fetches the status of the T Minus Ten application.
      *
-     * @returns {Observable<R>}
+     * @returns {Observable<any>}
      */
-    InitializationService.prototype.getStatus = function () {
-        return this.http.get('/api/status', this.headers())
+    InitializationService.prototype.getTMinusTen = function () {
+        return this.http.get('/api/tminusten', this.headers())
             .map(this.extractData);
     };
     /**
-     * Fetches all current launch updates from the server.
+     * Fetches all current launch statuses from the server.
      *
      * @returns {Observable<Status[]>}
      */
-    InitializationService.prototype.getUpdates = function () {
-        return this.http.get('/api/updates', this.headers())
+    InitializationService.prototype.getStatuses = function () {
+        return this.http.get('/api/statuses', this.headers())
             .map(this.extractData);
     };
     /**
@@ -545,7 +591,7 @@ exports.InitializationService = InitializationService;
 
 /***/ },
 
-/***/ 361:
+/***/ 409:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -559,35 +605,42 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+// Modules
 var core_1 = __webpack_require__(0);
-var platform_browser_1 = __webpack_require__(37);
-var http_1 = __webpack_require__(62);
-var TMinusTen_component_1 = __webpack_require__(486);
-var Header_component_1 = __webpack_require__(482);
-var Countdown_component_1 = __webpack_require__(481);
-var StatusBar_component_1 = __webpack_require__(485);
-var Updates_component_1 = __webpack_require__(487);
-var Webcast_component_1 = __webpack_require__(488);
-var app_routes_1 = __webpack_require__(489);
-var Home_component_1 = __webpack_require__(312);
-var InitializationService_1 = __webpack_require__(315);
-var WebsocketService_1 = __webpack_require__(193);
-var Login_component_1 = __webpack_require__(313);
-var NotificationBanner_component_1 = __webpack_require__(483);
-var forms_1 = __webpack_require__(220);
-var AuthService_1 = __webpack_require__(80);
-var LaunchDataService_1 = __webpack_require__(81);
-var Settings_component_1 = __webpack_require__(484);
-var NotificationBannerService_1 = __webpack_require__(121);
+var platform_browser_1 = __webpack_require__(34);
+var http_1 = __webpack_require__(52);
+var forms_1 = __webpack_require__(294);
+var app_routes_1 = __webpack_require__(529);
+// Components
+var TMinusTen_component_1 = __webpack_require__(526);
+var Home_component_1 = __webpack_require__(382);
+var Header_component_1 = __webpack_require__(522);
+var Countdown_component_1 = __webpack_require__(520);
+var StatusBar_component_1 = __webpack_require__(525);
+var Updates_component_1 = __webpack_require__(527);
+var Webcast_component_1 = __webpack_require__(528);
+var Login_component_1 = __webpack_require__(383);
+var NotificationBanner_component_1 = __webpack_require__(523);
+var Settings_component_1 = __webpack_require__(524);
+var DateTimeEntry_component_1 = __webpack_require__(521);
+// Services
+var InitializationService_1 = __webpack_require__(385);
+var WebsocketService_1 = __webpack_require__(170);
+var AuthService_1 = __webpack_require__(69);
+var LaunchDataService_1 = __webpack_require__(70);
+var NotificationBannerService_1 = __webpack_require__(105);
 var AppModule = (function () {
     function AppModule() {
     }
     AppModule = __decorate([
         core_1.NgModule({
+            // Modules
             imports: [platform_browser_1.BrowserModule, http_1.HttpModule, forms_1.FormsModule, app_routes_1.routing],
+            // Services
             providers: [InitializationService_1.InitializationService, WebsocketService_1.WebsocketService, AuthService_1.AuthService, LaunchDataService_1.LaunchDataService, NotificationBannerService_1.NotificationBannerService],
-            declarations: [TMinusTen_component_1.TMinusTenComponent, Home_component_1.HomeComponent, Login_component_1.LoginComponent, Header_component_1.HeaderComponent, Countdown_component_1.CountdownComponent, StatusBar_component_1.StatusBarComponent,
-                Updates_component_1.UpdatesComponent, Webcast_component_1.WebcastComponent, NotificationBanner_component_1.NotificationBannerComponent, Settings_component_1.SettingsComponent],
+            // Components
+            declarations: [TMinusTen_component_1.TMinusTenComponent, Home_component_1.HomeComponent, Login_component_1.LoginComponent, Header_component_1.HeaderComponent, Countdown_component_1.CountdownComponent, StatusBar_component_1.StatusBarComponent, Updates_component_1.UpdatesComponent, Webcast_component_1.WebcastComponent, NotificationBanner_component_1.NotificationBannerComponent, Settings_component_1.SettingsComponent, DateTimeEntry_component_1.DateTimeEntryComponent],
+            // Starting components
             bootstrap: [TMinusTen_component_1.TMinusTenComponent]
         }), 
         __metadata('design:paramtypes', [])
@@ -599,51 +652,7 @@ exports.AppModule = AppModule;
 
 /***/ },
 
-/***/ 480:
-/***/ function(module, exports) {
-
-"use strict";
-"use strict";
-var Launch = (function () {
-    /**
-     *
-     *
-     * @param name
-     * @param beganAt
-     * @param countdown
-     * @param isPaused
-     * @param introduction
-     * @param webcasts
-     * @param resources
-     * @param descriptionSections
-     */
-    function Launch(name, beganAt, countdown, isPaused, introduction, webcasts, resources, descriptionSections) {
-        this.name = name;
-        this.beganAt = beganAt;
-        this.countdown = countdown;
-        this.isPaused = isPaused;
-        this.introduction = introduction;
-        this.webcasts = webcasts;
-        this.resources = resources;
-        this.descriptionSections = descriptionSections;
-    }
-    /**
-     * Static helper to construct a Launch object.
-     *
-     * @param model
-     * @returns {Launch}
-     */
-    Launch.create = function (model) {
-        return new Launch(model.name, model.beganAt, model.countdown, model.isPaused, model.introduction, model.webcasts, model.resources, model.descriptionSections);
-    };
-    return Launch;
-}());
-exports.Launch = Launch;
-
-
-/***/ },
-
-/***/ 481:
+/***/ 520:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -658,7 +667,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var LaunchDataService_1 = __webpack_require__(81);
+var LaunchDataService_1 = __webpack_require__(70);
 var CountdownComponent = (function () {
     function CountdownComponent(launchData) {
         this.launchData = launchData;
@@ -705,7 +714,145 @@ exports.CountdownComponent = CountdownComponent;
 
 /***/ },
 
-/***/ 482:
+/***/ 521:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var DateTimeEntryComponent = (function () {
+    function DateTimeEntryComponent() {
+        this.dateChange = new core_1.EventEmitter();
+        this.opts = {
+            dateFormat: 'dd mmm yyyy',
+            sunHighlight: false
+        };
+    }
+    /**
+     * On component initialization, check if the date being passed into the component is undefined.
+     * If it is, set the internal component date to now.
+     */
+    DateTimeEntryComponent.prototype.ngOnInit = function () {
+        if (this.date == undefined) {
+            this.tempDate = new Date();
+        }
+    };
+    /**
+     * Returns a human readable month string from the current month component of the internal
+     * component date.
+     *
+     * @returns {string} Human readable date string.
+     */
+    DateTimeEntryComponent.prototype.humanReadableMonth = function () {
+        var months = ["January", "February", "March", "April", "May", "June", "July", "August",
+            "September", "October", "November", "December"];
+        return months[this.tempDate.getUTCMonth()];
+    };
+    /**
+     * Increments the provided date time component, one of "seconds", "minutes", "hours", "days", "months",
+     * or "years" by one.
+     *
+     * @param dateTimeComponent {string} The component to increment.
+     */
+    DateTimeEntryComponent.prototype.increment = function (dateTimeComponent) {
+        this.incrementOrDecrement('+', dateTimeComponent);
+    };
+    /**
+     * Decrements the provided date time component, one of "seconds", "minutes", "hours", "days", "months",
+     * or "years" by one.
+     *
+     * @param dateTimeComponent {string} The component to decrement.
+     */
+    DateTimeEntryComponent.prototype.decrement = function (dateTimeComponent) {
+        this.incrementOrDecrement('-', dateTimeComponent);
+    };
+    /**
+     * Internal mechanism for incrementing or decrementing a component of a date object. Once the
+     * change has occurred, emits an update to the `dateChange` output EventEmitter.
+     *
+     * @param sign {string} Either '+' or '-', to increment or decrement respectively.
+     * @param dateTimeComponent {string} The component to increment or decrement.
+     */
+    DateTimeEntryComponent.prototype.incrementOrDecrement = function (sign, dateTimeComponent) {
+        var direction = sign === "+" ? 1 : -1;
+        switch (dateTimeComponent) {
+            case 'years':
+                this.tempDate.setUTCFullYear(this.tempDate.getUTCFullYear() + direction);
+                break;
+            case 'months':
+                this.tempDate.setUTCMonth(this.tempDate.getUTCMonth() + direction);
+                break;
+            case 'days':
+                this.tempDate.setUTCDate(this.tempDate.getUTCDate() + direction);
+                break;
+            case 'hours':
+                this.tempDate.setUTCHours(this.tempDate.getUTCHours() + direction);
+                break;
+            case 'minutes':
+                this.tempDate.setMinutes(this.tempDate.getMinutes() + direction);
+                break;
+            case 'seconds':
+                this.tempDate.setSeconds(this.tempDate.getSeconds() + direction);
+                break;
+        }
+        this.dateChange.emit(this.tempDate);
+    };
+    /**
+     * Sets a component of a date object to the specific new value passed through. Once the
+     * change has occurred, emits an update to the `dateChange` output EventEmitter.
+     *
+     * @param dateTimeComponent {string} The component to adjust values for.
+     * @param newValue {*} The new value for the component to hold.
+     */
+    DateTimeEntryComponent.prototype.setDateTimeComponent = function (dateTimeComponent, newValue) {
+        var dynamicMethodNames = {
+            'years': "setUTCFullYear",
+            'months': "setUTCMonth",
+            'days': "setUTCDate",
+            'hours': "setUTCHours",
+            'minutes': "setMinutes",
+            'seconds': "setSeconds"
+        };
+        this.tempDate[dynamicMethodNames[dateTimeComponent]](newValue);
+        this.dateChange.emit(this.tempDate);
+    };
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', String)
+    ], DateTimeEntryComponent.prototype, "id", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], DateTimeEntryComponent.prototype, "date", void 0);
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', (typeof (_a = typeof core_1.EventEmitter !== 'undefined' && core_1.EventEmitter) === 'function' && _a) || Object)
+    ], DateTimeEntryComponent.prototype, "dateChange", void 0);
+    DateTimeEntryComponent = __decorate([
+        core_1.Component({
+            selector: 'tmt-datetimeentry',
+            template: "\n        <div class=\"entryfield hours\">\n            <span (click)=\"increment('hours')\">Up</span>\n            <input id=\"{{ id + 'Hour' }}\" name=\"{{ id + 'Hour' }}\" #hours=\"ngModel\" [ngModel]=\"tempDate.getUTCHours()\" (ngModelChange)=\"setDateTimeComponent('hours', $event)\" type=\"text\" />\n            <span (click)=\"decrement('hours')\">Down</span>\n        </div>\n        \n        <span>:</span>\n        \n        <div class=\"entryfield minutes\"> \n            <span (click)=\"increment('minutes')\">Up</span>\n            <input id=\"{{ id + 'Minute' }}\" name=\"{{ id + 'Minute' }}\" [ngModel]=\"tempDate.getMinutes()\" (ngModelChange)=\"setDateTimeComponent('minutes', $event)\" type=\"text\" />\n            <span (click)=\"decrement('minutes')\">Down</span>\n        </div>\n        \n        <span>:</span>\n        \n        <div class=\"entryfield seconds\"> \n            <span (click)=\"increment('seconds')\">Up</span>\n            <input id=\"{{ id + 'Second' }}\" name=\"{{ id + 'Second' }}\" [ngModel]=\"tempDate.getSeconds()\" (ngModelChange)=\"setDateTimeComponent('seconds', $event)\" type=\"text\" />\n            <span (click)=\"decrement('seconds')\">Down</span>\n        </div>\n        \n        <div class=\"entryfield days\"> \n            <span (click)=\"increment('days')\">Up</span>\n            <input id=\"{{ id + 'Date' }}\" name=\"{{ id + 'Date' }}\" [ngModel]=\"tempDate.getUTCDate()\" (ngModelChange)=\"setDateTimeComponent('days', $event)\" type=\"text\" />\n            <span (click)=\"decrement('days')\">Down</span>\n        </div>\n        \n        <div class=\"entryfield months\"> \n            <span (click)=\"increment('months')\">Up</span>\n            <input id=\"{{ id + 'Month' }}\" name=\"{{ id + 'Month' }}\" [ngModel]=\"humanReadableMonth()\" (ngModelChange)=\"setDateTimeComponent('months', $event)\" type=\"text\" />\n            <span (click)=\"decrement('months')\">Down</span>\n        </div>\n        \n        <div class=\"entryfield years\"> \n            <span (click)=\"increment('years')\">Up</span>\n            <input id=\"{{ id + 'Year' }}\" name=\"{{ id + 'Year' }}\" [ngModel]=\"tempDate.getUTCFullYear()\" (ngModelChange)=\"setDateTimeComponent('years', $event)\" type=\"text\" />\n            <span (click)=\"decrement('years')\">Down</span>\n        </div>\n    "
+        }), 
+        __metadata('design:paramtypes', [])
+    ], DateTimeEntryComponent);
+    return DateTimeEntryComponent;
+    var _a;
+}());
+exports.DateTimeEntryComponent = DateTimeEntryComponent;
+
+
+/***/ },
+
+/***/ 522:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -737,7 +884,7 @@ exports.HeaderComponent = HeaderComponent;
 
 /***/ },
 
-/***/ 483:
+/***/ 523:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -752,7 +899,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var NotificationBannerService_1 = __webpack_require__(121);
+var NotificationBannerService_1 = __webpack_require__(105);
 var NotificationBannerComponent = (function () {
     function NotificationBannerComponent(notificationBannerService) {
         var _this = this;
@@ -786,7 +933,7 @@ exports.NotificationBannerComponent = NotificationBannerComponent;
 
 /***/ },
 
-/***/ 484:
+/***/ 524:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -801,9 +948,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var WebsocketService_1 = __webpack_require__(193);
-var NotificationBannerService_1 = __webpack_require__(121);
-var LaunchDataService_1 = __webpack_require__(81);
+var WebsocketService_1 = __webpack_require__(170);
+var NotificationBannerService_1 = __webpack_require__(105);
+var LaunchDataService_1 = __webpack_require__(70);
+var Launch_1 = __webpack_require__(381);
 var SettingsSection;
 (function (SettingsSection) {
     SettingsSection[SettingsSection["Display"] = 0] = "Display";
@@ -813,37 +961,100 @@ var SettingsSection;
     SettingsSection[SettingsSection["Introduction"] = 4] = "Introduction";
     SettingsSection[SettingsSection["DescriptionSections"] = 5] = "DescriptionSections";
     SettingsSection[SettingsSection["Resources"] = 6] = "Resources";
-    SettingsSection[SettingsSection["LaunchStatuses"] = 7] = "LaunchStatuses";
+    SettingsSection[SettingsSection["LaunchEventTemplates"] = 7] = "LaunchEventTemplates";
     SettingsSection[SettingsSection["About"] = 8] = "About";
 })(SettingsSection || (SettingsSection = {}));
 var SettingsComponent = (function () {
-    function SettingsComponent(websocketService, notificationBannerService, launchModel) {
+    function SettingsComponent(websocketService, notificationBannerService, launchDataService) {
         this.websocketService = websocketService;
         this.notificationBannerService = notificationBannerService;
-        this.launchModel = launchModel;
+        this.launchDataService = launchDataService;
         this.settingsSection = SettingsSection;
         this.currentSection = this.settingsSection.General;
+        this.launch = new Launch_1.Launch();
         this.settingsState = {
-            isLaunching: false,
-            isSaving: false
+            isLiftingOff: false,
+            isSaving: false,
+            tempCountdown: null
         };
     }
     /**
      * Functionality to activate the T Minus Ten app. Is called by clicking the `launch` button from within the settings
      * menu. Emits an `appStatus` to the server of type "enableApp".
      */
-    SettingsComponent.prototype.launch = function () {
+    SettingsComponent.prototype.liftoff = function () {
         var _this = this;
-        this.settingsState.isLaunching = true;
-        this.websocketService.emitAppStatus("enableApp", { missionName: this.launchModel.launch.name }).subscribe(function (response) {
-            _this.settingsState.isLaunching = false;
+        var data = {
+            name: this.launch.name,
+            countdown: this.launch.countdown.toISOString(),
+            introduction: this.launch.introduction,
+            resources: this.launch.resources,
+            descriptionSections: this.launch.descriptionSections
+        };
+        this.settingsState.isLiftingOff = true;
+        this.websocketService.emitAppStatus("enableApp", data).subscribe(function (response) {
+            _this.settingsState.isLiftingOff = false;
             _this.notificationBannerService.notify("App Enabled.");
         });
+    };
+    /**
+     * Called when the countdown date within the countdowns tab is adjusted. Sets the `countdown` field on the
+     * local `launch` property.
+     *
+     * @param newCountdown {Date} The new temporary countdown value.
+     */
+    SettingsComponent.prototype.onCountdownChanged = function (newCountdown) {
+        this.launch.countdown = newCountdown;
+    };
+    /**
+     * Adds a description section to the array of description sections.
+     */
+    SettingsComponent.prototype.addDescriptionSection = function () {
+        var descriptionSection = {
+            title: null,
+            description: null
+        };
+        if (!this.launch.descriptionSections) {
+            this.launch.descriptionSections = [];
+        }
+        this.launch.descriptionSections.push(descriptionSection);
+    };
+    /**
+     * Removes the given description section from the description sections array.
+     *
+     * @param descriptionSection {DescriptionSection} The section to remove.
+     */
+    SettingsComponent.prototype.removeDescriptionSection = function (descriptionSection) {
+        var index = this.launch.descriptionSections.indexOf(descriptionSection);
+        this.launch.descriptionSections.splice(index, 1);
+    };
+    /**
+     * Adds a resource to the array of resources.
+     */
+    SettingsComponent.prototype.addResource = function () {
+        var resource = {
+            title: null,
+            url: null,
+            note: null
+        };
+        if (!this.launch.resources) {
+            this.launch.resources = [];
+        }
+        this.launch.resources.push(resource);
+    };
+    /**
+     * Removes the given resource from the resources array.
+     *
+     * @param resource {Resource} The resource to remove.
+     */
+    SettingsComponent.prototype.removeResource = function (resource) {
+        var index = this.launch.resources.indexOf(resource);
+        this.launch.resources.splice(index, 1);
     };
     SettingsComponent = __decorate([
         core_1.Component({
             selector: 'tmt-settings',
-            template: "\n        <div>\n            <nav>\n                <ul>\n                    <li (click)=\"currentSection = settingsSection.Display\">Display</li>\n                    <li (click)=\"currentSection = settingsSection.Notifications\">Notifications</li>\n                    <li (click)=\"currentSection = settingsSection.General\">General</li>\n                    <li (click)=\"currentSection = settingsSection.Countdown\">Countdown</li>\n                    <li (click)=\"currentSection = settingsSection.Introduction\">Introduction</li>\n                    <li (click)=\"currentSection = settingsSection.DescriptionSections\">Description Sections</li>\n                    <li (click)=\"currentSection = settingsSection.Resources\">Resources</li>\n                    <li (click)=\"currentSection = settingsSection.LaunchStatuses\">Launch Statuses</li>\n                    <li (click)=\"currentSection = settingsSection.About\">About the App</li>\n                </ul>\n            </nav>\n            \n            <section [hidden]=\"currentSection != settingsSection.Display\">\n                <h1>Display</h1>\n                \n                <p>Increase text size</p>\n                <p>Density settings</p>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Notifications\">\n                <h1>Notifications</h1>\n                \n                <p>Play ping when a new update arrives when tab inactive</p>\n            </section>\n            \n            <!-- GENERAL -->\n            <section [hidden]=\"currentSection != settingsSection.General\">\n                <h1>General</h1>\n                <p>General launch details and application settings.</p>\n                \n                <p *ngIf=\"launchModel.launch.name\">Will appear on Reddit as: <span class=\"title\">r/SpaceX {{ launchModel.launch.name }} Official Launch Discussion & Updates Thread</span></p>\n                <form>\n                    <label for=\"mission\">Mission Name</label>\n                    <input type=\"text\" name=\"mission\" [(ngModel)]=\"launchModel.launch.name\" placeholder=\"Mission Name\">\n                </form>\n            </section>\n            \n            <!-- COUNTDOWN -->\n            <section [hidden]=\"currentSection != settingsSection.Countdown\">\n                <h1>Countdown</h1>\n                \n                <form>\n                    <select name=\"liftoffHour\">\n                    \n                    </select>\n                    <select name=\"liftoffMinute\">\n                    \n                    </select>\n                     <select name=\"liftoffSecond\">\n                    \n                    </select>\n                    <select name=\"liftoffDate\">\n                    \n                    </select>\n                    <select name=\"liftoffMonth\">\n                    \n                    </select>\n                    <select name=\"liftoffYear\">\n                    \n                    </select>\n                </form>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Introduction\">\n                <h1>Introduction</h1>\n                <form>\n                    <textarea name=\"introduction\" [(ngModel)]=\"launchModel.launch.introduction\" placeholder=\"Introduction.\"></textarea>\n                </form>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.DescriptionSections\">\n                <h1>Description Sections</h1>\n                \n                <template ngFor let-section [ngForOf]=\"launchModel.launch.descriptionSections\">\n                    <input type=\"text\" placeholder=\"Section title\" />\n                    <textarea placeholder=\"Section description\">\n                    \n                    </textarea>\n                </template>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.Resources\">\n                <h1>Resources</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.LaunchStatuses\">\n                <h1>Launch Statuses</h1>\n            </section>\n            \n            <section [hidden]=\"currentSection != settingsSection.About\">\n                <h1>About the App</h1>\n                <p>Written by Luke.</p>\n            </section>\n            \n            <div>\n                <button (click)=\"launch()\" [disabled]=\"settingsState.isLaunching\">\n                    {{ settingsState.isLaunching ? \"Launching...\" : \"Launch\" }}\n                </button>\n            </div>\n        </div>\n    "
+            template: "\n        <div>\n            <nav>\n                <ul>\n                    <li (click)=\"currentSection = settingsSection.Display\">Display</li>\n                    <li (click)=\"currentSection = settingsSection.Notifications\">Notifications</li>\n                    <li (click)=\"currentSection = settingsSection.General\">General</li>\n                    <li (click)=\"currentSection = settingsSection.Countdown\">Countdown</li>\n                    <li (click)=\"currentSection = settingsSection.Introduction\">Introduction</li>\n                    <li (click)=\"currentSection = settingsSection.DescriptionSections\">Description Sections</li>\n                    <li (click)=\"currentSection = settingsSection.Resources\">Resources</li>\n                    <li (click)=\"currentSection = settingsSection.LaunchEventTemplates\">Launch Event Templates</li>\n                    <li (click)=\"currentSection = settingsSection.About\">About the App</li>\n                </ul>\n            </nav>\n            \n            <!-- DISPLAY -->\n            <section [hidden]=\"currentSection != settingsSection.Display\">\n                <h1>Display</h1>\n                \n                <p>Increase text size</p>\n                <p>Density settings</p>\n            </section>\n            \n            <!-- NOTIFICATIONS -->\n            <section [hidden]=\"currentSection != settingsSection.Notifications\">\n                <h1>Notifications</h1>\n                \n                <p>Play ping when a new update arrives when tab inactive</p>\n            </section>\n            \n            <!-- GENERAL -->\n            <section [hidden]=\"currentSection != settingsSection.General\">\n                <h1>General</h1>\n                <p>General launch details and application settings.</p>\n                \n                <p *ngIf=\"launch.name\">Will appear on Reddit as: <span class=\"title\">r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread</span></p>\n                <form>\n                    <label for=\"mission\">Mission Name</label>\n                    <input type=\"text\" name=\"mission\" [(ngModel)]=\"launch.name\" placeholder=\"Mission Name\">\n                </form>\n            </section>\n            \n            <!-- COUNTDOWN -->\n            <section [hidden]=\"currentSection != settingsSection.Countdown\">\n                <h1>Countdown</h1>\n                \n                <form>\n                    <tmt-datetimeentry [id]=\"'countdown'\" [date]=\"launch.countdown\" (dateChange)=\"onCountdownChanged($event)\"></tmt-datetimeentry>\n                </form>\n                \n                <p *ngIf=\"launchDataService.launch.countdown != launch.countdown\">New countdown of {{ launch.countdown.toISOString() }}</p>\n            </section>\n            \n            <!-- INTRODUCTION -->\n            <section [hidden]=\"currentSection != settingsSection.Introduction\">\n                <h1>Introduction</h1>\n                <form>\n                    <textarea name=\"introduction\" [(ngModel)]=\"launch.introduction\" placeholder=\"Introductory paragraph about the launch.\"></textarea>\n                    <span>{{ launch.introduction?.length }} + characters.</span>\n                </form>\n            </section>\n            \n            <!-- DESCRIPTION SECTIONS -->\n            <section [hidden]=\"currentSection != settingsSection.DescriptionSections\">\n                <h1>Description Sections</h1>\n                \n                <button (click)=\"addDescriptionSection()\">Add Section</button>\n                \n                <ng-container *ngFor=\"let section of launch.descriptionSections\">\n                    <input type=\"text\" placeholder=\"Section title\" [(ngModel)]=\"section.title\" />\n                    <textarea placeholder=\"Section description\" [(ngModel)]=\"section.description\" ></textarea>\n                    <button (click)=\"removeDescriptionSection(section)\">Remove</button>\n                </ng-container>\n            </section>\n            \n            <!-- RESOURCES -->\n            <section [hidden]=\"currentSection != settingsSection.Resources\">\n                <h1>Resources</h1>\n                \n                <button (click)=\"addResource()\">Add Resource</button>\n                \n                <ng-container *ngFor=\"let resource of launch.resources\">\n                    <input type=\"text\" placeholder=\"Resource Title\" [(ngModel)]=\"resource.title\" />\n                    <input type=\"text\" placeholder=\"Resource URL\" [(ngModel)]=\"resource.url\" />\n                    <input type=\"text\" placeholder=\"Resource Note\" [(ngModel)]=\"resource.note\" />          \n                    <button (click)=\"removeResource(resource)\">Remove</button>\n                </ng-container>\n            </section>\n            \n            <!-- LAUNCH EVENT TEMPLATES -->\n            <section [hidden]=\"currentSection != settingsSection.LaunchEventTemplates\">\n                <h1>Launch Event Templates</h1>\n            </section>\n            \n            <!-- ABOUT -->\n            <section [hidden]=\"currentSection != settingsSection.About\">\n                <h1>About the App</h1>\n                <p>Written by Luke. View on GitHub here: https://github.com/LukeNZ/tminusten.</p>\n            </section>\n            \n            <!-- GLOBAL SETTINGS OPTIONS -->\n            <div>\n                <button (click)=\"liftoff()\" [disabled]=\"settingsState.isLiftingOff\">\n                    {{ settingsState.isLiftingOff ? \"Lifting off...\" : \"Liftoff\" }}\n                </button>\n            </div>\n        </div>\n    "
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _a) || Object, (typeof (_b = typeof NotificationBannerService_1.NotificationBannerService !== 'undefined' && NotificationBannerService_1.NotificationBannerService) === 'function' && _b) || Object, (typeof (_c = typeof LaunchDataService_1.LaunchDataService !== 'undefined' && LaunchDataService_1.LaunchDataService) === 'function' && _c) || Object])
     ], SettingsComponent);
@@ -855,7 +1066,7 @@ exports.SettingsComponent = SettingsComponent;
 
 /***/ },
 
-/***/ 485:
+/***/ 525:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -887,7 +1098,7 @@ exports.StatusBarComponent = StatusBarComponent;
 
 /***/ },
 
-/***/ 486:
+/***/ 526:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -902,9 +1113,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(80);
-var NotificationBannerService_1 = __webpack_require__(121);
-var LaunchDataService_1 = __webpack_require__(81);
+var AuthService_1 = __webpack_require__(69);
+var NotificationBannerService_1 = __webpack_require__(105);
+var LaunchDataService_1 = __webpack_require__(70);
 var TMinusTenComponent = (function () {
     /**
      * Construct globally available services.
@@ -933,7 +1144,7 @@ exports.TMinusTenComponent = TMinusTenComponent;
 
 /***/ },
 
-/***/ 487:
+/***/ 527:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -965,7 +1176,7 @@ exports.UpdatesComponent = UpdatesComponent;
 
 /***/ },
 
-/***/ 488:
+/***/ 528:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -997,14 +1208,14 @@ exports.WebcastComponent = WebcastComponent;
 
 /***/ },
 
-/***/ 489:
+/***/ 529:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var router_1 = __webpack_require__(133);
-var Home_component_1 = __webpack_require__(312);
-var Login_component_1 = __webpack_require__(313);
+var router_1 = __webpack_require__(110);
+var Home_component_1 = __webpack_require__(382);
+var Login_component_1 = __webpack_require__(383);
 var appRoutes = [
     { path: '', component: Home_component_1.HomeComponent },
     { path: 'login', component: Login_component_1.LoginComponent }
@@ -1015,13 +1226,13 @@ exports.routedComponents = [Home_component_1.HomeComponent];
 
 /***/ },
 
-/***/ 609:
+/***/ 585:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var platform_browser_dynamic_1 = __webpack_require__(134);
-var app_module_1 = __webpack_require__(361);
+var platform_browser_dynamic_1 = __webpack_require__(111);
+var app_module_1 = __webpack_require__(409);
 platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1.AppModule)
     .then(function (success) { return console.log("Bootstrap success"); })
     .catch(function (error) { return console.log(error); });
@@ -1029,7 +1240,7 @@ platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1
 
 /***/ },
 
-/***/ 80:
+/***/ 69:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1049,8 +1260,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var http_1 = __webpack_require__(62);
-var AbstractService_1 = __webpack_require__(314);
+var http_1 = __webpack_require__(52);
+var AbstractService_1 = __webpack_require__(384);
 var AuthService = (function (_super) {
     __extends(AuthService, _super);
     /**
@@ -1128,7 +1339,7 @@ exports.AuthService = AuthService;
 
 /***/ },
 
-/***/ 81:
+/***/ 70:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1143,7 +1354,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var BehaviorSubject_1 = __webpack_require__(131);
+var BehaviorSubject_1 = __webpack_require__(108);
 var LaunchDataService = (function () {
     function LaunchDataService() {
         this._launchSubject = new BehaviorSubject_1.BehaviorSubject(this._launch);
@@ -1225,6 +1436,26 @@ var LaunchDataService = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(LaunchDataService.prototype, "isActive", {
+        /**
+         * Accessor for current app status.
+         *
+         * @returns {boolean}
+         */
+        get: function () {
+            return this._isActive;
+        },
+        /**
+         * Setter for the current app status.
+         *
+         * @param value
+         */
+        set: function (value) {
+            this._isActive = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     LaunchDataService = __decorate([
         core_1.Injectable(), 
         __metadata('design:paramtypes', [])
@@ -1236,4 +1467,4 @@ exports.LaunchDataService = LaunchDataService;
 
 /***/ }
 
-},[609]);
+},[585]);

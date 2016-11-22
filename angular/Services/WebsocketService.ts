@@ -3,7 +3,6 @@ import {Observable} from "rxjs/Observable";
 import {AuthService} from "./AuthService";
 import {Status} from "../Interfaces/Status";
 var io = require('socket.io-client');
-var uuid = require('node-uuid');
 
 @Injectable()
 export class WebsocketService {
@@ -212,7 +211,7 @@ export class WebsocketService {
         });
 
         return new Observable(observer => {
-            this.socketClient.on('response:appStatus', observer.next);
+            this.socketClient.on('response:appStatus', data => observer.next(data));
             return () => this.socketClient.disconnect();
         });
     }

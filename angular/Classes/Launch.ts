@@ -8,9 +8,14 @@ export class Launch {
     public countdown: Date;
     public isPaused: boolean;
     public introduction: string;
-    public webcasts: Webcast[];
-    public resources: Resource[];
-    public descriptionSections: DescriptionSection[];
+    public webcasts: Webcast[] = [];
+    public resources: Resource[] = [];
+    public descriptionSections: DescriptionSection[] = [];
+
+    /**
+     * Empty constructor.
+     */
+    constructor();
 
     /**
      *
@@ -24,7 +29,21 @@ export class Launch {
      * @param resources
      * @param descriptionSections
      */
-    constructor(name: string, beganAt: Date, countdown: Date, isPaused: boolean, introduction: string, webcasts: Webcast[], resources: Resource[], descriptionSections: DescriptionSection[]) {
+    constructor(name?: string, beganAt?: Date, countdown?: Date, isPaused?: boolean, introduction?: string, webcasts?: Webcast[], resources?: Resource[], descriptionSections?: DescriptionSection[]);
+
+    /**
+     *
+     *
+     * @param name
+     * @param beganAt
+     * @param countdown
+     * @param isPaused
+     * @param introduction
+     * @param webcasts
+     * @param resources
+     * @param descriptionSections
+     */
+    constructor(name?: string, beganAt?: Date, countdown?: Date, isPaused?: boolean, introduction?: string, webcasts?: Webcast[], resources?: Resource[], descriptionSections?: DescriptionSection[]) {
         this.name = name;
         this.beganAt = beganAt;
         this.countdown = countdown;

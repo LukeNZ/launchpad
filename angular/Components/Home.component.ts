@@ -43,6 +43,7 @@ import 'rxjs/add/observable/forkJoin';
     `
 })
 /**
+ * @class
  * Where all the fun happens! This is the component that accessible from the route '/', and is the container
  * for most of the application's functionality.
  */
@@ -66,8 +67,8 @@ export class HomeComponent implements OnInit {
     public ngOnInit() : void {
         Observable.forkJoin(
             this.initializationService.getLaunch(),
-            this.initializationService.getUpdates(),
-            this.initializationService.getStatus()
+            this.initializationService.getStatuses(),
+            this.initializationService.getTMinusTen()
         ).subscribe(data => {
             this.launchModel.setLaunch(data[0]);
             this.launchModel.setStatuses(data[1]);
