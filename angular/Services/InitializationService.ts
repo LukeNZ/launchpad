@@ -6,6 +6,12 @@ import {Status} from "../Interfaces/Status";
 import {Launch} from "../Classes/Launch";
 
 @Injectable()
+/**
+ * Service which allows the fetching of application initialization data from the server over AJAX.
+ * This includes the current application state, the statuses posted so far, and the current launch
+ * details.
+ * @class
+ */
 export class InitializationService extends AbstractService {
 
     constructor(public http: Http) {

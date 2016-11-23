@@ -7,11 +7,11 @@ var redis = require("redis");
  * Download all data
  * Retrieve livestream status/information
  * Update livestream status/information
- * Get all launch updates
- * Insert launch update
- * Remove launch update
- * Get specific launch update
- * Set specific launch update
+ * Get all launch statuses
+ * Add launch status
+ * Remove launch status
+ * Get specific launch status
+ * Set specific launch status
  */
 class StoreService {
 
@@ -26,26 +26,31 @@ class StoreService {
      * Logs a websocket event to Redis.
      *
      * Pushes the event into the `events` list in Redis, and also adds `timestamp` (ISO8601 datetime string)
-     * and `event_id` properties to the data.
+     * property to the data.
      *
      * @param eventName {string} The namespace that the event occurred under.
-     * @param dataObj {*} Data that came with the message.
+     * @param data {*} The message to log.
+     * @param user? {User} An optional user to append as the creator of the action.
      *
-     * @returns {Promise} Returns a promise that resolves to the updated data.
+     * @returns {Promise} Returns a promise that resolves to an object containing
+     * the id and insertion timestamp.
      */
-    logEvent(eventName, dataObj) {
+    log(eventName, data, user) {
         return new Promise((resolve, reject) => {
 
-            // Append a timestamp to the data
-            dataObj.timestamp = (new Date()).toISOString();
+            let timestamp = (new Date()).toISOString();
 
-            return this.client.rpush("events", JSON.stringify({
+            this.client.rpush("events", JSON.stringify({
                 event: eventName,
-                body: dataObj
-            }), (err, response) => {
+                user: user ? user.username : null,
+                timestamp: timestamp,
+                body: data
 
-                dataObj.event_id = response;
-                return resolve(dataObj);
+            }), (err, response) => {
+                return resolve({
+                    id: response,
+                    timestamp: timestamp
+                });
             });
         });
     }
@@ -90,9 +95,12 @@ class StoreService {
         return new Promise((resolve, reject) => {
             if (launchProperty == undefined) {
                 return this.client.hgetall("launch", (err, reply) => {
-                    Object.keys(reply).forEach(key => {
-                        reply[key] = JSON.parse(reply[key]);
-                    });
+
+                    if (reply != null) {
+                        Object.keys(reply).forEach(key => {
+                            reply[key] = JSON.parse(reply[key]);
+                        });
+                    }
 
                     return resolve(reply);
                 });
@@ -111,7 +119,7 @@ class StoreService {
      * Inserts the keys and values of dataObj as the keys and values of fields on the `launch` hash in Redis.
      * If dataObj is null or undefined the function will reject.
      *
-     * @param dataObj {*}   An object of keys and values to be set on the `launch` hash in Redis.
+     * @param dataObj {*} An object of keys and values to be set on the `launch` hash in Redis.
      *
      * @returns {Promise} Returns a promise that resolves to the reply from Redis once the hash fields have been
      * set.
@@ -124,9 +132,12 @@ class StoreService {
             });
 
             if (dataObj != null) {
-                return this.client.hmset("launch", dataObj, (err, reply) => resolve(reply));
+                this.client.hmset("launch", dataObj, (err, reply) => {
+                    resolve(reply);
+                });
+            } else {
+                return reject();
             }
-            return reject();
         });
     }
 
@@ -138,7 +149,26 @@ class StoreService {
 
     }
 
-    getUpdates() {
+    /**
+     *
+     *
+     * @param data
+     * @returns {Promise}
+     */
+    addLaunchStatus(data) {
+        return new Promise((resolve, reject) => {
+            this.client.rpush("launchStatuses", JSON.stringify(data), (err, index) => {
+
+                data.statusId = index;
+
+                this.client.lset("launchStatuses", index, (err, index) => {
+
+                });
+            });
+        });
+    }
+
+    getStatuses() {
         return new Promise((resolve, reject) => {
 
         });
@@ -148,6 +178,10 @@ class StoreService {
         return new Promise((resolve, reject) => {
 
         });
+    }
+
+    beginTransaction() {
+        return this;
     }
 }
 

@@ -56,19 +56,12 @@ export class DateTimeEntryComponent implements OnInit {
 
     public tempDate : Date;
 
-    public opts = {
-        dateFormat: 'dd mmm yyyy',
-        sunHighlight: false
-    };
-
     /**
      * On component initialization, check if the date being passed into the component is undefined.
      * If it is, set the internal component date to now.
      */
     public ngOnInit() : void {
-        if (this.date == undefined) {
-            this.tempDate = new Date();
-        }
+        this.tempDate = this.date == null ? moment().milliseconds(0).toDate() : this.date;
     }
 
     /**

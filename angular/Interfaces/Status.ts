@@ -1,7 +1,11 @@
 export interface Status {
-    status_id: number;
+    id: number;
+    statusId: number;
     timestamp: Date;
     source: string;
-    author: string;
+    statusType: string;
+    eventType: string
+    user: string;
     text: string;
+    isDeleted: boolean;
 }

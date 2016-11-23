@@ -5,15 +5,15 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 
 @Injectable()
+/**
+ * Service to allow the sharing of launch data
+ */
 export class LaunchDataService {
-
-    // Application Mode
-    private _isActive: boolean;
 
     // Launch properties
     private _launch: Launch;
     private _launchSubject = new BehaviorSubject<Launch>(this._launch);
-    private _launchObservable = this._launchSubject.asObservable;
+    private _launchObservable = this._launchSubject.asObservable();
 
     // Launch statuses and updates
     private _statuses: Status[];
@@ -42,12 +42,21 @@ export class LaunchDataService {
     }
 
     /**
+     * Setter for the launch model.
+     *
+     * @param launch {Launch} The launch model to be set.
+     */
+    set launch(launch: Launch) {
+        this._launch = launch;
+    }
+
+    /**
      * Returns an observable for the launch model
      *
      * @returns {Observable<Launch>} An observable of the launch model.
      */
     public launchObservable() : Observable<Launch> {
-        return this._launchObservable();
+        return this._launchObservable;
     }
 
     /**
@@ -94,23 +103,5 @@ export class LaunchDataService {
      */
     get statuses() : Status[] {
         return this._statuses;
-    }
-
-    /**
-     * Accessor for current app status.
-     *
-     * @returns {boolean}
-     */
-    get isActive() : boolean {
-        return this._isActive;
-    }
-
-    /**
-     * Setter for the current app status.
-     *
-     * @param value
-     */
-    set isActive(value: boolean) {
-        this._isActive = value;
     }
 }

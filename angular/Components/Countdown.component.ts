@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {LaunchDataService} from "../Services/LaunchDataService";
+var moment = require("moment");
 
 @Component({
     selector:'tmt-countdown',
@@ -29,16 +30,21 @@ export class CountdownComponent implements OnInit {
 
     constructor(public launchData: LaunchDataService) {}
 
+    /**
+     * Runs the countdown processor.
+     */
     public ngOnInit() : void {
-        setInterval(this.countdownProcessor(), 1000);
+        setInterval(this.countdownProcessor.bind(this), 1000);
     }
 
     /**
-     *
+     * Process the countdown, calculating the components of the countdown based on how many seconds currently
+     * remain before the launch time is reached.
      */
     public countdownProcessor() : void {
+
         if (!this.launchData.launch.isPaused) {
-            let relativeSecondsBetween = (((+new Date()) - +this.launchData.launch.countdown) / 1000);
+            let relativeSecondsBetween = ((+(moment().milliseconds(0).toDate()) - +this.launchData.launch.countdown) / 1000);
             let secondsBetween = Math.abs(relativeSecondsBetween);
 
             this.sign = relativeSecondsBetween <= 0 ? '-' : '+';

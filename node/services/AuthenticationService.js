@@ -127,7 +127,7 @@ class AuthenticationService {
             }
             this.getUser(token).then(user => {
                 if (!user || !user.permissions.includes(permission)) {
-                    return reject();
+                    return reject(user);
                 }
                 return resolve(user);
             });

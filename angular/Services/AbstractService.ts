@@ -1,7 +1,12 @@
 import {Response, Headers, RequestOptions} from "@angular/http";
 import {Observable} from "rxjs/Observable";
 
+/**
+ * Abstract service that provides helper methods for other services.
+ * @class
+ */
 export abstract class AbstractService {
+
     /**
      * Handle an error.
      *

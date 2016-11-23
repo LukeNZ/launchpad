@@ -5,6 +5,11 @@ import {AbstractService} from "./AbstractService";
 import {LoginModel} from "../Interfaces/LoginModel";
 
 @Injectable()
+/**
+ * Authentication service, allowing a user to login and logout. Also allows the application to retrieve
+ * whether a user is logged in, and fetch their auth token.
+ * @class
+ */
 export class AuthService extends AbstractService {
 
     private _isLoggedIn: boolean = false;

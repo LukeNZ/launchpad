@@ -11,7 +11,7 @@ import {HeaderComponent} from "./Components/Header.component";
 import {CountdownComponent} from "./Components/Countdown.component";
 import {StatusBarComponent} from "./Components/StatusBar.component";
 import {UpdatesComponent} from "./Components/Updates.component";
-import {WebcastComponent} from "./Components/Webcast.component";
+import {LivestreamComponent} from "./Components/Livestream.component";
 import {LoginComponent} from "./Components/Login.component";
 import {NotificationBannerComponent} from "./Components/NotificationBanner.component";
 import {SettingsComponent} from "./Components/Settings.component";
@@ -23,14 +23,15 @@ import {WebsocketService} from "./Services/WebsocketService";
 import {AuthService} from "./Services/AuthService";
 import {LaunchDataService} from "./Services/LaunchDataService";
 import {NotificationBannerService} from "./Services/NotificationBannerService";
+import {AppDataService} from "./Services/AppDataService";
 
 @NgModule({
     // Modules
     imports: [BrowserModule, HttpModule, FormsModule, routing],
     // Services
-    providers: [InitializationService, WebsocketService, AuthService, LaunchDataService, NotificationBannerService],
+    providers: [InitializationService, WebsocketService, AuthService, LaunchDataService, AppDataService, NotificationBannerService],
     // Components
-    declarations: [TMinusTenComponent, HomeComponent, LoginComponent, HeaderComponent, CountdownComponent, StatusBarComponent, UpdatesComponent, WebcastComponent, NotificationBannerComponent, SettingsComponent, DateTimeEntryComponent],
+    declarations: [TMinusTenComponent, HomeComponent, LoginComponent, HeaderComponent, CountdownComponent, StatusBarComponent, UpdatesComponent, LivestreamComponent, NotificationBannerComponent, SettingsComponent, DateTimeEntryComponent],
     // Starting components
     bootstrap: [TMinusTenComponent]
 })

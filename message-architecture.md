@@ -30,7 +30,7 @@ Used to indicate whether a privileged user is typing a message.
 ## Server to Client
 
     {
-        event_id: <int>,
+        id: <int>,
         user: <string>,
         timestamp: <datetime>,
         isTyping: <boolean>
@@ -87,20 +87,23 @@ Events can be any of the following types:
 
     {
         token: <string>,
+        statusType: "update"|"event",
+        eventType: <string?>,
         text: <string>
     }
 
 ## Server to Client
 
     {
-        event_id: <int>,
-        status_id: <int>,
+        id: <int>,
+        statusId: <int>,
         timestamp: <datetime>,
         source: "twitter"|"user",
         statusType: "update"|"event",
         eventType: <string?>,
-        author: <string>,
-        text: <string>
+        user: <string>,
+        text: <string>,
+        isDeleted: <boolean>
     }
 
 ## Acknowledgement to Originating Client
@@ -122,15 +125,15 @@ If it is a cancellation request, the server will mark the update as not being ed
 
     {
         token: <string>,
-        status_id: <int>,
+        statusId: <int>,
         isRequesting: <boolean>
     }
 
 ## Server to Client
 
     {
-        event_id: <int>,
-        status_id: <int>,
+        id: <int>,
+        statusId: <int>,
         user: <string>       
     }
 
@@ -146,14 +149,15 @@ Occurs when a launch status is edited. Moderators may edit any launch status, ev
 
     {
         token: <string>,
-        status_id: <int>,
+        statusId: <int>,
         text: <string>
     }
 
 ## Server to Client
 
     {
-        status_id: <int>,
+        id: <int>
+        statusId: <int>,
         timestamp: <datetime>,
         user: <string>,
         text: <string>
@@ -175,13 +179,13 @@ When a launch status is deleted.
 ## Client to Server
     {
         token: <string>,
-        status_id: <int>
+        statusId: <int>
     }
 
 ## Server to Client
 
     {
-        status_id: <int>,
+        statusId: <int>,
         user: <string>
     }
 
@@ -211,7 +215,7 @@ A status concerning the functionality of the application. This affects the displ
 ## Server to Client
  
     {
-        event_id: <int>,
+        id: <int>,
         user: <string>,
         timestamp: <datetime>,
         statusType: <string>,

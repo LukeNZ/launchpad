@@ -29,7 +29,7 @@ export class Launch {
      * @param resources
      * @param descriptionSections
      */
-    constructor(name?: string, beganAt?: Date, countdown?: Date, isPaused?: boolean, introduction?: string, webcasts?: Webcast[], resources?: Resource[], descriptionSections?: DescriptionSection[]);
+    constructor(name?: string, beganAt?: Date|string, countdown?: Date|string, isPaused?: boolean, introduction?: string, webcasts?: Webcast[], resources?: Resource[], descriptionSections?: DescriptionSection[]);
 
     /**
      *
@@ -43,10 +43,10 @@ export class Launch {
      * @param resources
      * @param descriptionSections
      */
-    constructor(name?: string, beganAt?: Date, countdown?: Date, isPaused?: boolean, introduction?: string, webcasts?: Webcast[], resources?: Resource[], descriptionSections?: DescriptionSection[]) {
+    constructor(name?: string, beganAt?: Date|string, countdown?: Date|string, isPaused?: boolean, introduction?: string, webcasts?: Webcast[], resources?: Resource[], descriptionSections?: DescriptionSection[]) {
         this.name = name;
-        this.beganAt = beganAt;
-        this.countdown = countdown;
+        this.beganAt = typeof beganAt === 'string' ? new Date(beganAt) : beganAt;
+        this.countdown = typeof countdown === 'string' ? new Date(countdown) : countdown;
         this.isPaused = isPaused;
         this.introduction = introduction;
         this.webcasts = webcasts;

@@ -1,10 +1,11 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {WebsocketService} from "../Services/WebsocketService";
 import {NotificationBannerService} from "../Services/NotificationBannerService";
 import {LaunchDataService} from "../Services/LaunchDataService";
 import {Launch} from "../Classes/Launch";
 import {DescriptionSection} from "../Interfaces/DescriptionSection";
 import {Resource} from "../Interfaces/Resource";
+import {AppDataService} from "../Services/AppDataService";
 
 enum SettingsSection {
     Display, Notifications, General, Countdown, Introduction,
@@ -14,6 +15,7 @@ enum SettingsSection {
 @Component({
     selector:'tmt-settings',
     template: `
+        <i [hidden]="!appData.isActive" (click)="appData.isSettingsVisible = false">Close</i>
         <div>
             <nav>
                 <ul>
@@ -64,7 +66,7 @@ enum SettingsSection {
                     <tmt-datetimeentry [id]="'countdown'" [date]="launch.countdown" (dateChange)="onCountdownChanged($event)"></tmt-datetimeentry>
                 </form>
                 
-                <p *ngIf="launchDataService.launch.countdown != launch.countdown">New countdown of {{ launch.countdown.toISOString() }}</p>
+                <p *ngIf="launchData.launch.countdown != launch.countdown">New countdown of {{ launch.countdown.toISOString() }}</p>
             </section>
             
             <!-- INTRODUCTION -->
@@ -128,12 +130,12 @@ enum SettingsSection {
  * Settings. Appears as an overlaid window within the application either if no launch is actively running, or if the cog
  * settings icon is clicked. From here, changes to the description, title, webcasts, and other functionality can be made.
  */
-export class SettingsComponent {
+export class SettingsComponent implements OnInit {
 
     public settingsSection = SettingsSection;
     public currentSection: SettingsSection = this.settingsSection.General;
 
-    public launch: Launch = new Launch();
+    public launch: Launch;
 
     public settingsState = {
         isLiftingOff: false,
@@ -144,8 +146,18 @@ export class SettingsComponent {
     constructor(
         public websocketService : WebsocketService,
         public notificationBannerService: NotificationBannerService,
-        public launchDataService: LaunchDataService
+        public launchData: LaunchDataService,
+        public appData: AppDataService
     ) {}
+
+    /**
+     * On component initialization,
+     */
+    public ngOnInit() : void {
+        this.launchData.launchObservable().subscribe(data => {
+            this.launch = Object.assign({}, data);
+        })
+    }
 
     /**
      * Functionality to activate the T Minus Ten app. Is called by clicking the `launch` button from within the settings
@@ -161,9 +173,12 @@ export class SettingsComponent {
         };
 
         this.settingsState.isLiftingOff = true;
+
         this.websocketService.emitAppStatus("enableApp", data).subscribe(response => {
             this.settingsState.isLiftingOff = false;
+            this.appData.isSettingsVisible = false;
             this.notificationBannerService.notify("App Enabled.");
+            this.launchData.launch = this.launch;
         });
     }
 

@@ -7,6 +7,7 @@ import {LaunchDataService} from "../Services/LaunchDataService";
 
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
+import {AppDataService} from "../Services/AppDataService";
 
 @Component({
     selector:'tmt-home',
@@ -14,38 +15,41 @@ import 'rxjs/add/observable/forkJoin';
         <p *ngIf="isLoading">Loading...</p>
         
         <!-- Only show the below contents if the application has loaded. -->
-        <template [ngIf]="!isLoading">
+        <ng-container *ngIf="!isLoading">
+        
+            <!-- Allow a logged in user to access the application settings to start a launch,
+             allow a logged in user to edit the launch, allow a general user to set their personal 
+             preferences. -->
+            <tmt-settings 
+            *ngIf="(authService.isLoggedIn && !appData.isActive) || appData.isActive" 
+            [hidden]="!appData.isSettingsVisible"></tmt-settings>
+                
         
             <!-- Only show if the application is not active. -->
-            <template [ngIf]="!launchModel.isActive">
+            <ng-container *ngIf="!appData.isActive">
             
-                <!-- Allow a logged in user to access the application settings to start a launch. -->
-                <template [ngIf]="authService.isLoggedIn">
-                    <tmt-settings></tmt-settings>
-                </template>
-                
                 <!-- If the application is not active, and the user is a visitor, 
                 show the default message. -->
-                <template [ngIf]="!authService.isLoggedIn">
+                <ng-container *ngIf="!authService.isLoggedIn">
                     <p>There is no active launch at this time. Check back soon!</p>
-                </template>
-            </template>
+                </ng-container>
+            </ng-container>
             
             <!-- Show if the application is active. -->
-            <template [ngIf]="launchModel.isActive">
+            <ng-container *ngIf="appData.isActive">
                 <tmt-header></tmt-header>
-                <tmt-webcast></tmt-webcast>
+                <tmt-livestream></tmt-livestream>
                 <tmt-statusbar></tmt-statusbar>
                 <tmt-updates></tmt-updates>
-            </template>  
+            </ng-container>  
              
-        </template>     
+        </ng-container>     
     `
 })
 /**
- * @class
  * Where all the fun happens! This is the component that accessible from the route '/', and is the container
  * for most of the application's functionality.
+ * @class
  */
 export class HomeComponent implements OnInit {
 
@@ -55,7 +59,8 @@ export class HomeComponent implements OnInit {
         public initializationService: InitializationService,
         public authService: AuthService,
         public websocketService: WebsocketService,
-        public launchModel: LaunchDataService,
+        public launchData: LaunchDataService,
+        public appData: AppDataService,
         public titleService: Title) {
         this.titleService.setTitle("T Minus Ten");
     }
@@ -70,9 +75,17 @@ export class HomeComponent implements OnInit {
             this.initializationService.getStatuses(),
             this.initializationService.getTMinusTen()
         ).subscribe(data => {
-            this.launchModel.setLaunch(data[0]);
-            this.launchModel.setStatuses(data[1]);
-            this.launchModel.isActive = data[2].isActive;
+            this.launchData.setLaunch(data[0]);
+            this.launchData.setStatuses(data[1]);
+            this.appData.isActive = data[2].isActive;
+
+            if (!this.appData.isActive) {
+                this.appData.isSettingsVisible = true;
+            }
+
+            console.log("Launch Data from Home:");
+            console.log(this.launchData);
+
             this.isLoading = false;
         });
     }
