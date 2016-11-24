@@ -66,7 +66,7 @@ enum SettingsSection {
                     <tmt-datetimeentry [id]="'countdown'" [date]="launch.countdown" (dateChange)="onCountdownChanged($event)"></tmt-datetimeentry>
                 </form>
                 
-                <p *ngIf="launchData.launch.countdown != launch.countdown">New countdown of {{ launch.countdown.toISOString() }}</p>
+                <p *ngIf="launchData.launch?.countdown != launch.countdown">New countdown of {{ launch.countdown.toISOString() }}</p>
             </section>
             
             <!-- INTRODUCTION -->
@@ -126,9 +126,9 @@ enum SettingsSection {
     `
 })
 /**
- * @class
  * Settings. Appears as an overlaid window within the application either if no launch is actively running, or if the cog
  * settings icon is clicked. From here, changes to the description, title, webcasts, and other functionality can be made.
+ * @class
  */
 export class SettingsComponent implements OnInit {
 
@@ -156,7 +156,14 @@ export class SettingsComponent implements OnInit {
     public ngOnInit() : void {
         this.launchData.launchObservable().subscribe(data => {
             this.launch = Object.assign({}, data);
-        })
+        });
+
+        this.websocketService.appStatusResponsesStream().subscribe(response => {
+            this.settingsState.isLiftingOff = false;
+            this.appData.isSettingsVisible = false;
+            this.notificationBannerService.notify("App Enabled.");
+            this.launchData.launch = this.launch;
+        });
     }
 
     /**
@@ -174,12 +181,7 @@ export class SettingsComponent implements OnInit {
 
         this.settingsState.isLiftingOff = true;
 
-        this.websocketService.emitAppStatus("enableApp", data).subscribe(response => {
-            this.settingsState.isLiftingOff = false;
-            this.appData.isSettingsVisible = false;
-            this.notificationBannerService.notify("App Enabled.");
-            this.launchData.launch = this.launch;
-        });
+        this.websocketService.emitAppStatus("enableApp", data);
     }
 
     /**

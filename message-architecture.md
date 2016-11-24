@@ -109,7 +109,8 @@ Events can be any of the following types:
 ## Acknowledgement to Originating Client
 
     {
-        statusCode: <int>
+        responseCode: <int>
+        response: <BroadcastedMessage>
     }
 
 # msg:launchStatusEditRequest
@@ -134,7 +135,15 @@ If it is a cancellation request, the server will mark the update as not being ed
     {
         id: <int>,
         statusId: <int>,
-        user: <string>       
+        user: <string>,
+        isRequesting: <boolean>
+    }
+    
+## Acknowledgement to Originating Client
+
+    {
+        statusId: <int>,
+        isGranted: <boolean>
     }
 
 
@@ -166,7 +175,8 @@ Occurs when a launch status is edited. Moderators may edit any launch status, ev
 ## Acknowledgement to Originating Client
 
     {
-        statusCode: <int>
+        responseCode: <int>,
+        response: <BroadcastedMessage>
     }
 
 # msg:launchStatusDelete
@@ -192,7 +202,8 @@ When a launch status is deleted.
 ## Acknowledgement to Originating Client
 
     {
-        statusCode: <int>
+        responseCode: <int>
+        response: <BroadcastedMessage>
     }
     
 # msg:appStatus
@@ -227,5 +238,6 @@ A status concerning the functionality of the application. This affects the displ
 ## Acknowledgement to Originating Client
 
     {
-        statusCode: <int>
+        responseCode: <int>,
+        response: <BroadcastedMessage>
     }

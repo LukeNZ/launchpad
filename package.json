@@ -32,7 +32,7 @@
     "express": "^4.14.0",
     "jsonwebtoken": "7.1.9",
     "moment": "2.16.0",
-    "redis": "2.6.3",
+    "ioredis": "2.4.0",
     "reflect-metadata": "^0.1.8",
     "rxjs": "5.0.0-beta.12",
     "serve-favicon": "~2.3.0",

@@ -1,27 +1,24 @@
-import {Component, OnInit} from "@angular/core";
+import {Component} from "@angular/core";
 import {Title} from "@angular/platform-browser";
-import {InitializationService} from "../Services/InitializationService";
-import {WebsocketService} from "../Services/WebsocketService";
 import {AuthService} from "../Services/AuthService";
 import {LaunchDataService} from "../Services/LaunchDataService";
 
-import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {AppDataService} from "../Services/AppDataService";
 
 @Component({
     selector:'tmt-home',
     template: `
-        <p *ngIf="isLoading">Loading...</p>
+        <p *ngIf="appData.isLoading">Loading...</p>
         
         <!-- Only show the below contents if the application has loaded. -->
-        <ng-container *ngIf="!isLoading">
+        <ng-container *ngIf="!appData.isLoading">
         
             <!-- Allow a logged in user to access the application settings to start a launch,
              allow a logged in user to edit the launch, allow a general user to set their personal 
              preferences. -->
             <tmt-settings 
-            *ngIf="(authService.isLoggedIn && !appData.isActive) || appData.isActive" 
+            *ngIf="(authData.isLoggedIn && !appData.isActive) || appData.isActive" 
             [hidden]="!appData.isSettingsVisible"></tmt-settings>
                 
         
@@ -30,7 +27,7 @@ import {AppDataService} from "../Services/AppDataService";
             
                 <!-- If the application is not active, and the user is a visitor, 
                 show the default message. -->
-                <ng-container *ngIf="!authService.isLoggedIn">
+                <ng-container *ngIf="!authData.isLoggedIn">
                     <p>There is no active launch at this time. Check back soon!</p>
                 </ng-container>
             </ng-container>
@@ -51,42 +48,13 @@ import {AppDataService} from "../Services/AppDataService";
  * for most of the application's functionality.
  * @class
  */
-export class HomeComponent implements OnInit {
-
-    public isLoading : boolean = true;
+export class HomeComponent {
 
     constructor(
-        public initializationService: InitializationService,
-        public authService: AuthService,
-        public websocketService: WebsocketService,
+        public authData: AuthService,
         public launchData: LaunchDataService,
         public appData: AppDataService,
         public titleService: Title) {
         this.titleService.setTitle("T Minus Ten");
-    }
-
-    /**
-     * On component initialization, make three calls to fetch data from the server, so we are
-     * up to date with respect to the current application's state.
-     */
-    public ngOnInit() : void {
-        Observable.forkJoin(
-            this.initializationService.getLaunch(),
-            this.initializationService.getStatuses(),
-            this.initializationService.getTMinusTen()
-        ).subscribe(data => {
-            this.launchData.setLaunch(data[0]);
-            this.launchData.setStatuses(data[1]);
-            this.appData.isActive = data[2].isActive;
-
-            if (!this.appData.isActive) {
-                this.appData.isSettingsVisible = true;
-            }
-
-            console.log("Launch Data from Home:");
-            console.log(this.launchData);
-
-            this.isLoading = false;
-        });
     }
 }

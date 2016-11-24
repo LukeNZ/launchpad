@@ -97,7 +97,7 @@ export class WebsocketService {
     public emitLaunchStatusEditRequest(launchStatus: Status, isRequesting: boolean) : void {
         this.socketClient.emit("msg:launchStatusCreate", {
             token: this.authService.authtoken,
-            status_id: launchStatus.status_id,
+            statusId: launchStatus.statusId,
             isRequesting: isRequesting
         });
     }
@@ -124,7 +124,7 @@ export class WebsocketService {
     public emitLaunchStatusEdit(launchStatus: Status, replacementText: string) : void {
         this.socketClient.emit("msg:launchStatusEdit", {
             token: this.authService.authtoken,
-            status_id: launchStatus.status_id,
+            statusId: launchStatus.statusId,
             text: replacementText
         });
     }
@@ -163,7 +163,7 @@ export class WebsocketService {
     public emitLaunchStatusDelete(launchStatus: Status) : void {
         this.socketClient.emit("msg:launchStatusDelete", {
             token: this.authService.authtoken,
-            status_id: launchStatus.status_id
+            statusId: launchStatus.statusId
         });
     }
 
@@ -200,7 +200,7 @@ export class WebsocketService {
      * `editLaunch`, and `editEvent`.
      * @param data {*} Data to be sent up to the server as payload.
      */
-    public emitAppStatus(statusType: string, data? : any) : Observable<any> {
+    public emitAppStatus(statusType: string, data? : any) : void {
 
         if (!data) { data = {}; }
 
@@ -209,10 +209,32 @@ export class WebsocketService {
             statusType: statusType,
             data: data
         });
+    }
 
+    /**
+     * An observable stream of app statuses indicating changes to the state and functionality
+     * of the application.
+     *
+     * @returns {Observable<any>}
+     */
+    public appStatusesStream() : Observable<any> {
+        return new Observable(observer => {
+            this.socketClient.on('msg:appStatus', data => observer.next(data));
+            return () => this.socketClient.disconnect();
+        });
+    }
+
+    /**
+     * An observably stream of app status responses used to confirm when an appStatus message
+     * sent by the client is acknowledged by the server.
+     *
+     * @returns {Observable<any>}
+     */
+    public appStatusResponsesStream() : Observable<any> {
         return new Observable(observer => {
             this.socketClient.on('response:appStatus', data => observer.next(data));
             return () => this.socketClient.disconnect();
         });
     }
+
 }

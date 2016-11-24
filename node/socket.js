@@ -50,6 +50,7 @@ module.exports = {
             }
 
             store.log("msg:join", data, user);
+            store.incrementCurrentViewers();
         };
 
         /**
@@ -111,12 +112,12 @@ module.exports = {
 
                     store.addLaunchStatus(data).then(() => {
                         socket.broadcast.emit("msg:launchStatusCreate", data);
-                        socket.emit("response:launchStatusCreate", {statusCode: 200});
+                        socket.emit("response:launchStatusCreate", {responseCode: 200, response: data });
                     });
                 });
 
             }).catch(error => {
-                return socket.emit('response:launchStatusCreate', { statusCode: error.message });
+                return socket.emit('response:launchStatusCreate', { responseCode: error.message });
             });
         };
 
@@ -177,7 +178,7 @@ module.exports = {
                     // Broadcast a response once the data has been added to the store.
                     p1.then(() => {
                         socket.broadcast.emit("msg:appStatus", data);
-                        socket.emit("response:appStatus", {statusCode: 200});
+                        socket.emit("response:appStatus", {responseCode: 200, response: data });
                     });
                 });
 
@@ -185,7 +186,7 @@ module.exports = {
                 throw new Error(400);
 
             }).catch(error => {
-                return socket.emit('response:appStatus', { statusCode: error.message });
+                return socket.emit('response:appStatus', { responseCode: error.message });
             });
         };
 
@@ -198,6 +199,7 @@ module.exports = {
          */
         var disconnectFn = function(data, socket) {
             store.log('disconnect', data);
+            store.decrementCurrentViewers();
         }
     }
 };

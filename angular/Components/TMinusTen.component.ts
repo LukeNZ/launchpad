@@ -21,14 +21,14 @@ export class TMinusTenComponent {
     /**
      * Construct globally available services.
      *
-     * @param authService
+     * @param authData
      * @param notificationBannerService
-     * @param launchDataService
-     * @param appDataService
+     * @param launchData
+     * @param appData
      */
     constructor(
-        public authService: AuthService,
+        public authData: AuthService,
         public notificationBannerService: NotificationBannerService,
-        public launchDataService: LaunchDataService,
-        public appDataService: AppDataService) {}
+        public launchData: LaunchDataService,
+        public appData: AppDataService) {}
 }

@@ -1,25 +1,37 @@
-var redis = require("redis");
+var Redis = require("ioredis");
 
 /**
- * Service which wraps a redis client, allowing the calling of application-specific storage functions.
+ * Service which wraps a redis redis, allowing the calling of application-specific storage functions.
  *
  * TODO:
  * Download all data
  * Retrieve livestream status/information
  * Update livestream status/information
- * Get all launch statuses
- * Add launch status
- * Remove launch status
- * Get specific launch status
- * Set specific launch status
+ * Get Launch Event(s)
+ * Set Launch Event(s)
+ * Check user/status in collection of current edit requests (hash of statusIds:username)
+ * Add user/status to collection of current edit requests (hash of statusIds:username)
+ * Remove user/status to collection of current edit requests (hash of statusIds:username)
+ * Get all current edit requests collection (hash of statusIds:username)
  */
 class StoreService {
 
     /**
-     * Constructs a redis client.
+     * Constructs a redis client. Also defines a command to push an element
+     * on a list with an inserted status id.
      */
     constructor() {
-        this.client = redis.createClient();
+        this.redis = new Redis();
+        this.redis.defineCommand('rpushindex', {
+            numberOfKeys: 2,
+            lua: `
+                local cjson = require "cjson"
+                local data = cjson.decode(ARGV[1])
+                data[KEY[2]] = redis.call("llen", KEY[1])
+                redis.call("rpush", KEY[1], cjson.encode(data))
+                return data.statusId
+            `
+        });
     }
 
     /**
@@ -40,7 +52,7 @@ class StoreService {
 
             let timestamp = (new Date()).toISOString();
 
-            this.client.rpush("events", JSON.stringify({
+            this.redis.rpush("events", JSON.stringify({
                 event: eventName,
                 user: user ? user.username : null,
                 timestamp: timestamp,
@@ -68,10 +80,10 @@ class StoreService {
     isAppActive(isAppActiveSetter) {
         return new Promise((resolve, reject) => {
             if (isAppActiveSetter == undefined) {
-                return this.client.get("isActive", (err, reply) => resolve(reply === "true"));
+                return this.redis.get("isActive", (err, reply) => resolve(reply === "true"));
 
             } else if (isAppActiveSetter === true || isAppActiveSetter === false) {
-                this.client.set("isActive", isAppActiveSetter);
+                this.redis.set("isActive", isAppActiveSetter);
                 return resolve();
             }
 
@@ -94,7 +106,7 @@ class StoreService {
     getLaunch(launchProperty) {
         return new Promise((resolve, reject) => {
             if (launchProperty == undefined) {
-                return this.client.hgetall("launch", (err, reply) => {
+                return this.redis.hgetall("launch", (err, reply) => {
 
                     if (reply != null) {
                         Object.keys(reply).forEach(key => {
@@ -106,7 +118,7 @@ class StoreService {
                 });
 
             } else if (typeof launchProperty === "string") {
-                return this.client.hget("launch", launchProperty, (err, reply) => resolve(JSON.parse(reply)));
+                return this.redis.hget("launch", launchProperty, (err, reply) => resolve(JSON.parse(reply)));
 
             }
             return reject();
@@ -132,9 +144,7 @@ class StoreService {
             });
 
             if (dataObj != null) {
-                this.client.hmset("launch", dataObj, (err, reply) => {
-                    resolve(reply);
-                });
+                this.redis.hmset("launch", dataObj, (err, reply) => resolve(reply));
             } else {
                 return reject();
             }
@@ -150,6 +160,50 @@ class StoreService {
     }
 
     /**
+     * Retrieves all the launch statuses created so far from the application, and parses
+     * them from an array of strings to an array of JSON objects.
+     *
+     * @returns {Promise} Resolves to the launch statuses created so far.
+     */
+    getLaunchStatuses() {
+        return new Promise((resolve, reject) => {
+            this.redis.lrange("launchStatuses", 0, -1, (err, statuses) => resolve(statuses.map(status => JSON.parse(status))));
+        });
+    }
+
+    /**
+     * Retrieves a single launch status from the launch statuses list, provided by the given
+     * index passed to the function. The fetched launch status is parsed to a JSON object before
+     * being returned.
+     *
+     * @param index {number} The index of the element to retrieve from the launch statuses list.
+     *
+     * @returns {Promise} Resolves to the launch status at the given index.
+     */
+    getLaunchStatus(index) {
+        return new Promise((resolve, reject) => {
+            this.redis.lindex("launchStatuses", index, (err, launchStatus) => resolve(JSON.parse(launchStatus)));
+        });
+    }
+
+    /**
+     * Sets a single launch status in the launchStatuses list at the index provided to the
+     * data provided (which is JSON.stringified before being inserted). This essentially provides
+     * an immutable edit functionality for existing launch statuses.
+     *
+     * @param index {number} The index of the element that should be changed.
+     * @param data {*} JSON object of data that should be inserted at index.
+     *
+     * @returns {Promise} Resolves immediately.
+     */
+    setLaunchStatus(index, data) {
+        return new Promise((resolve, reject) => {
+            this.redis.lset('launchStatuses', index, JSON.stringify(data));
+            resolve();
+        });
+    }
+
+    /**
      *
      *
      * @param data
@@ -157,31 +211,53 @@ class StoreService {
      */
     addLaunchStatus(data) {
         return new Promise((resolve, reject) => {
-            this.client.rpush("launchStatuses", JSON.stringify(data), (err, index) => {
-
-                data.statusId = index;
-
-                this.client.lset("launchStatuses", index, (err, index) => {
-
-                });
+            this.redis.rpushindex("launchStatuses", JSON.stringify(data), (err, index) => {
+                resolve(index);
             });
         });
     }
 
-    getStatuses() {
+    getLaunchEvents() {
         return new Promise((resolve, reject) => {
 
         });
     }
 
-    getEvents() {
-        return new Promise((resolve, reject) => {
+    setLaunchEvents() {
 
+    }
+
+    /**
+     * Gets the value of the current viewers counter.
+     *
+     * @returns {Promise} Resolves to the current number of viewers.
+     */
+    getCurrentViewers() {
+        return new Promise((resolve, reject) => {
+            this.redis.get('currentViewers', (err, value) => resolve(value));
         });
     }
 
-    beginTransaction() {
-        return this;
+    /**
+     * Increments the current viewers counter.
+     *
+     * @returns {Promise} Resolves to the new current number of viewers.
+     */
+    incrementCurrentViewers() {
+        return new Promise((resolve, reject) => {
+            this.redis.incr('currentViewers', (err, newValue) => resolve(newValue));
+        });
+    }
+
+    /**
+     * Decrements the current viewers counter.
+     *
+     * @returns {Promise} Resolves to the new current number of viewers.
+     */
+    decrementCurrentViewers() {
+        return new Promise((resolve, reject) => {
+            this.redis.decr('currentViewers', (err, newValue) => resolve(newValue));
+        });
     }
 }
 

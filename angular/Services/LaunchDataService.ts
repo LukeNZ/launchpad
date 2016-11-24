@@ -3,10 +3,12 @@ import {Launch} from "../Classes/Launch";
 import {Status} from "../Interfaces/Status";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
+import {InitializationService} from "./InitializationService";
+import {WebsocketService} from "./WebsocketService";
 
 @Injectable()
 /**
- * Service to allow the sharing of launch data
+ * Service to allow the sharing of launch data across the application.
  */
 export class LaunchDataService {
 
@@ -20,6 +22,16 @@ export class LaunchDataService {
 
     // Launch Event templates
     private _eventTemplates: Event[];
+
+    constructor(private initializationService: InitializationService, private websocketService: WebsocketService) {
+        Observable.forkJoin(
+            this.initializationService.getLaunch(),
+            this.initializationService.getStatuses()
+        ).subscribe(data => {
+            this.setLaunch(data[0]);
+            this.setStatuses(data[1]);
+        });
+    }
 
     /**
      * Sets the launch model of the service, and also sets the subject
