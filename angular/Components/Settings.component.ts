@@ -160,7 +160,6 @@ export class SettingsComponent implements OnInit {
 
         this.websocketService.appStatusResponsesStream().subscribe(response => {
             this.settingsState.isLiftingOff = false;
-            this.appData.isSettingsVisible = false;
             this.notificationBannerService.notify("App Enabled.");
             this.launchData.launch = this.launch;
         });

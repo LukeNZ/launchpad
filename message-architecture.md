@@ -142,8 +142,8 @@ If it is a cancellation request, the server will mark the update as not being ed
 ## Acknowledgement to Originating Client
 
     {
-        statusId: <int>,
-        isGranted: <boolean>
+        response: <int>,
+        responseCode: <BroadcastedMessage>
     }
 
 

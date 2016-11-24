@@ -76,10 +76,12 @@ module.exports = {
         };
 
         /**
-         * `msg:launchStatusCreate`.
+         * `msg:launchStatusCreate`. Called when a privileged socket sends up a launch status creation request.
+         * The data provided is checked to ensure it has the correct properties and values, is logged as an event,
+         * has data appended to it, and is then logged to to the launchStatuses list in the redis store.
          *
-         * @param data
-         * @param socket
+         * @param data {*} Data sent to the socket for this request.
+         * @param socket {Socket} The socket in question.
          */
         var launchStatusCreateFn = function(data, socket) {
             authenticationService.userHasPermission("privileges", data.token).then(user => {
@@ -110,7 +112,9 @@ module.exports = {
                     data.timestamp = idAndTimestamp.timestamp;
                     data.isDeleted = false;
 
-                    store.addLaunchStatus(data).then(() => {
+                    store.addLaunchStatus(data).then(index => {
+
+                        data.statusId = index;
                         socket.broadcast.emit("msg:launchStatusCreate", data);
                         socket.emit("response:launchStatusCreate", {responseCode: 200, response: data });
                     });

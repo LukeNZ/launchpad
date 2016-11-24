@@ -2,6 +2,7 @@ import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 import {AuthService} from "./AuthService";
 import {Status} from "../Interfaces/Status";
+import {WebsocketResponse} from "../Interfaces/WebsocketResponse";
 var io = require('socket.io-client');
 
 @Injectable()
@@ -53,21 +54,32 @@ export class WebsocketService {
     /**
      * Sends a launch status creation notification up to the server.
      *
-     * @param launchStatus A string to create a new launch status from.
+     * @param launchStatus {string} A string to create a new launch status from.
+     * @param statusType {string} The type of status being sent up.
+     * @param eventType {string?} Optional parameter indicating the type of event being created if
+     * the launchStatus is of type "update"
      */
-    public emitLaunchStatusCreate(launchStatus : string) : void {
-        this.socketClient.emit("msg:launchStatusCreate", {
+    public emitLaunchStatusCreate(launchStatus : string, statusType: string, eventType?: string) : void {
+
+        let data = <any>{
             token: this.authService.authtoken,
+            statusType: statusType,
             text: launchStatus
-        });
+        };
+
+        if (eventType != null) {
+            data.eventType = eventType;
+        }
+
+        this.socketClient.emit("msg:launchStatusCreate", data);
     }
 
     /**
      * An observable stream of launch status messages received from the server.
      *
-     * @returns {Observable<any>}
+     * @returns {Observable<Status>}
      */
-    public launchStatusesStream() : Observable<any> {
+    public launchStatusesStream() : Observable<Status> {
         return new Observable(observer => {
             this.socketClient.on('msg:launchStatusCreate', data => observer.next(data));
             return () => this.socketClient.disconnect();
@@ -78,9 +90,9 @@ export class WebsocketService {
      * An observable stream of launch status responses received from the server. Used
      * to confirm that a launch status emitted to the server was acknowledged.
      *
-     * @returns {Observable<any>}
+     * @returns {Observable<WebsocketResponse>}
      */
-    public launchStatusResponsesStream() : Observable<any> {
+    public launchStatusResponsesStream() : Observable<WebsocketResponse> {
         return new Observable(observer => {
             this.socketClient.on('response:launchStatusCreate', data => observer.next(data));
             return () => this.socketClient.disconnect();
@@ -145,9 +157,9 @@ export class WebsocketService {
      * An observable stream of launch status edit responses received from the server. Used
      * to confirm that a launch status edit emitted to the server was acknowledged.
      *
-     * @returns {Observable<any>}
+     * @returns {Observable<WebsocketResponse>}
      */
-    public launchStatusEditResponsesStream() : Observable<any> {
+    public launchStatusEditResponsesStream() : Observable<WebsocketResponse> {
         return new Observable(observer => {
             this.socketClient.on('response:launchStatusEdit', data => observer.next(data));
             return () => this.socketClient.disconnect();
@@ -183,9 +195,9 @@ export class WebsocketService {
      * An observable stream of launch status deletion responses received from the server. Used
      * to confirm that a launch status deletion emitted to the server was acknowledged.
      *
-     * @returns {Observable<any>}
+     * @returns {Observable<WebsocketResponse>}
      */
-    public launchStatusDeletionsResponsesStream() : Observable<any> {
+    public launchStatusDeletionsResponsesStream() : Observable<WebsocketResponse> {
         return new Observable(observer => {
             this.socketClient.on('response:launchStatusDelete', data => observer.next(data));
             return () => this.socketClient.disconnect();
@@ -228,13 +240,12 @@ export class WebsocketService {
      * An observably stream of app status responses used to confirm when an appStatus message
      * sent by the client is acknowledged by the server.
      *
-     * @returns {Observable<any>}
+     * @returns {Observable<WebsocketResponse>}
      */
-    public appStatusResponsesStream() : Observable<any> {
+    public appStatusResponsesStream() : Observable<WebsocketResponse> {
         return new Observable(observer => {
             this.socketClient.on('response:appStatus', data => observer.next(data));
             return () => this.socketClient.disconnect();
         });
     }
-
 }

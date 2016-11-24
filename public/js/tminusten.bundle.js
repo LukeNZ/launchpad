@@ -1,78 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 172:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var core_1 = __webpack_require__(0);
-var http_1 = __webpack_require__(55);
-var AbstractService_1 = __webpack_require__(385);
-var Launch_1 = __webpack_require__(520);
-var InitializationService = (function (_super) {
-    __extends(InitializationService, _super);
-    function InitializationService(http) {
-        _super.call(this);
-        this.http = http;
-    }
-    /**
-     * Fetches the status of the T Minus Ten application.
-     *
-     * @returns {Observable<any>}
-     */
-    InitializationService.prototype.getTMinusTen = function () {
-        return this.http.get('/api/tminusten', this.headers())
-            .map(this.extractData);
-    };
-    /**
-     * Fetches all current launch statuses from the server.
-     *
-     * @returns {Observable<Status[]>}
-     */
-    InitializationService.prototype.getStatuses = function () {
-        return this.http.get('/api/statuses', this.headers())
-            .map(this.extractData);
-    };
-    /**
-     * Fetches the current launch status from the server. This includes all webcasts, descriptions,
-     * resources, and current state of the launch.
-     *
-     * @returns {Observable<Launch>}
-     */
-    InitializationService.prototype.getLaunch = function () {
-        return this.http.get('/api/launch', this.headers())
-            .map(this.extractData)
-            .map(function (data) {
-            return Launch_1.Launch.create(data);
-        });
-    };
-    InitializationService = __decorate([
-        core_1.Injectable(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof http_1.Http !== 'undefined' && http_1.Http) === 'function' && _a) || Object])
-    ], InitializationService);
-    return InitializationService;
-    var _a;
-}(AbstractService_1.AbstractService));
-exports.InitializationService = InitializationService;
-
-
-/***/ },
-
-/***/ 383:
+/***/ 382:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -90,14 +18,27 @@ var core_1 = __webpack_require__(0);
 var platform_browser_1 = __webpack_require__(34);
 var AuthService_1 = __webpack_require__(40);
 var LaunchDataService_1 = __webpack_require__(49);
-__webpack_require__(297);
-var AppDataService_1 = __webpack_require__(72);
+var AppDataService_1 = __webpack_require__(71);
+var InitializationService_1 = __webpack_require__(385);
+var Observable_1 = __webpack_require__(4);
+__webpack_require__(296);
 var HomeComponent = (function () {
-    function HomeComponent(authData, launchData, appData, titleService) {
+    function HomeComponent(authData, launchData, appData, initializationService, titleService) {
+        var _this = this;
         this.authData = authData;
         this.launchData = launchData;
         this.appData = appData;
+        this.initializationService = initializationService;
         this.titleService = titleService;
+        Observable_1.Observable.forkJoin(this.initializationService.getLaunch(), this.initializationService.getStatuses(), this.initializationService.getTMinusTen()).subscribe(function (data) {
+            _this.launchData.setLaunch(data[0]);
+            _this.launchData.setStatuses(data[1]);
+            _this.appData.isActive = data[2].isActive;
+            if (!_this.appData.isActive) {
+                _this.appData.isSettingsVisible = true;
+            }
+            _this.appData.isLoading = false;
+        });
         this.titleService.setTitle("T Minus Ten");
     }
     HomeComponent = __decorate([
@@ -105,17 +46,17 @@ var HomeComponent = (function () {
             selector: 'tmt-home',
             template: "\n        <p *ngIf=\"appData.isLoading\">Loading...</p>\n        \n        <!-- Only show the below contents if the application has loaded. -->\n        <ng-container *ngIf=\"!appData.isLoading\">\n        \n            <!-- Allow a logged in user to access the application settings to start a launch,\n             allow a logged in user to edit the launch, allow a general user to set their personal \n             preferences. -->\n            <tmt-settings \n            *ngIf=\"(authData.isLoggedIn && !appData.isActive) || appData.isActive\" \n            [hidden]=\"!appData.isSettingsVisible\"></tmt-settings>\n                \n        \n            <!-- Only show if the application is not active. -->\n            <ng-container *ngIf=\"!appData.isActive\">\n            \n                <!-- If the application is not active, and the user is a visitor, \n                show the default message. -->\n                <ng-container *ngIf=\"!authData.isLoggedIn\">\n                    <p>There is no active launch at this time. Check back soon!</p>\n                </ng-container>\n            </ng-container>\n            \n            <!-- Show if the application is active. -->\n            <ng-container *ngIf=\"appData.isActive\">\n                <tmt-header></tmt-header>\n                <tmt-livestream></tmt-livestream>\n                <tmt-statusbar></tmt-statusbar>\n                <tmt-updates></tmt-updates>\n            </ng-container>  \n             \n        </ng-container>     \n    "
         }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _a) || Object, (typeof (_b = typeof LaunchDataService_1.LaunchDataService !== 'undefined' && LaunchDataService_1.LaunchDataService) === 'function' && _b) || Object, (typeof (_c = typeof AppDataService_1.AppDataService !== 'undefined' && AppDataService_1.AppDataService) === 'function' && _c) || Object, (typeof (_d = typeof platform_browser_1.Title !== 'undefined' && platform_browser_1.Title) === 'function' && _d) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _a) || Object, (typeof (_b = typeof LaunchDataService_1.LaunchDataService !== 'undefined' && LaunchDataService_1.LaunchDataService) === 'function' && _b) || Object, (typeof (_c = typeof AppDataService_1.AppDataService !== 'undefined' && AppDataService_1.AppDataService) === 'function' && _c) || Object, (typeof (_d = typeof InitializationService_1.InitializationService !== 'undefined' && InitializationService_1.InitializationService) === 'function' && _d) || Object, (typeof (_e = typeof platform_browser_1.Title !== 'undefined' && platform_browser_1.Title) === 'function' && _e) || Object])
     ], HomeComponent);
     return HomeComponent;
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
 }());
 exports.HomeComponent = HomeComponent;
 
 
 /***/ },
 
-/***/ 384:
+/***/ 383:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -177,12 +118,12 @@ exports.LoginComponent = LoginComponent;
 
 /***/ },
 
-/***/ 385:
+/***/ 384:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var http_1 = __webpack_require__(55);
+var http_1 = __webpack_require__(54);
 var Observable_1 = __webpack_require__(4);
 /**
  * Abstract service that provides helper methods for other services.
@@ -246,6 +187,78 @@ exports.AbstractService = AbstractService;
 
 /***/ },
 
+/***/ 385:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var http_1 = __webpack_require__(54);
+var AbstractService_1 = __webpack_require__(384);
+var Launch_1 = __webpack_require__(520);
+var InitializationService = (function (_super) {
+    __extends(InitializationService, _super);
+    function InitializationService(http) {
+        _super.call(this);
+        this.http = http;
+    }
+    /**
+     * Fetches the status of the T Minus Ten application.
+     *
+     * @returns {Observable<any>}
+     */
+    InitializationService.prototype.getTMinusTen = function () {
+        return this.http.get('/api/tminusten', this.headers())
+            .map(this.extractData);
+    };
+    /**
+     * Fetches all current launch statuses from the server.
+     *
+     * @returns {Observable<Status[]>}
+     */
+    InitializationService.prototype.getStatuses = function () {
+        return this.http.get('/api/statuses', this.headers())
+            .map(this.extractData);
+    };
+    /**
+     * Fetches the current launch status from the server. This includes all webcasts, descriptions,
+     * resources, and current state of the launch.
+     *
+     * @returns {Observable<Launch>}
+     */
+    InitializationService.prototype.getLaunch = function () {
+        return this.http.get('/api/launch', this.headers())
+            .map(this.extractData)
+            .map(function (data) {
+            return Launch_1.Launch.create(data);
+        });
+    };
+    InitializationService = __decorate([
+        core_1.Injectable(), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof http_1.Http !== 'undefined' && http_1.Http) === 'function' && _a) || Object])
+    ], InitializationService);
+    return InitializationService;
+    var _a;
+}(AbstractService_1.AbstractService));
+exports.InitializationService = InitializationService;
+
+
+/***/ },
+
 /***/ 40:
 /***/ function(module, exports, __webpack_require__) {
 
@@ -266,8 +279,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var http_1 = __webpack_require__(55);
-var AbstractService_1 = __webpack_require__(385);
+var http_1 = __webpack_require__(54);
+var AbstractService_1 = __webpack_require__(384);
 var AuthService = (function (_super) {
     __extends(AuthService, _super);
     /**
@@ -362,28 +375,28 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 // Modules
 var core_1 = __webpack_require__(0);
 var platform_browser_1 = __webpack_require__(34);
-var http_1 = __webpack_require__(55);
-var forms_1 = __webpack_require__(296);
+var http_1 = __webpack_require__(54);
+var forms_1 = __webpack_require__(295);
 var app_routes_1 = __webpack_require__(530);
 // Components
 var TMinusTen_component_1 = __webpack_require__(528);
-var Home_component_1 = __webpack_require__(383);
+var Home_component_1 = __webpack_require__(382);
 var Header_component_1 = __webpack_require__(523);
 var Countdown_component_1 = __webpack_require__(521);
 var StatusBar_component_1 = __webpack_require__(527);
 var Updates_component_1 = __webpack_require__(529);
 var Livestream_component_1 = __webpack_require__(524);
-var Login_component_1 = __webpack_require__(384);
+var Login_component_1 = __webpack_require__(383);
 var NotificationBanner_component_1 = __webpack_require__(525);
 var Settings_component_1 = __webpack_require__(526);
 var DateTimeEntry_component_1 = __webpack_require__(522);
 // Services
-var InitializationService_1 = __webpack_require__(172);
-var WebsocketService_1 = __webpack_require__(50);
+var InitializationService_1 = __webpack_require__(385);
+var WebsocketService_1 = __webpack_require__(73);
 var AuthService_1 = __webpack_require__(40);
 var LaunchDataService_1 = __webpack_require__(49);
-var NotificationBannerService_1 = __webpack_require__(73);
-var AppDataService_1 = __webpack_require__(72);
+var NotificationBannerService_1 = __webpack_require__(72);
+var AppDataService_1 = __webpack_require__(71);
 var AppModule = (function () {
     function AppModule() {
     }
@@ -423,19 +436,24 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var BehaviorSubject_1 = __webpack_require__(110);
-var Observable_1 = __webpack_require__(4);
-var InitializationService_1 = __webpack_require__(172);
-var WebsocketService_1 = __webpack_require__(50);
+var WebsocketService_1 = __webpack_require__(73);
 var LaunchDataService = (function () {
-    function LaunchDataService(initializationService, websocketService) {
+    /**
+     *
+     * @param websocketService
+     */
+    function LaunchDataService(websocketService) {
         var _this = this;
-        this.initializationService = initializationService;
         this.websocketService = websocketService;
         this._launchSubject = new BehaviorSubject_1.BehaviorSubject(this._launch);
         this._launchObservable = this._launchSubject.asObservable();
-        Observable_1.Observable.forkJoin(this.initializationService.getLaunch(), this.initializationService.getStatuses()).subscribe(function (data) {
-            _this.setLaunch(data[0]);
-            _this.setStatuses(data[1]);
+        // Launch statuses and updates
+        this._statuses = [];
+        this.websocketService.launchStatusesStream().subscribe(function (websocket) {
+            _this.addStatus(websocket);
+        });
+        this.websocketService.launchStatusResponsesStream().subscribe(function (websocket) {
+            _this.addStatus(websocket.response);
         });
     }
     /**
@@ -485,14 +503,11 @@ var LaunchDataService = (function () {
         this._statuses = statuses;
     };
     /**
-     * Pushes an status to the end of the updates array.
+     * Pushes an status to the end of the statuses array.
      *
      * @param status {Status} The status to append to the end of the array.
      */
     LaunchDataService.prototype.addStatus = function (status) {
-        if (!this._statuses) {
-            this._statuses = [];
-        }
         this._statuses.push(status);
     };
     /**
@@ -524,265 +539,12 @@ var LaunchDataService = (function () {
     });
     LaunchDataService = __decorate([
         core_1.Injectable(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof InitializationService_1.InitializationService !== 'undefined' && InitializationService_1.InitializationService) === 'function' && _a) || Object, (typeof (_b = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _b) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _a) || Object])
     ], LaunchDataService);
     return LaunchDataService;
-    var _a, _b;
-}());
-exports.LaunchDataService = LaunchDataService;
-
-
-/***/ },
-
-/***/ 50:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var core_1 = __webpack_require__(0);
-var Observable_1 = __webpack_require__(4);
-var AuthService_1 = __webpack_require__(40);
-var io = __webpack_require__(298);
-var WebsocketService = (function () {
-    /**
-     * Construct an instance of the websocket service. Automatically connect to the websocket
-     * server, and emit a join message. Depending on whether the user is authed or not, include
-     * the authentication token with the message.
-     *
-     * @param authService
-     */
-    function WebsocketService(authService) {
-        this.authService = authService;
-        this.socketClient = null;
-        this.socketClient = io.connect("localhost:3001");
-        if (authService.isLoggedIn) {
-            this.socketClient.emit('msg:join', { token: authService.authtoken });
-        }
-        else {
-            this.socketClient.emit('msg:join', {});
-        }
-    }
-    /**
-     * Sends a typing status notification up to the server.
-     *
-     * @param typingStatus
-     */
-    WebsocketService.prototype.emitTypingStatus = function (typingStatus) {
-        this.socketClient.emit("msg:typingStatus", {
-            token: this.authService.authtoken,
-            isTyping: typingStatus
-        });
-    };
-    /**
-     * An observable stream of typing status messages received from the server.
-     *
-     * @returns {Observable<any>}
-     */
-    WebsocketService.prototype.typingStatusesStream = function () {
-        var _this = this;
-        return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('msg:typingStatus', function (data) { return observer.next(data); });
-            return function () { return _this.socketClient.disconnect(); };
-        });
-    };
-    /**
-     * Sends a launch status creation notification up to the server.
-     *
-     * @param launchStatus A string to create a new launch status from.
-     */
-    WebsocketService.prototype.emitLaunchStatusCreate = function (launchStatus) {
-        this.socketClient.emit("msg:launchStatusCreate", {
-            token: this.authService.authtoken,
-            text: launchStatus
-        });
-    };
-    /**
-     * An observable stream of launch status messages received from the server.
-     *
-     * @returns {Observable<any>}
-     */
-    WebsocketService.prototype.launchStatusesStream = function () {
-        var _this = this;
-        return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('msg:launchStatusCreate', function (data) { return observer.next(data); });
-            return function () { return _this.socketClient.disconnect(); };
-        });
-    };
-    /**
-     * An observable stream of launch status responses received from the server. Used
-     * to confirm that a launch status emitted to the server was acknowledged.
-     *
-     * @returns {Observable<any>}
-     */
-    WebsocketService.prototype.launchStatusResponsesStream = function () {
-        var _this = this;
-        return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('response:launchStatusCreate', function (data) { return observer.next(data); });
-            return function () { return _this.socketClient.disconnect(); };
-        });
-    };
-    /**
-     * Emits a request, or a cancellation of a request, to edit a launch status to the server.
-     *
-     * @param launchStatus {Status} The status an edit request has been made for.
-     * @param isRequesting {boolean} true if the client is requesting edit rights, false if the
-     * client is cancelling their already granted edit rights.
-     */
-    WebsocketService.prototype.emitLaunchStatusEditRequest = function (launchStatus, isRequesting) {
-        this.socketClient.emit("msg:launchStatusCreate", {
-            token: this.authService.authtoken,
-            statusId: launchStatus.statusId,
-            isRequesting: isRequesting
-        });
-    };
-    /**
-     * An observable stream of launch status edit requests and cancellations received
-     * from the server.
-     *
-     * @returns {Observable<any>}
-     */
-    WebsocketService.prototype.launchStatusEditRequestsStream = function () {
-        var _this = this;
-        return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('msg:launchStatusEditRequest', function (data) { return observer.next(data); });
-            return function () { return _this.socketClient.disconnect(); };
-        });
-    };
-    /**
-     * Emits a request to the server when a launch status is edited.
-     *
-     * @param launchStatus {Status} The launch status being edited.
-     * @param replacementText {string} The replacement text to edit into the launch status.
-     */
-    WebsocketService.prototype.emitLaunchStatusEdit = function (launchStatus, replacementText) {
-        this.socketClient.emit("msg:launchStatusEdit", {
-            token: this.authService.authtoken,
-            statusId: launchStatus.statusId,
-            text: replacementText
-        });
-    };
-    /**
-     * An observable stream of launch status edits received from the server.
-     *
-     * @returns {Observable<any>}
-     */
-    WebsocketService.prototype.launchStatusEditsStream = function () {
-        var _this = this;
-        return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('msg:launchStatusEdit', function (data) { return observer.next(data); });
-            return function () { return _this.socketClient.disconnect(); };
-        });
-    };
-    /**
-     * An observable stream of launch status edit responses received from the server. Used
-     * to confirm that a launch status edit emitted to the server was acknowledged.
-     *
-     * @returns {Observable<any>}
-     */
-    WebsocketService.prototype.launchStatusEditResponsesStream = function () {
-        var _this = this;
-        return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('response:launchStatusEdit', function (data) { return observer.next(data); });
-            return function () { return _this.socketClient.disconnect(); };
-        });
-    };
-    /**
-     * Emits a request to the server when a launch status is deleted.
-     *
-     * @param launchStatus {Status} The launch status being deleted.
-     */
-    WebsocketService.prototype.emitLaunchStatusDelete = function (launchStatus) {
-        this.socketClient.emit("msg:launchStatusDelete", {
-            token: this.authService.authtoken,
-            statusId: launchStatus.statusId
-        });
-    };
-    /**
-     * An observable stream of launch status deletions received from the server.
-     *
-     * @returns {Observable<any>}
-     */
-    WebsocketService.prototype.launchStatusDeletionsStream = function () {
-        var _this = this;
-        return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('msg:launchStatusDelete', function (data) { return observer.next(data); });
-            return function () { return _this.socketClient.disconnect(); };
-        });
-    };
-    /**
-     * An observable stream of launch status deletion responses received from the server. Used
-     * to confirm that a launch status deletion emitted to the server was acknowledged.
-     *
-     * @returns {Observable<any>}
-     */
-    WebsocketService.prototype.launchStatusDeletionsResponsesStream = function () {
-        var _this = this;
-        return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('response:launchStatusDelete', function (data) { return observer.next(data); });
-            return function () { return _this.socketClient.disconnect(); };
-        });
-    };
-    /**
-     * Emit a app status to the server. This includes statuses such as `enableApp`, `disableApp`,
-     * `editLivestream`, `editLaunch`, and `editEvent`.
-     *
-     * @param statusType {string} One of `enableApp`, `disableApp`,`editLivestream`,
-     * `editLaunch`, and `editEvent`.
-     * @param data {*} Data to be sent up to the server as payload.
-     */
-    WebsocketService.prototype.emitAppStatus = function (statusType, data) {
-        if (!data) {
-            data = {};
-        }
-        this.socketClient.emit("msg:appStatus", {
-            token: this.authService.authtoken,
-            statusType: statusType,
-            data: data
-        });
-    };
-    /**
-     * An observable stream of app statuses indicating changes to the state and functionality
-     * of the application.
-     *
-     * @returns {Observable<any>}
-     */
-    WebsocketService.prototype.appStatusesStream = function () {
-        var _this = this;
-        return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('msg:appStatus', function (data) { return observer.next(data); });
-            return function () { return _this.socketClient.disconnect(); };
-        });
-    };
-    /**
-     * An observably stream of app status responses used to confirm when an appStatus message
-     * sent by the client is acknowledged by the server.
-     *
-     * @returns {Observable<any>}
-     */
-    WebsocketService.prototype.appStatusResponsesStream = function () {
-        var _this = this;
-        return new Observable_1.Observable(function (observer) {
-            _this.socketClient.on('response:appStatus', function (data) { return observer.next(data); });
-            return function () { return _this.socketClient.disconnect(); };
-        });
-    };
-    WebsocketService = __decorate([
-        core_1.Injectable(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _a) || Object])
-    ], WebsocketService);
-    return WebsocketService;
     var _a;
 }());
-exports.WebsocketService = WebsocketService;
+exports.LaunchDataService = LaunchDataService;
 
 
 /***/ },
@@ -920,6 +682,8 @@ var moment = __webpack_require__(1);
 var DateTimeEntryComponent = (function () {
     function DateTimeEntryComponent() {
         this.dateChange = new core_1.EventEmitter();
+        this.months = ["January", "February", "March", "April", "May", "June", "July", "August",
+            "September", "October", "November", "December"];
     }
     /**
      * On component initialization, check if the date being passed into the component is undefined.
@@ -935,9 +699,7 @@ var DateTimeEntryComponent = (function () {
      * @returns {string} Human readable date string.
      */
     DateTimeEntryComponent.prototype.humanReadableMonth = function () {
-        var months = ["January", "February", "March", "April", "May", "June", "July", "August",
-            "September", "October", "November", "December"];
-        return months[this.tempDate.getUTCMonth()];
+        return this.months[this.tempDate.getUTCMonth()];
     };
     /**
      * Increments the provided date time component, one of "seconds", "minutes", "hours", "days", "months",
@@ -996,6 +758,7 @@ var DateTimeEntryComponent = (function () {
      * @param newValue {*} The new value for the component to hold.
      */
     DateTimeEntryComponent.prototype.setDateTimeComponent = function (dateTimeComponent, newValue) {
+        var shouldSet = true;
         var dynamicMethodNames = {
             'years': "setUTCFullYear",
             'months': "setUTCMonth",
@@ -1004,8 +767,14 @@ var DateTimeEntryComponent = (function () {
             'minutes': "setMinutes",
             'seconds': "setSeconds"
         };
-        this.tempDate[dynamicMethodNames[dateTimeComponent]](newValue);
-        this.dateChange.emit(this.tempDate);
+        if (dateTimeComponent === "months") {
+            newValue = this.months.indexOf(newValue);
+            shouldSet = newValue !== -1;
+        }
+        if (shouldSet) {
+            this.tempDate[dynamicMethodNames[dateTimeComponent]](newValue);
+            this.dateChange.emit(this.tempDate);
+        }
     };
     __decorate([
         core_1.Input(), 
@@ -1049,7 +818,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AppDataService_1 = __webpack_require__(72);
+var AppDataService_1 = __webpack_require__(71);
 var HeaderComponent = (function () {
     function HeaderComponent(appData) {
         this.appData = appData;
@@ -1140,7 +909,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var NotificationBannerService_1 = __webpack_require__(73);
+var NotificationBannerService_1 = __webpack_require__(72);
 var NotificationBannerComponent = (function () {
     function NotificationBannerComponent(notificationBannerService) {
         var _this = this;
@@ -1189,10 +958,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var WebsocketService_1 = __webpack_require__(50);
-var NotificationBannerService_1 = __webpack_require__(73);
+var WebsocketService_1 = __webpack_require__(73);
+var NotificationBannerService_1 = __webpack_require__(72);
 var LaunchDataService_1 = __webpack_require__(49);
-var AppDataService_1 = __webpack_require__(72);
+var AppDataService_1 = __webpack_require__(71);
 var SettingsSection;
 (function (SettingsSection) {
     SettingsSection[SettingsSection["Display"] = 0] = "Display";
@@ -1229,7 +998,6 @@ var SettingsComponent = (function () {
         });
         this.websocketService.appStatusResponsesStream().subscribe(function (response) {
             _this.settingsState.isLiftingOff = false;
-            _this.appData.isSettingsVisible = false;
             _this.notificationBannerService.notify("App Enabled.");
             _this.launchData.launch = _this.launch;
         });
@@ -1333,9 +1101,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var WebsocketService_1 = __webpack_require__(50);
+var WebsocketService_1 = __webpack_require__(73);
 var AuthService_1 = __webpack_require__(40);
-var NotificationBannerService_1 = __webpack_require__(73);
+var NotificationBannerService_1 = __webpack_require__(72);
 var LaunchDataService_1 = __webpack_require__(49);
 var StatusBarComponent = (function () {
     function StatusBarComponent(authData, launchData, websocketService, notificationBannerService) {
@@ -1351,9 +1119,9 @@ var StatusBarComponent = (function () {
     StatusBarComponent.prototype.ngOnInit = function () {
         var _this = this;
         if (this.authData.isLoggedIn) {
-            this.websocketService.typingStatusesStream().subscribe(function (msg) {
+            this.websocketService.typingStatusesStream().subscribe(function (websocket) {
             });
-            this.websocketService.launchStatusResponsesStream().subscribe(function (response) {
+            this.websocketService.launchStatusResponsesStream().subscribe(function (websocket) {
                 _this.notificationBannerService.notify("Launch Status Posted.");
             });
         }
@@ -1364,7 +1132,9 @@ var StatusBarComponent = (function () {
      */
     StatusBarComponent.prototype.onEnterKeypress = function (key) {
         if (key === "Enter") {
-            this.websocketService.emitLaunchStatusCreate(status);
+            this.websocketService.emitLaunchStatusCreate(this.status, "update");
+            this.status = "";
+            return false;
         }
     };
     StatusBarComponent = __decorate([
@@ -1398,9 +1168,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var AuthService_1 = __webpack_require__(40);
-var NotificationBannerService_1 = __webpack_require__(73);
+var NotificationBannerService_1 = __webpack_require__(72);
 var LaunchDataService_1 = __webpack_require__(49);
-var AppDataService_1 = __webpack_require__(72);
+var AppDataService_1 = __webpack_require__(71);
 var TMinusTenComponent = (function () {
     /**
      * Construct globally available services.
@@ -1469,8 +1239,8 @@ exports.UpdatesComponent = UpdatesComponent;
 "use strict";
 "use strict";
 var router_1 = __webpack_require__(112);
-var Home_component_1 = __webpack_require__(383);
-var Login_component_1 = __webpack_require__(384);
+var Home_component_1 = __webpack_require__(382);
+var Login_component_1 = __webpack_require__(383);
 var appRoutes = [
     { path: '', component: Home_component_1.HomeComponent },
     { path: 'login', component: Login_component_1.LoginComponent }
@@ -1495,7 +1265,7 @@ platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1
 
 /***/ },
 
-/***/ 72:
+/***/ 71:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1510,42 +1280,43 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var InitializationService_1 = __webpack_require__(172);
-var WebsocketService_1 = __webpack_require__(50);
+var WebsocketService_1 = __webpack_require__(73);
 var AppDataService = (function () {
     /**
      *
-     * @param initializationService
      * @param websocketService
      */
-    function AppDataService(initializationService, websocketService) {
+    function AppDataService(websocketService) {
         var _this = this;
-        this.initializationService = initializationService;
         this.websocketService = websocketService;
         // Is the settings pane open?
         this.isSettingsVisible = false;
         this.isLoading = false;
-        this.initializationService.getTMinusTen().subscribe(function (data) {
-            _this.isActive = data.isActive;
-            if (!_this.isActive) {
-                _this.isSettingsVisible = true;
+        this.websocketService.appStatusResponsesStream().subscribe(function (websocket) {
+            if (websocket.response.statusType === "enableApp") {
+                _this.isActive = true;
+                _this.isSettingsVisible = false;
             }
-            _this.isLoading = false;
+        });
+        this.websocketService.appStatusesStream().subscribe(function (websocket) {
+            if (websocket.statusType === "enableApp") {
+                _this.isActive = true;
+            }
         });
     }
     AppDataService = __decorate([
         core_1.Injectable(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof InitializationService_1.InitializationService !== 'undefined' && InitializationService_1.InitializationService) === 'function' && _a) || Object, (typeof (_b = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _b) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _a) || Object])
     ], AppDataService);
     return AppDataService;
-    var _a, _b;
+    var _a;
 }());
 exports.AppDataService = AppDataService;
 
 
 /***/ },
 
-/***/ 73:
+/***/ 72:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1594,6 +1365,267 @@ var NotificationBannerService = (function () {
     return NotificationBannerService;
 }());
 exports.NotificationBannerService = NotificationBannerService;
+
+
+/***/ },
+
+/***/ 73:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var Observable_1 = __webpack_require__(4);
+var AuthService_1 = __webpack_require__(40);
+var io = __webpack_require__(297);
+var WebsocketService = (function () {
+    /**
+     * Construct an instance of the websocket service. Automatically connect to the websocket
+     * server, and emit a join message. Depending on whether the user is authed or not, include
+     * the authentication token with the message.
+     *
+     * @param authService
+     */
+    function WebsocketService(authService) {
+        this.authService = authService;
+        this.socketClient = null;
+        this.socketClient = io.connect("localhost:3001");
+        if (authService.isLoggedIn) {
+            this.socketClient.emit('msg:join', { token: authService.authtoken });
+        }
+        else {
+            this.socketClient.emit('msg:join', {});
+        }
+    }
+    /**
+     * Sends a typing status notification up to the server.
+     *
+     * @param typingStatus
+     */
+    WebsocketService.prototype.emitTypingStatus = function (typingStatus) {
+        this.socketClient.emit("msg:typingStatus", {
+            token: this.authService.authtoken,
+            isTyping: typingStatus
+        });
+    };
+    /**
+     * An observable stream of typing status messages received from the server.
+     *
+     * @returns {Observable<any>}
+     */
+    WebsocketService.prototype.typingStatusesStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('msg:typingStatus', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
+        });
+    };
+    /**
+     * Sends a launch status creation notification up to the server.
+     *
+     * @param launchStatus {string} A string to create a new launch status from.
+     * @param statusType {string} The type of status being sent up.
+     * @param eventType {string?} Optional parameter indicating the type of event being created if
+     * the launchStatus is of type "update"
+     */
+    WebsocketService.prototype.emitLaunchStatusCreate = function (launchStatus, statusType, eventType) {
+        var data = {
+            token: this.authService.authtoken,
+            statusType: statusType,
+            text: launchStatus
+        };
+        if (eventType != null) {
+            data.eventType = eventType;
+        }
+        this.socketClient.emit("msg:launchStatusCreate", data);
+    };
+    /**
+     * An observable stream of launch status messages received from the server.
+     *
+     * @returns {Observable<Status>}
+     */
+    WebsocketService.prototype.launchStatusesStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('msg:launchStatusCreate', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
+        });
+    };
+    /**
+     * An observable stream of launch status responses received from the server. Used
+     * to confirm that a launch status emitted to the server was acknowledged.
+     *
+     * @returns {Observable<WebsocketResponse>}
+     */
+    WebsocketService.prototype.launchStatusResponsesStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('response:launchStatusCreate', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
+        });
+    };
+    /**
+     * Emits a request, or a cancellation of a request, to edit a launch status to the server.
+     *
+     * @param launchStatus {Status} The status an edit request has been made for.
+     * @param isRequesting {boolean} true if the client is requesting edit rights, false if the
+     * client is cancelling their already granted edit rights.
+     */
+    WebsocketService.prototype.emitLaunchStatusEditRequest = function (launchStatus, isRequesting) {
+        this.socketClient.emit("msg:launchStatusCreate", {
+            token: this.authService.authtoken,
+            statusId: launchStatus.statusId,
+            isRequesting: isRequesting
+        });
+    };
+    /**
+     * An observable stream of launch status edit requests and cancellations received
+     * from the server.
+     *
+     * @returns {Observable<any>}
+     */
+    WebsocketService.prototype.launchStatusEditRequestsStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('msg:launchStatusEditRequest', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
+        });
+    };
+    /**
+     * Emits a request to the server when a launch status is edited.
+     *
+     * @param launchStatus {Status} The launch status being edited.
+     * @param replacementText {string} The replacement text to edit into the launch status.
+     */
+    WebsocketService.prototype.emitLaunchStatusEdit = function (launchStatus, replacementText) {
+        this.socketClient.emit("msg:launchStatusEdit", {
+            token: this.authService.authtoken,
+            statusId: launchStatus.statusId,
+            text: replacementText
+        });
+    };
+    /**
+     * An observable stream of launch status edits received from the server.
+     *
+     * @returns {Observable<any>}
+     */
+    WebsocketService.prototype.launchStatusEditsStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('msg:launchStatusEdit', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
+        });
+    };
+    /**
+     * An observable stream of launch status edit responses received from the server. Used
+     * to confirm that a launch status edit emitted to the server was acknowledged.
+     *
+     * @returns {Observable<WebsocketResponse>}
+     */
+    WebsocketService.prototype.launchStatusEditResponsesStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('response:launchStatusEdit', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
+        });
+    };
+    /**
+     * Emits a request to the server when a launch status is deleted.
+     *
+     * @param launchStatus {Status} The launch status being deleted.
+     */
+    WebsocketService.prototype.emitLaunchStatusDelete = function (launchStatus) {
+        this.socketClient.emit("msg:launchStatusDelete", {
+            token: this.authService.authtoken,
+            statusId: launchStatus.statusId
+        });
+    };
+    /**
+     * An observable stream of launch status deletions received from the server.
+     *
+     * @returns {Observable<any>}
+     */
+    WebsocketService.prototype.launchStatusDeletionsStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('msg:launchStatusDelete', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
+        });
+    };
+    /**
+     * An observable stream of launch status deletion responses received from the server. Used
+     * to confirm that a launch status deletion emitted to the server was acknowledged.
+     *
+     * @returns {Observable<WebsocketResponse>}
+     */
+    WebsocketService.prototype.launchStatusDeletionsResponsesStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('response:launchStatusDelete', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
+        });
+    };
+    /**
+     * Emit a app status to the server. This includes statuses such as `enableApp`, `disableApp`,
+     * `editLivestream`, `editLaunch`, and `editEvent`.
+     *
+     * @param statusType {string} One of `enableApp`, `disableApp`,`editLivestream`,
+     * `editLaunch`, and `editEvent`.
+     * @param data {*} Data to be sent up to the server as payload.
+     */
+    WebsocketService.prototype.emitAppStatus = function (statusType, data) {
+        if (!data) {
+            data = {};
+        }
+        this.socketClient.emit("msg:appStatus", {
+            token: this.authService.authtoken,
+            statusType: statusType,
+            data: data
+        });
+    };
+    /**
+     * An observable stream of app statuses indicating changes to the state and functionality
+     * of the application.
+     *
+     * @returns {Observable<any>}
+     */
+    WebsocketService.prototype.appStatusesStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('msg:appStatus', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
+        });
+    };
+    /**
+     * An observably stream of app status responses used to confirm when an appStatus message
+     * sent by the client is acknowledged by the server.
+     *
+     * @returns {Observable<WebsocketResponse>}
+     */
+    WebsocketService.prototype.appStatusResponsesStream = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socketClient.on('response:appStatus', function (data) { return observer.next(data); });
+            return function () { return _this.socketClient.disconnect(); };
+        });
+    };
+    WebsocketService = __decorate([
+        core_1.Injectable(), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof AuthService_1.AuthService !== 'undefined' && AuthService_1.AuthService) === 'function' && _a) || Object])
+    ], WebsocketService);
+    return WebsocketService;
+    var _a;
+}());
+exports.WebsocketService = WebsocketService;
 
 
 /***/ }

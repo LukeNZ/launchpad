@@ -54,6 +54,9 @@ export class DateTimeEntryComponent implements OnInit {
     @Input() public date: Date;
     @Output() public dateChange: EventEmitter<any> = new EventEmitter();
 
+    private months : string[] = ["January", "February", "March", "April", "May", "June", "July", "August",
+    "September", "October", "November", "December"];
+
     public tempDate : Date;
 
     /**
@@ -71,10 +74,7 @@ export class DateTimeEntryComponent implements OnInit {
      * @returns {string} Human readable date string.
      */
     public humanReadableMonth() : string {
-        let months: string[] = ["January", "February", "March", "April", "May", "June", "July", "August",
-        "September", "October", "November", "December"];
-
-        return months[this.tempDate.getUTCMonth()];
+        return this.months[this.tempDate.getUTCMonth()];
     }
 
     /**
@@ -125,6 +125,8 @@ export class DateTimeEntryComponent implements OnInit {
      * @param newValue {*} The new value for the component to hold.
      */
     public setDateTimeComponent(dateTimeComponent: string, newValue: any) : void {
+        let shouldSet = true;
+
         let dynamicMethodNames = {
             'years': "setUTCFullYear",
             'months': "setUTCMonth",
@@ -133,7 +135,15 @@ export class DateTimeEntryComponent implements OnInit {
             'minutes': "setMinutes",
             'seconds': "setSeconds"
         };
-        this.tempDate[dynamicMethodNames[dateTimeComponent]](newValue);
-        this.dateChange.emit(this.tempDate);
+
+        if (dateTimeComponent === "months") {
+            newValue = this.months.indexOf(newValue);
+            shouldSet = newValue !== -1;
+        }
+
+        if (shouldSet) {
+            this.tempDate[dynamicMethodNames[dateTimeComponent]](newValue);
+            this.dateChange.emit(this.tempDate);
+        }
     }
 }

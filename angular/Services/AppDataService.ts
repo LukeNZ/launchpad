@@ -1,5 +1,4 @@
 import {Injectable} from "@angular/core";
-import {InitializationService} from "./InitializationService";
 import {WebsocketService} from "./WebsocketService";
 
 @Injectable()
@@ -20,15 +19,21 @@ export class AppDataService {
 
     /**
      *
-     * @param initializationService
      * @param websocketService
      */
-    constructor(private initializationService: InitializationService, private websocketService: WebsocketService) {
+    constructor(private websocketService: WebsocketService) {
 
-        this.initializationService.getTMinusTen().subscribe(data => {
-            this.isActive = data.isActive;
-            if (!this.isActive) { this.isSettingsVisible = true; }
-            this.isLoading = false;
+        this.websocketService.appStatusResponsesStream().subscribe(websocket => {
+            if (websocket.response.statusType === "enableApp") {
+                this.isActive = true;
+                this.isSettingsVisible = false;
+            }
+        });
+
+        this.websocketService.appStatusesStream().subscribe(websocket => {
+            if (websocket.statusType === "enableApp") {
+                this.isActive = true;
+            }
         });
     }
 }

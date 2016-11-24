@@ -15,9 +15,9 @@ class TMinusTenController {
      */
     getTMinusTen(request, response) {
         this.store.isAppActive().then(activity => {
-            response.send(JSON.stringify({
+            response.json({
                 isActive: activity
-            }));
+            });
         }, () => {
            response.status(500).end();
         });
@@ -31,7 +31,9 @@ class TMinusTenController {
      * @param response
      */
     getStatuses(request, response) {
-        response.send();
+        this.store.getLaunchStatuses().then(statuses => {
+            response.json(statuses);
+        });
     }
 
     /**
@@ -43,7 +45,7 @@ class TMinusTenController {
      */
     getLaunch(request, response) {
         this.store.getLaunch().then(launch => {
-            response.send(launch);
+            response.json(launch);
         }, () => {
             response.status(500).end();
         })

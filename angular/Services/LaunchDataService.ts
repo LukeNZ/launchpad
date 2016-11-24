@@ -3,12 +3,12 @@ import {Launch} from "../Classes/Launch";
 import {Status} from "../Interfaces/Status";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
-import {InitializationService} from "./InitializationService";
 import {WebsocketService} from "./WebsocketService";
 
 @Injectable()
 /**
  * Service to allow the sharing of launch data across the application.
+ * @class
  */
 export class LaunchDataService {
 
@@ -18,18 +18,22 @@ export class LaunchDataService {
     private _launchObservable = this._launchSubject.asObservable();
 
     // Launch statuses and updates
-    private _statuses: Status[];
+    private _statuses: Status[] = [];
 
     // Launch Event templates
     private _eventTemplates: Event[];
 
-    constructor(private initializationService: InitializationService, private websocketService: WebsocketService) {
-        Observable.forkJoin(
-            this.initializationService.getLaunch(),
-            this.initializationService.getStatuses()
-        ).subscribe(data => {
-            this.setLaunch(data[0]);
-            this.setStatuses(data[1]);
+    /**
+     *
+     * @param websocketService
+     */
+    constructor(private websocketService: WebsocketService) {
+        this.websocketService.launchStatusesStream().subscribe(websocket => {
+            this.addStatus(websocket);
+        });
+
+        this.websocketService.launchStatusResponsesStream().subscribe(websocket => {
+            this.addStatus(websocket.response);
         });
     }
 
@@ -81,14 +85,11 @@ export class LaunchDataService {
     }
 
     /**
-     * Pushes an status to the end of the updates array.
+     * Pushes an status to the end of the statuses array.
      *
      * @param status {Status} The status to append to the end of the array.
      */
     public addStatus(status: Status) : void {
-        if (!this._statuses) {
-            this._statuses = [];
-        }
         this._statuses.push(status);
     }
 

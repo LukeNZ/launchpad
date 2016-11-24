@@ -25,11 +25,10 @@ class StoreService {
         this.redis.defineCommand('rpushindex', {
             numberOfKeys: 2,
             lua: `
-                local cjson = require "cjson"
                 local data = cjson.decode(ARGV[1])
-                data[KEY[2]] = redis.call("llen", KEY[1])
-                redis.call("rpush", KEY[1], cjson.encode(data))
-                return data.statusId
+                data[KEYS[2]] = redis.call("llen", KEYS[1])
+                redis.call("rpush", KEYS[1], cjson.encode(data))
+                return data[KEYS[2]]
             `
         });
     }
@@ -131,20 +130,20 @@ class StoreService {
      * Inserts the keys and values of dataObj as the keys and values of fields on the `launch` hash in Redis.
      * If dataObj is null or undefined the function will reject.
      *
-     * @param dataObj {*} An object of keys and values to be set on the `launch` hash in Redis.
+     * @param data {*} An object of keys and values to be set on the `launch` hash in Redis.
      *
      * @returns {Promise} Returns a promise that resolves to the reply from Redis once the hash fields have been
      * set.
      */
-    setLaunch(dataObj) {
+    setLaunch(data) {
         return new Promise((resolve, reject) => {
 
-            Object.keys(dataObj).forEach(key => {
-                dataObj[key] = JSON.stringify(dataObj[key]);
+            Object.keys(data).forEach(key => {
+                data[key] = JSON.stringify(data[key]);
             });
 
-            if (dataObj != null) {
-                this.redis.hmset("launch", dataObj, (err, reply) => resolve(reply));
+            if (data != null) {
+                this.redis.hmset("launch", data, (err, reply) => resolve(reply));
             } else {
                 return reject();
             }
@@ -155,7 +154,7 @@ class StoreService {
 
     }
 
-    setLivestream(livestreamKey, dataObj) {
+    setLivestream(livestreamKey, data) {
 
     }
 
@@ -204,14 +203,16 @@ class StoreService {
     }
 
     /**
+     * Adds a launch status to the launchStatuses list, pushing it onto the end, while also storing
+     * its index in the property. This is accomplished via a custom redis lua script called 'RPUSHINDEX'.
      *
+     * @param data {*} JSON launch status to store.
      *
-     * @param data
-     * @returns {Promise}
+     * @returns {Promise} Resolves to the index of insertion.
      */
     addLaunchStatus(data) {
         return new Promise((resolve, reject) => {
-            this.redis.rpushindex("launchStatuses", JSON.stringify(data), (err, index) => {
+            this.redis.rpushindex("launchStatuses", "statusId", JSON.stringify(data), (err, index) => {
                 resolve(index);
             });
         });

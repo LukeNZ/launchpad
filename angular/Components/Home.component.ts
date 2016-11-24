@@ -2,9 +2,11 @@ import {Component} from "@angular/core";
 import {Title} from "@angular/platform-browser";
 import {AuthService} from "../Services/AuthService";
 import {LaunchDataService} from "../Services/LaunchDataService";
-
-import 'rxjs/add/observable/forkJoin';
 import {AppDataService} from "../Services/AppDataService";
+import {InitializationService} from "../Services/InitializationService";
+
+import {Observable} from "rxjs/Observable";
+import 'rxjs/add/observable/forkJoin';
 
 @Component({
     selector:'tmt-home',
@@ -54,7 +56,21 @@ export class HomeComponent {
         public authData: AuthService,
         public launchData: LaunchDataService,
         public appData: AppDataService,
+        public initializationService: InitializationService,
         public titleService: Title) {
+
+        Observable.forkJoin(
+            this.initializationService.getLaunch(),
+            this.initializationService.getStatuses(),
+            this.initializationService.getTMinusTen()
+        ).subscribe(data => {
+            this.launchData.setLaunch(data[0]);
+            this.launchData.setStatuses(data[1]);
+
+            this.appData.isActive = data[2].isActive;
+            if (!this.appData.isActive) { this.appData.isSettingsVisible = true; }
+            this.appData.isLoading = false;
+        });
         this.titleService.setTitle("T Minus Ten");
     }
 }

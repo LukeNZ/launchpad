@@ -29,11 +29,11 @@ export class StatusBarComponent implements OnInit {
      */
     public ngOnInit() : void {
         if (this.authData.isLoggedIn) {
-            this.websocketService.typingStatusesStream().subscribe(msg => {
+            this.websocketService.typingStatusesStream().subscribe(websocket => {
 
             });
 
-            this.websocketService.launchStatusResponsesStream().subscribe(response => {
+            this.websocketService.launchStatusResponsesStream().subscribe(websocket => {
                 this.notificationBannerService.notify("Launch Status Posted.");
             });
         }
@@ -43,9 +43,11 @@ export class StatusBarComponent implements OnInit {
      *
      * @param key
      */
-    public onEnterKeypress(key: string) : void {
+    public onEnterKeypress(key: string) : boolean {
         if (key === "Enter") {
-            this.websocketService.emitLaunchStatusCreate(status);
+            this.websocketService.emitLaunchStatusCreate(this.status, "update");
+            this.status = "";
+            return false;
         }
     }
 }
