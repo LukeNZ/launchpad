@@ -1,4 +1,17 @@
 tmt-header {
     display:block;
     position:absolute;
+    left:0;
+    right:0;
+    margin:0 auto;
+    background: {
+        color: $charcoal;
+    }
+    width:600px;
+    height:80px;
+    color:$grey;
+
+    &:before {
+
+    }
 }

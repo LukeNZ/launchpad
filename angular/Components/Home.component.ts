@@ -39,7 +39,7 @@ import 'rxjs/add/observable/forkJoin';
                 <tmt-header></tmt-header>
                 <tmt-livestream></tmt-livestream>
                 <tmt-statusbar></tmt-statusbar>
-                <tmt-updates></tmt-updates>
+                <tmt-data></tmt-data>
             </ng-container>  
              
         </ng-container>     

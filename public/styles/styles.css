@@ -1,3 +1,17 @@
+html {
+  box-sizing: border-box; }
+
+*, *::after, *::before {
+  box-sizing: inherit; }
+
+[hidden] {
+  display: none; }
+
+html, body {
+  background-color: #F7F8F8;
+  padding: 0;
+  margin: 0; }
+
 label {
   display: none; }
 
@@ -7,20 +21,20 @@ tmt-notification-banner {
 
 tmt-settings {
   display: block;
-  position: absolute; }
+  position: fixed;
+  background-color: #F7F8F8; }
 
 tmt-header {
   display: block;
-  position: absolute; }
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  background-color: #36454F;
+  width: 600px;
+  height: 80px;
+  color: #F7F8F8; }
 
 tmt-livestream {
   display: block;
   background-color: grey; }
-
-[hidden] {
-  display: none; }
-
-html, body {
-  background-color: #F7F8F8;
-  padding: 0;
-  margin: 0; }

@@ -19,6 +19,8 @@ export class LaunchDataService {
 
     // Launch statuses and updates
     private _statuses: Status[] = [];
+    private _statusesSubject = new BehaviorSubject<Status[]>(this._statuses);
+    private _statusesObservable = this._statusesSubject.asObservable();
 
     // Launch Event templates
     private _eventTemplates: Event[];
@@ -58,15 +60,6 @@ export class LaunchDataService {
     }
 
     /**
-     * Setter for the launch model.
-     *
-     * @param launch {Launch} The launch model to be set.
-     */
-    set launch(launch: Launch) {
-        this._launch = launch;
-    }
-
-    /**
      * Returns an observable for the launch model
      *
      * @returns {Observable<Launch>} An observable of the launch model.
@@ -82,6 +75,7 @@ export class LaunchDataService {
      */
     public setStatuses(statuses: Status[]) : void {
         this._statuses = statuses;
+        this._statusesSubject.next(this._statuses);
     }
 
     /**
@@ -91,6 +85,7 @@ export class LaunchDataService {
      */
     public addStatus(status: Status) : void {
         this._statuses.push(status);
+        this._statusesSubject.next(this._statuses);
     }
 
     /**
@@ -116,5 +111,12 @@ export class LaunchDataService {
      */
     get statuses() : Status[] {
         return this._statuses;
+    }
+
+    /**
+     * @returns {Observable<Status[]>}
+     */
+    public statusesObservable() : Observable<Status[]> {
+        return this._statusesObservable;
     }
 }
