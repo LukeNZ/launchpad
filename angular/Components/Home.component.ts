@@ -68,6 +68,8 @@ export class HomeComponent {
             this.launchData.setStatuses(data[1]);
 
             this.appData.isActive = data[2].isActive;
+            this.appData.launchMomentTemplates = data[2].launchMomentTemplates;
+
             if (!this.appData.isActive) { this.appData.isSettingsVisible = true; }
             this.appData.isLoading = false;
         });

@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 382:
+/***/ 34:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15,13 +15,146 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var platform_browser_1 = __webpack_require__(34);
-var AuthService_1 = __webpack_require__(40);
-var LaunchDataService_1 = __webpack_require__(49);
+var BehaviorSubject_1 = __webpack_require__(111);
+var WebsocketService_1 = __webpack_require__(73);
+var LaunchDataService = (function () {
+    /**
+     *
+     * @param websocketService
+     */
+    function LaunchDataService(websocketService) {
+        var _this = this;
+        this.websocketService = websocketService;
+        this._launchSubject = new BehaviorSubject_1.BehaviorSubject(this._launch);
+        this._launchObservable = this._launchSubject.asObservable();
+        // Launch statuses and updates
+        this._statuses = [];
+        this._statusesSubject = new BehaviorSubject_1.BehaviorSubject(this._statuses);
+        this._statusesObservable = this._statusesSubject.asObservable();
+        this.websocketService.launchStatusesStream().subscribe(function (websocket) {
+            _this.addStatus(websocket);
+        });
+        this.websocketService.launchStatusResponsesStream().subscribe(function (websocket) {
+            _this.addStatus(websocket.response);
+        });
+    }
+    /**
+     * Sets the launch model of the service, and also sets the subject
+     * for any subscribers listening for updates.
+     *
+     * @param launch    The new launch value.
+     */
+    LaunchDataService.prototype.setLaunch = function (launch) {
+        this._launch = launch;
+        this._launchSubject.next(launch);
+    };
+    Object.defineProperty(LaunchDataService.prototype, "launch", {
+        /**
+         * Plain accessor for the launch model.
+         *
+         * @returns {Launch} The launch model.
+         */
+        get: function () {
+            return this._launch;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Returns an observable for the launch model.
+     *
+     * @returns {Observable<Launch>} An observable of the launch model.
+     */
+    LaunchDataService.prototype.launchObservable = function () {
+        return this._launchObservable;
+    };
+    /**
+     * Sets the array of statuses.
+     *
+     * @param statuses
+     */
+    LaunchDataService.prototype.setStatuses = function (statuses) {
+        this._statuses = statuses;
+        this._statusesSubject.next(this._statuses);
+    };
+    /**
+     * Pushes an status to the end of the statuses array.
+     *
+     * @param status {Status} The status to append to the end of the array.
+     */
+    LaunchDataService.prototype.addStatus = function (status) {
+        this._statuses.push(status);
+        this._statusesSubject.next(this._statuses);
+    };
+    /**
+     * Deletes an status from the updates array.
+     *
+     * @param status {Status}
+     *
+     * @returns {boolean} True if the status was deleted, false if the status was not deleted.
+     */
+    LaunchDataService.prototype.deleteStatus = function (status) {
+        var index = this._statuses.indexOf(status);
+        if (index > -1) {
+            this.setStatuses(this._statuses.splice(index, 1));
+            return true;
+        }
+        return false;
+    };
+    Object.defineProperty(LaunchDataService.prototype, "statuses", {
+        /**
+         * Accessor for updates.
+         *
+         * @returns {Status[]}
+         */
+        get: function () {
+            return this._statuses;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Returns an observable for the array of statuses.
+     *
+     * @returns {Observable<Status[]>}
+     */
+    LaunchDataService.prototype.statusesObservable = function () {
+        return this._statusesObservable;
+    };
+    LaunchDataService = __decorate([
+        core_1.Injectable(), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _a) || Object])
+    ], LaunchDataService);
+    return LaunchDataService;
+    var _a;
+}());
+exports.LaunchDataService = LaunchDataService;
+
+
+/***/ },
+
+/***/ 383:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var platform_browser_1 = __webpack_require__(35);
+var AuthService_1 = __webpack_require__(41);
+var LaunchDataService_1 = __webpack_require__(34);
 var AppDataService_1 = __webpack_require__(71);
 var InitializationService_1 = __webpack_require__(385);
 var Observable_1 = __webpack_require__(4);
-__webpack_require__(296);
+__webpack_require__(297);
 var HomeComponent = (function () {
     function HomeComponent(authData, launchData, appData, initializationService, titleService) {
         var _this = this;
@@ -34,6 +167,7 @@ var HomeComponent = (function () {
             _this.launchData.setLaunch(data[0]);
             _this.launchData.setStatuses(data[1]);
             _this.appData.isActive = data[2].isActive;
+            _this.appData.launchMomentTemplates = data[2].launchMomentTemplates;
             if (!_this.appData.isActive) {
                 _this.appData.isSettingsVisible = true;
             }
@@ -56,7 +190,7 @@ exports.HomeComponent = HomeComponent;
 
 /***/ },
 
-/***/ 383:
+/***/ 384:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -71,9 +205,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(40);
-var router_1 = __webpack_require__(112);
-var platform_browser_1 = __webpack_require__(34);
+var AuthService_1 = __webpack_require__(41);
+var router_1 = __webpack_require__(113);
+var platform_browser_1 = __webpack_require__(35);
 var LoginComponent = (function () {
     function LoginComponent(authService, router, titleService) {
         this.authService = authService;
@@ -118,75 +252,6 @@ exports.LoginComponent = LoginComponent;
 
 /***/ },
 
-/***/ 384:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var http_1 = __webpack_require__(54);
-var Observable_1 = __webpack_require__(4);
-/**
- * Abstract service that provides helper methods for other services.
- * @class
- */
-var AbstractService = (function () {
-    function AbstractService() {
-    }
-    /**
-     * Handle an error.
-     *
-     * @param error
-     */
-    AbstractService.prototype.handleError = function (error) {
-        var errMsg;
-        if (error instanceof http_1.Response) {
-            var body = error.json() || '';
-            var err = body.error || JSON.stringify(body);
-            errMsg = error.status + " - " + (error.statusText || '') + " " + err;
-        }
-        else {
-            errMsg = error.message ? error.message : error.toString();
-        }
-        console.error(errMsg);
-        return Observable_1.Observable.throw(errMsg);
-    };
-    /**
-     * Creates a default headers object for use on each request that ensures any server marks it as an AJAX request.
-     *
-     * May need to comment Content-Type header entry until this is fixed: https://github.com/angular/angular/commit/7cd4741fcbbea6d58281b3055d1ae7691de1662b
-     *
-     * @returns {RequestOptions}
-     */
-    AbstractService.prototype.headers = function () {
-        var headers = new http_1.Headers();
-        headers.append('X-Requested-With', 'XMLHttpRequest');
-        headers.append('Content-Type', 'application/json');
-        var authToken = localStorage.getItem('authtoken');
-        if (authToken != null) {
-            headers.append('Authorization', "bearer " + authToken);
-        }
-        return new http_1.RequestOptions({ headers: headers });
-    };
-    /**
-     * Extract JSON data from a response object.
-     *
-     * @param res
-     * @returns
-     */
-    AbstractService.prototype.extractData = function (res) {
-        var body;
-        if (res.text()) {
-            body = res.json();
-        }
-        return body || {};
-    };
-    return AbstractService;
-}());
-exports.AbstractService = AbstractService;
-
-
-/***/ },
-
 /***/ 385:
 /***/ function(module, exports, __webpack_require__) {
 
@@ -208,7 +273,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var http_1 = __webpack_require__(54);
-var AbstractService_1 = __webpack_require__(384);
+var angular_toolshed_1 = __webpack_require__(78);
 var Launch_1 = __webpack_require__(520);
 var InitializationService = (function (_super) {
     __extends(InitializationService, _super);
@@ -253,13 +318,81 @@ var InitializationService = (function (_super) {
     ], InitializationService);
     return InitializationService;
     var _a;
-}(AbstractService_1.AbstractService));
+}(angular_toolshed_1.AbstractService));
 exports.InitializationService = InitializationService;
 
 
 /***/ },
 
-/***/ 40:
+/***/ 409:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+// Modules
+var core_1 = __webpack_require__(0);
+var platform_browser_1 = __webpack_require__(35);
+var http_1 = __webpack_require__(54);
+var forms_1 = __webpack_require__(296);
+var app_routes_1 = __webpack_require__(535);
+// Components
+var TMinusTen_component_1 = __webpack_require__(530);
+var Home_component_1 = __webpack_require__(383);
+var Header_component_1 = __webpack_require__(524);
+var Countdown_component_1 = __webpack_require__(521);
+var StatusBar_component_1 = __webpack_require__(529);
+var Data_component_1 = __webpack_require__(522);
+var Livestream_component_1 = __webpack_require__(526);
+var Login_component_1 = __webpack_require__(384);
+var NotificationBanner_component_1 = __webpack_require__(527);
+var Settings_component_1 = __webpack_require__(528);
+var DateTimeEntry_component_1 = __webpack_require__(523);
+// Services
+var InitializationService_1 = __webpack_require__(385);
+var WebsocketService_1 = __webpack_require__(73);
+var AuthService_1 = __webpack_require__(41);
+var LaunchDataService_1 = __webpack_require__(34);
+var NotificationBannerService_1 = __webpack_require__(72);
+var AppDataService_1 = __webpack_require__(71);
+var AboutTab_component_1 = __webpack_require__(531);
+var IncomingTelemetryTab_component_1 = __webpack_require__(532);
+var TweetsImagesTab_component_1 = __webpack_require__(533);
+var LaunchStatus_component_1 = __webpack_require__(525);
+var angular_toolshed_1 = __webpack_require__(78);
+var AppModule = (function () {
+    function AppModule() {
+    }
+    AppModule = __decorate([
+        core_1.NgModule({
+            // Modules
+            imports: [platform_browser_1.BrowserModule, http_1.HttpModule, forms_1.FormsModule, app_routes_1.routing],
+            // Services
+            providers: [InitializationService_1.InitializationService, WebsocketService_1.WebsocketService, AuthService_1.AuthService, LaunchDataService_1.LaunchDataService, AppDataService_1.AppDataService, NotificationBannerService_1.NotificationBannerService],
+            // Components
+            declarations: [TMinusTen_component_1.TMinusTenComponent, Home_component_1.HomeComponent, Login_component_1.LoginComponent, Header_component_1.HeaderComponent, Countdown_component_1.CountdownComponent, StatusBar_component_1.StatusBarComponent, Data_component_1.DataComponent, Livestream_component_1.LivestreamComponent, NotificationBanner_component_1.NotificationBannerComponent, Settings_component_1.SettingsComponent, DateTimeEntry_component_1.DateTimeEntryComponent, AboutTab_component_1.AboutTabComponent,
+                IncomingTelemetryTab_component_1.IncomingTelemetryTabComponent, TweetsImagesTab_component_1.TweetsImagesTabComponent, LaunchStatus_component_1.LaunchStatusComponent, angular_toolshed_1.KeyValuePipe],
+            // Starting components
+            bootstrap: [TMinusTen_component_1.TMinusTenComponent]
+        }), 
+        __metadata('design:paramtypes', [])
+    ], AppModule);
+    return AppModule;
+}());
+exports.AppModule = AppModule;
+
+
+/***/ },
+
+/***/ 41:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -280,7 +413,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var http_1 = __webpack_require__(54);
-var AbstractService_1 = __webpack_require__(384);
+var angular_toolshed_1 = __webpack_require__(78);
 var AuthService = (function (_super) {
     __extends(AuthService, _super);
     /**
@@ -352,206 +485,8 @@ var AuthService = (function (_super) {
     ], AuthService);
     return AuthService;
     var _a;
-}(AbstractService_1.AbstractService));
+}(angular_toolshed_1.AbstractService));
 exports.AuthService = AuthService;
-
-
-/***/ },
-
-/***/ 409:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-// Modules
-var core_1 = __webpack_require__(0);
-var platform_browser_1 = __webpack_require__(34);
-var http_1 = __webpack_require__(54);
-var forms_1 = __webpack_require__(295);
-var app_routes_1 = __webpack_require__(530);
-// Components
-var TMinusTen_component_1 = __webpack_require__(528);
-var Home_component_1 = __webpack_require__(382);
-var Header_component_1 = __webpack_require__(523);
-var Countdown_component_1 = __webpack_require__(521);
-var StatusBar_component_1 = __webpack_require__(527);
-var Data_component_1 = __webpack_require__(588);
-var Livestream_component_1 = __webpack_require__(524);
-var Login_component_1 = __webpack_require__(383);
-var NotificationBanner_component_1 = __webpack_require__(525);
-var Settings_component_1 = __webpack_require__(526);
-var DateTimeEntry_component_1 = __webpack_require__(522);
-// Services
-var InitializationService_1 = __webpack_require__(385);
-var WebsocketService_1 = __webpack_require__(73);
-var AuthService_1 = __webpack_require__(40);
-var LaunchDataService_1 = __webpack_require__(49);
-var NotificationBannerService_1 = __webpack_require__(72);
-var AppDataService_1 = __webpack_require__(71);
-var AboutTab_component_1 = __webpack_require__(589);
-var IncomingTelemetryTab_component_1 = __webpack_require__(590);
-var TweetsImagesTab_component_1 = __webpack_require__(591);
-var LaunchStatus_component_1 = __webpack_require__(592);
-var AppModule = (function () {
-    function AppModule() {
-    }
-    AppModule = __decorate([
-        core_1.NgModule({
-            // Modules
-            imports: [platform_browser_1.BrowserModule, http_1.HttpModule, forms_1.FormsModule, app_routes_1.routing],
-            // Services
-            providers: [InitializationService_1.InitializationService, WebsocketService_1.WebsocketService, AuthService_1.AuthService, LaunchDataService_1.LaunchDataService, AppDataService_1.AppDataService, NotificationBannerService_1.NotificationBannerService],
-            // Components
-            declarations: [TMinusTen_component_1.TMinusTenComponent, Home_component_1.HomeComponent, Login_component_1.LoginComponent, Header_component_1.HeaderComponent, Countdown_component_1.CountdownComponent, StatusBar_component_1.StatusBarComponent, Data_component_1.DataComponent, Livestream_component_1.LivestreamComponent, NotificationBanner_component_1.NotificationBannerComponent, Settings_component_1.SettingsComponent, DateTimeEntry_component_1.DateTimeEntryComponent, AboutTab_component_1.AboutTabComponent,
-                IncomingTelemetryTab_component_1.IncomingTelemetryTabComponent, TweetsImagesTab_component_1.TweetsImagesTabComponent, LaunchStatus_component_1.LaunchStatusComponent],
-            // Starting components
-            bootstrap: [TMinusTen_component_1.TMinusTenComponent]
-        }), 
-        __metadata('design:paramtypes', [])
-    ], AppModule);
-    return AppModule;
-}());
-exports.AppModule = AppModule;
-
-
-/***/ },
-
-/***/ 49:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var core_1 = __webpack_require__(0);
-var BehaviorSubject_1 = __webpack_require__(110);
-var WebsocketService_1 = __webpack_require__(73);
-var LaunchDataService = (function () {
-    /**
-     *
-     * @param websocketService
-     */
-    function LaunchDataService(websocketService) {
-        var _this = this;
-        this.websocketService = websocketService;
-        this._launchSubject = new BehaviorSubject_1.BehaviorSubject(this._launch);
-        this._launchObservable = this._launchSubject.asObservable();
-        // Launch statuses and updates
-        this._statuses = [];
-        this._statusesSubject = new BehaviorSubject_1.BehaviorSubject(this._statuses);
-        this._statusesObservable = this._statusesSubject.asObservable();
-        this.websocketService.launchStatusesStream().subscribe(function (websocket) {
-            _this.addStatus(websocket);
-        });
-        this.websocketService.launchStatusResponsesStream().subscribe(function (websocket) {
-            _this.addStatus(websocket.response);
-        });
-    }
-    /**
-     * Sets the launch model of the service, and also sets the subject
-     * for any subscribers listening for updates.
-     *
-     * @param launch    The new launch value.
-     */
-    LaunchDataService.prototype.setLaunch = function (launch) {
-        this._launch = launch;
-        this._launchSubject.next(launch);
-    };
-    Object.defineProperty(LaunchDataService.prototype, "launch", {
-        /**
-         * Plain accessor for the launch model.
-         *
-         * @returns {Launch} The launch model.
-         */
-        get: function () {
-            return this._launch;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * Returns an observable for the launch model
-     *
-     * @returns {Observable<Launch>} An observable of the launch model.
-     */
-    LaunchDataService.prototype.launchObservable = function () {
-        return this._launchObservable;
-    };
-    /**
-     * Sets the array of statuses.
-     *
-     * @param statuses
-     */
-    LaunchDataService.prototype.setStatuses = function (statuses) {
-        this._statuses = statuses;
-        this._statusesSubject.next(this._statuses);
-    };
-    /**
-     * Pushes an status to the end of the statuses array.
-     *
-     * @param status {Status} The status to append to the end of the array.
-     */
-    LaunchDataService.prototype.addStatus = function (status) {
-        this._statuses.push(status);
-        this._statusesSubject.next(this._statuses);
-    };
-    /**
-     * Deletes an status from the updates array.
-     *
-     * @param status {Status}
-     *
-     * @returns {boolean} True if the status was deleted, false if the status was not deleted.
-     */
-    LaunchDataService.prototype.deleteStatus = function (status) {
-        var index = this._statuses.indexOf(status);
-        if (index > -1) {
-            this.setStatuses(this._statuses.splice(index, 1));
-            return true;
-        }
-        return false;
-    };
-    Object.defineProperty(LaunchDataService.prototype, "statuses", {
-        /**
-         * Accessor for updates.
-         *
-         * @returns {Status[]}
-         */
-        get: function () {
-            return this._statuses;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * @returns {Observable<Status[]>}
-     */
-    LaunchDataService.prototype.statusesObservable = function () {
-        return this._statusesObservable;
-    };
-    LaunchDataService = __decorate([
-        core_1.Injectable(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _a) || Object])
-    ], LaunchDataService);
-    return LaunchDataService;
-    var _a;
-}());
-exports.LaunchDataService = LaunchDataService;
 
 
 /***/ },
@@ -618,7 +553,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var LaunchDataService_1 = __webpack_require__(49);
+var LaunchDataService_1 = __webpack_require__(34);
 var moment = __webpack_require__(1);
 var CountdownComponent = (function () {
     function CountdownComponent(launchData) {
@@ -671,6 +606,41 @@ exports.CountdownComponent = CountdownComponent;
 /***/ },
 
 /***/ 522:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var LaunchDataService_1 = __webpack_require__(34);
+var DataComponent = (function () {
+    function DataComponent(launchData) {
+        this.launchData = launchData;
+    }
+    DataComponent = __decorate([
+        core_1.Component({
+            selector: 'tmt-data',
+            template: "\n        <nav>\n            <ul>\n                <li>About {{ launchData.launch.name }}</li>\n                <li>Incoming Telemetry</li>\n                <li>Tweets & Images</li>\n            </ul>\n            <div>\n                <tmt-about-tab></tmt-about-tab>\n                <tmt-incoming-telemetry-tab></tmt-incoming-telemetry-tab>\n                <tmt-tweets-images-tab></tmt-tweets-images-tab>\n            </div>\n        </nav>\n    "
+        }), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof LaunchDataService_1.LaunchDataService !== 'undefined' && LaunchDataService_1.LaunchDataService) === 'function' && _a) || Object])
+    ], DataComponent);
+    return DataComponent;
+    var _a;
+}());
+exports.DataComponent = DataComponent;
+
+
+/***/ },
+
+/***/ 523:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -810,7 +780,7 @@ exports.DateTimeEntryComponent = DateTimeEntryComponent;
 
 /***/ },
 
-/***/ 523:
+/***/ 524:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -845,7 +815,7 @@ exports.HeaderComponent = HeaderComponent;
 
 /***/ },
 
-/***/ 524:
+/***/ 525:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -860,7 +830,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(40);
+var Status_1 = __webpack_require__(534);
+var LaunchStatusComponent = (function () {
+    function LaunchStatusComponent() {
+    }
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', (typeof (_a = typeof Status_1.Status !== 'undefined' && Status_1.Status) === 'function' && _a) || Object)
+    ], LaunchStatusComponent.prototype, "launchStatus", void 0);
+    LaunchStatusComponent = __decorate([
+        core_1.Component({
+            selector: 'tmt-launch-status',
+            template: "\n        <div><p>{{ launchStatus.text }}</p></div>\n    "
+        }), 
+        __metadata('design:paramtypes', [])
+    ], LaunchStatusComponent);
+    return LaunchStatusComponent;
+    var _a;
+}());
+exports.LaunchStatusComponent = LaunchStatusComponent;
+
+
+/***/ },
+
+/***/ 526:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = __webpack_require__(0);
+var AuthService_1 = __webpack_require__(41);
 var LivestreamComponent = (function () {
     function LivestreamComponent(elem, authService) {
         this.elem = elem;
@@ -901,7 +909,7 @@ exports.LivestreamComponent = LivestreamComponent;
 
 /***/ },
 
-/***/ 525:
+/***/ 527:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -950,7 +958,7 @@ exports.NotificationBannerComponent = NotificationBannerComponent;
 
 /***/ },
 
-/***/ 526:
+/***/ 528:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -967,7 +975,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = __webpack_require__(0);
 var WebsocketService_1 = __webpack_require__(73);
 var NotificationBannerService_1 = __webpack_require__(72);
-var LaunchDataService_1 = __webpack_require__(49);
+var LaunchDataService_1 = __webpack_require__(34);
 var AppDataService_1 = __webpack_require__(71);
 var SettingsSection;
 (function (SettingsSection) {
@@ -978,7 +986,7 @@ var SettingsSection;
     SettingsSection[SettingsSection["Introduction"] = 4] = "Introduction";
     SettingsSection[SettingsSection["DescriptionSections"] = 5] = "DescriptionSections";
     SettingsSection[SettingsSection["Resources"] = 6] = "Resources";
-    SettingsSection[SettingsSection["LaunchEventTemplates"] = 7] = "LaunchEventTemplates";
+    SettingsSection[SettingsSection["LaunchMomentTemplates"] = 7] = "LaunchMomentTemplates";
     SettingsSection[SettingsSection["About"] = 8] = "About";
 })(SettingsSection || (SettingsSection = {}));
 var SettingsComponent = (function () {
@@ -1078,10 +1086,13 @@ var SettingsComponent = (function () {
         var index = this.launch.resources.indexOf(resource);
         this.launch.resources.splice(index, 1);
     };
+    SettingsComponent.prototype.log = function () {
+        console.log(this.appData.launchMomentTemplates);
+    };
     SettingsComponent = __decorate([
         core_1.Component({
             selector: 'tmt-settings',
-            template: "\n        <i [hidden]=\"!appData.isActive\" (click)=\"appData.isSettingsVisible = false\">Close</i>\n        <div>\n            <nav>\n                <ul>\n                    <li (click)=\"currentSection = settingsSection.Display\">Display</li>\n                    <li (click)=\"currentSection = settingsSection.Notifications\">Notifications</li>\n                    <li (click)=\"currentSection = settingsSection.General\">General</li>\n                    <li (click)=\"currentSection = settingsSection.Countdown\">Countdown</li>\n                    <li (click)=\"currentSection = settingsSection.Introduction\">Introduction</li>\n                    <li (click)=\"currentSection = settingsSection.DescriptionSections\">Description Sections</li>\n                    <li (click)=\"currentSection = settingsSection.Resources\">Resources</li>\n                    <li (click)=\"currentSection = settingsSection.LaunchEventTemplates\">Launch Event Templates</li>\n                    <li (click)=\"currentSection = settingsSection.About\">About the App</li>\n                </ul>\n            </nav>\n            \n            <!-- DISPLAY -->\n            <section [hidden]=\"currentSection != settingsSection.Display\">\n                <h1>Display</h1>\n                \n                <p>Increase text size</p>\n                <p>Density settings</p>\n            </section>\n            \n            <!-- NOTIFICATIONS -->\n            <section [hidden]=\"currentSection != settingsSection.Notifications\">\n                <h1>Notifications</h1>\n                \n                <p>Play ping when a new update arrives when tab inactive</p>\n            </section>\n            \n            <!-- GENERAL -->\n            <section [hidden]=\"currentSection != settingsSection.General\">\n                <h1>General</h1>\n                <p>General launch details and application settings.</p>\n                \n                <p *ngIf=\"launch.name\">Will appear on Reddit as: <span class=\"title\">r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread</span></p>\n                <form>\n                    <label for=\"mission\">Mission Name</label>\n                    <input type=\"text\" name=\"mission\" [(ngModel)]=\"launch.name\" placeholder=\"Mission Name\">\n                </form>\n            </section>\n            \n            <!-- COUNTDOWN -->\n            <section [hidden]=\"currentSection != settingsSection.Countdown\">\n                <h1>Countdown</h1>\n                \n                <form>\n                    <tmt-datetimeentry [id]=\"'countdown'\" [date]=\"launch.countdown\" (dateChange)=\"onCountdownChanged($event)\"></tmt-datetimeentry>\n                </form>\n                \n                <p *ngIf=\"launchData.launch?.countdown != launch.countdown\">New countdown of {{ launch.countdown.toISOString() }}</p>\n            </section>\n            \n            <!-- INTRODUCTION -->\n            <section [hidden]=\"currentSection != settingsSection.Introduction\">\n                <h1>Introduction</h1>\n                <form>\n                    <textarea name=\"introduction\" [(ngModel)]=\"launch.introduction\" placeholder=\"Introductory paragraph about the launch.\"></textarea>\n                    <span>{{ launch.introduction?.length }} + characters.</span>\n                </form>\n            </section>\n            \n            <!-- DESCRIPTION SECTIONS -->\n            <section [hidden]=\"currentSection != settingsSection.DescriptionSections\">\n                <h1>Description Sections</h1>\n                \n                <button (click)=\"addDescriptionSection()\">Add Section</button>\n                \n                <ng-container *ngFor=\"let section of launch.descriptionSections\">\n                    <input type=\"text\" placeholder=\"Section title\" [(ngModel)]=\"section.title\" />\n                    <textarea placeholder=\"Section description\" [(ngModel)]=\"section.description\" ></textarea>\n                    <button (click)=\"removeDescriptionSection(section)\">Remove</button>\n                </ng-container>\n            </section>\n            \n            <!-- RESOURCES -->\n            <section [hidden]=\"currentSection != settingsSection.Resources\">\n                <h1>Resources</h1>\n                \n                <button (click)=\"addResource()\">Add Resource</button>\n                \n                <ng-container *ngFor=\"let resource of launch.resources\">\n                    <input type=\"text\" placeholder=\"Resource Title\" [(ngModel)]=\"resource.title\" />\n                    <input type=\"text\" placeholder=\"Resource URL\" [(ngModel)]=\"resource.url\" />\n                    <input type=\"text\" placeholder=\"Resource Note\" [(ngModel)]=\"resource.note\" />          \n                    <button (click)=\"removeResource(resource)\">Remove</button>\n                </ng-container>\n            </section>\n            \n            <!-- LAUNCH EVENT TEMPLATES -->\n            <section [hidden]=\"currentSection != settingsSection.LaunchEventTemplates\">\n                <h1>Launch Event Templates</h1>\n            </section>\n            \n            <!-- ABOUT -->\n            <section [hidden]=\"currentSection != settingsSection.About\">\n                <h1>About the App</h1>\n                <p>Written by Luke. View on GitHub here: https://github.com/LukeNZ/tminusten.</p>\n            </section>\n            \n            <!-- GLOBAL SETTINGS OPTIONS -->\n            <div>\n                <button (click)=\"liftoff()\" [disabled]=\"settingsState.isLiftingOff\">\n                    {{ settingsState.isLiftingOff ? \"Lifting off...\" : \"Liftoff\" }}\n                </button>\n            </div>\n        </div>\n    "
+            template: "\n        <i [hidden]=\"!appData.isActive\" (click)=\"appData.isSettingsVisible = false\">Close</i>\n        <div>\n            <nav>\n                <ul>\n                    <li (click)=\"currentSection = settingsSection.Display\">Display</li>\n                    <li (click)=\"currentSection = settingsSection.Notifications\">Notifications</li>\n                    <li (click)=\"currentSection = settingsSection.General\">General</li>\n                    <li (click)=\"currentSection = settingsSection.Countdown\">Countdown</li>\n                    <li (click)=\"currentSection = settingsSection.Introduction\">Introduction</li>\n                    <li (click)=\"currentSection = settingsSection.DescriptionSections\">Description Sections</li>\n                    <li (click)=\"currentSection = settingsSection.Resources\">Resources</li>\n                    <li (click)=\"currentSection = settingsSection.LaunchMomentTemplates\">Launch Moment Templates</li>\n                    <li (click)=\"currentSection = settingsSection.About\">About the App</li>\n                </ul>\n            </nav>\n            \n            <!-- DISPLAY -->\n            <section [hidden]=\"currentSection != settingsSection.Display\">\n                <h1>Display</h1>\n                \n                <p>Increase text size</p>\n                <p>Density settings</p>\n            </section>\n            \n            <!-- NOTIFICATIONS -->\n            <section [hidden]=\"currentSection != settingsSection.Notifications\">\n                <h1>Notifications</h1>\n                \n                <p>Play ping when a new update arrives when tab inactive</p>\n            </section>\n            \n            <!-- GENERAL -->\n            <section [hidden]=\"currentSection != settingsSection.General\">\n                <h1>General</h1>\n                <p>General launch details and application settings.</p>\n                \n                <p *ngIf=\"launch.name\">Will appear on Reddit as: <span class=\"title\">r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread</span></p>\n                <form>\n                    <label for=\"mission\">Mission Name</label>\n                    <input type=\"text\" name=\"mission\" [(ngModel)]=\"launch.name\" placeholder=\"Mission Name\">\n                </form>\n            </section>\n            \n            <!-- COUNTDOWN -->\n            <section [hidden]=\"currentSection != settingsSection.Countdown\">\n                <h1>Countdown</h1>\n                \n                <form>\n                    <tmt-datetimeentry [id]=\"'countdown'\" [date]=\"launch.countdown\" (dateChange)=\"onCountdownChanged($event)\"></tmt-datetimeentry>\n                </form>\n                \n                <p *ngIf=\"launchData.launch?.countdown != launch.countdown\">New countdown of {{ launch.countdown.toISOString() }}</p>\n            </section>\n            \n            <!-- INTRODUCTION -->\n            <section [hidden]=\"currentSection != settingsSection.Introduction\">\n                <h1>Introduction</h1>\n                <form>\n                    <textarea name=\"introduction\" [(ngModel)]=\"launch.introduction\" placeholder=\"Introductory paragraph about the launch.\"></textarea>\n                    <span>{{ launch.introduction?.length }} + characters.</span>\n                </form>\n            </section>\n            \n            <!-- DESCRIPTION SECTIONS -->\n            <section [hidden]=\"currentSection != settingsSection.DescriptionSections\">\n                <h1>Description Sections</h1>\n                \n                <button (click)=\"addDescriptionSection()\">Add Section</button>\n                \n                <ng-container *ngFor=\"let section of launch.descriptionSections\">\n                    <input type=\"text\" placeholder=\"Section title\" [(ngModel)]=\"section.title\" />\n                    <textarea placeholder=\"Section description\" [(ngModel)]=\"section.description\" ></textarea>\n                    <button (click)=\"removeDescriptionSection(section)\">Remove</button>\n                </ng-container>\n            </section>\n            \n            <!-- RESOURCES -->\n            <section [hidden]=\"currentSection != settingsSection.Resources\">\n                <h1>Resources</h1>\n                \n                <button (click)=\"addResource()\">Add Resource</button>\n                \n                <ng-container *ngFor=\"let resource of launch.resources\">\n                    <input type=\"text\" placeholder=\"Resource Title\" [(ngModel)]=\"resource.title\" />\n                    <input type=\"text\" placeholder=\"Resource URL\" [(ngModel)]=\"resource.url\" />\n                    <input type=\"text\" placeholder=\"Resource Note\" [(ngModel)]=\"resource.note\" />          \n                    <button (click)=\"removeResource(resource)\">Remove</button>\n                </ng-container>\n            </section>\n            \n            <!-- LAUNCH MOMENT TEMPLATES -->\n            <section [hidden]=\"currentSection != settingsSection.LaunchMomentTemplates\">\n                <h1>Launch Moment Templates</h1>\n                \n                <ng-container *ngFor=\"let momentTemplate of appData.launchMomentTemplates | keyValue\">\n                    <p>{{ momentTemplate.value.title }}</p>\n                    <textarea>{{ momentTemplate.value.text }}</textarea>\n                </ng-container>\n                <button (click)=\"log()\">Save</button>\n            </section>\n            \n            <!-- ABOUT -->\n            <section [hidden]=\"currentSection != settingsSection.About\">\n                <h1>About the App</h1>\n                <p>Written by Luke. View on GitHub here: https://github.com/LukeNZ/tminusten.</p>\n            </section>\n            \n            <!-- GLOBAL SETTINGS OPTIONS -->\n            <div>\n                <button (click)=\"liftoff()\" [disabled]=\"settingsState.isLiftingOff\">\n                    {{ settingsState.isLiftingOff ? \"Lifting off...\" : \"Liftoff\" }}\n                </button>\n            </div>\n        </div>\n    "
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _a) || Object, (typeof (_b = typeof NotificationBannerService_1.NotificationBannerService !== 'undefined' && NotificationBannerService_1.NotificationBannerService) === 'function' && _b) || Object, (typeof (_c = typeof LaunchDataService_1.LaunchDataService !== 'undefined' && LaunchDataService_1.LaunchDataService) === 'function' && _c) || Object, (typeof (_d = typeof AppDataService_1.AppDataService !== 'undefined' && AppDataService_1.AppDataService) === 'function' && _d) || Object])
     ], SettingsComponent);
@@ -1093,7 +1104,7 @@ exports.SettingsComponent = SettingsComponent;
 
 /***/ },
 
-/***/ 527:
+/***/ 529:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1109,9 +1120,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var WebsocketService_1 = __webpack_require__(73);
-var AuthService_1 = __webpack_require__(40);
+var AuthService_1 = __webpack_require__(41);
 var NotificationBannerService_1 = __webpack_require__(72);
-var LaunchDataService_1 = __webpack_require__(49);
+var LaunchDataService_1 = __webpack_require__(34);
 var StatusBarComponent = (function () {
     function StatusBarComponent(authData, launchData, websocketService, notificationBannerService) {
         this.authData = authData;
@@ -1159,7 +1170,7 @@ exports.StatusBarComponent = StatusBarComponent;
 
 /***/ },
 
-/***/ 528:
+/***/ 530:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1174,9 +1185,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var AuthService_1 = __webpack_require__(40);
+var AuthService_1 = __webpack_require__(41);
 var NotificationBannerService_1 = __webpack_require__(72);
-var LaunchDataService_1 = __webpack_require__(49);
+var LaunchDataService_1 = __webpack_require__(34);
 var AppDataService_1 = __webpack_require__(71);
 var TMinusTenComponent = (function () {
     /**
@@ -1208,74 +1219,7 @@ exports.TMinusTenComponent = TMinusTenComponent;
 
 /***/ },
 
-/***/ 530:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var router_1 = __webpack_require__(112);
-var Home_component_1 = __webpack_require__(382);
-var Login_component_1 = __webpack_require__(383);
-var appRoutes = [
-    { path: '', component: Home_component_1.HomeComponent },
-    { path: 'login', component: Login_component_1.LoginComponent }
-];
-exports.routing = router_1.RouterModule.forRoot(appRoutes);
-exports.routedComponents = [Home_component_1.HomeComponent];
-
-
-/***/ },
-
-/***/ 586:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var platform_browser_dynamic_1 = __webpack_require__(113);
-var app_module_1 = __webpack_require__(409);
-platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1.AppModule)
-    .then(function (success) { return console.log("Bootstrap success"); })
-    .catch(function (error) { return console.log(error); });
-
-
-/***/ },
-
-/***/ 588:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-"use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var core_1 = __webpack_require__(0);
-var LaunchDataService_1 = __webpack_require__(49);
-var DataComponent = (function () {
-    function DataComponent(launchData) {
-        this.launchData = launchData;
-    }
-    DataComponent = __decorate([
-        core_1.Component({
-            selector: 'tmt-data',
-            template: "\n        <nav>\n            <ul>\n                <li>About {{ launchData.launch.name }}</li>\n                <li>Incoming Telemetry</li>\n                <li>Tweets & Images</li>\n            </ul>\n            <div>\n                <tmt-about-tab></tmt-about-tab>\n                <tmt-incoming-telemetry-tab></tmt-incoming-telemetry-tab>\n                <tmt-tweets-images-tab></tmt-tweets-images-tab>\n            </div>\n        </nav>\n    "
-        }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof LaunchDataService_1.LaunchDataService !== 'undefined' && LaunchDataService_1.LaunchDataService) === 'function' && _a) || Object])
-    ], DataComponent);
-    return DataComponent;
-    var _a;
-}());
-exports.DataComponent = DataComponent;
-
-
-/***/ },
-
-/***/ 589:
+/***/ 531:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1307,7 +1251,7 @@ exports.AboutTabComponent = AboutTabComponent;
 
 /***/ },
 
-/***/ 590:
+/***/ 532:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1322,7 +1266,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var LaunchDataService_1 = __webpack_require__(49);
+var LaunchDataService_1 = __webpack_require__(34);
 var IncomingTelemetryTabComponent = (function () {
     function IncomingTelemetryTabComponent(launchData) {
         var _this = this;
@@ -1346,7 +1290,7 @@ exports.IncomingTelemetryTabComponent = IncomingTelemetryTabComponent;
 
 /***/ },
 
-/***/ 591:
+/***/ 533:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1378,49 +1322,43 @@ exports.TweetsImagesTabComponent = TweetsImagesTabComponent;
 
 /***/ },
 
-/***/ 592:
+/***/ 534:
+/***/ function(module, exports) {
+
+"use strict";
+"use strict";
+
+
+/***/ },
+
+/***/ 535:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var core_1 = __webpack_require__(0);
-var Status_1 = __webpack_require__(593);
-var LaunchStatusComponent = (function () {
-    function LaunchStatusComponent() {
-    }
-    __decorate([
-        core_1.Input(), 
-        __metadata('design:type', (typeof (_a = typeof Status_1.Status !== 'undefined' && Status_1.Status) === 'function' && _a) || Object)
-    ], LaunchStatusComponent.prototype, "launchStatus", void 0);
-    LaunchStatusComponent = __decorate([
-        core_1.Component({
-            selector: 'tmt-launch-status',
-            template: "\n        <div><p>{{ launchStatus.text }}</p></div>\n    "
-        }), 
-        __metadata('design:paramtypes', [])
-    ], LaunchStatusComponent);
-    return LaunchStatusComponent;
-    var _a;
-}());
-exports.LaunchStatusComponent = LaunchStatusComponent;
+var router_1 = __webpack_require__(113);
+var Home_component_1 = __webpack_require__(383);
+var Login_component_1 = __webpack_require__(384);
+var appRoutes = [
+    { path: '', component: Home_component_1.HomeComponent },
+    { path: 'login', component: Login_component_1.LoginComponent }
+];
+exports.routing = router_1.RouterModule.forRoot(appRoutes);
+exports.routedComponents = [Home_component_1.HomeComponent];
 
 
 /***/ },
 
 /***/ 593:
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
+var platform_browser_dynamic_1 = __webpack_require__(114);
+var app_module_1 = __webpack_require__(409);
+platform_browser_dynamic_1.platformBrowserDynamic().bootstrapModule(app_module_1.AppModule)
+    .then(function (success) { return console.log("Bootstrap success"); })
+    .catch(function (error) { return console.log(error); });
 
 
 /***/ },
@@ -1452,6 +1390,8 @@ var AppDataService = (function () {
         // Is the settings pane open?
         this.isSettingsVisible = false;
         this.isLoading = false;
+        // Launch Moment Templates
+        this.launchMomentTemplates = [];
         this.websocketService.appStatusResponsesStream().subscribe(function (websocket) {
             if (websocket.response.statusType === "enableApp") {
                 _this.isActive = true;
@@ -1545,8 +1485,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var Observable_1 = __webpack_require__(4);
-var AuthService_1 = __webpack_require__(40);
-var io = __webpack_require__(297);
+var AuthService_1 = __webpack_require__(41);
+var io = __webpack_require__(298);
 var WebsocketService = (function () {
     /**
      * Construct an instance of the websocket service. Automatically connect to the websocket
@@ -1790,4 +1730,4 @@ exports.WebsocketService = WebsocketService;
 
 /***/ }
 
-},[586]);
+},[593]);

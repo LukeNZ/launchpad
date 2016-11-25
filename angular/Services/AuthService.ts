@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {Http} from "@angular/http";
 import {Observable} from "rxjs/Observable";
-import {AbstractService} from "./AbstractService";
+import {AbstractService} from "angular-toolshed/angular-toolshed";
 import {LoginModel} from "../Interfaces/LoginModel";
 
 @Injectable()

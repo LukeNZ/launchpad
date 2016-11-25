@@ -86,19 +86,19 @@ module.exports = {
         var launchStatusCreateFn = function(data, socket) {
             authenticationService.userHasPermission("privileges", data.token).then(user => {
                 // Ensure the data contained within statusType is correct.
-                let statusTypes = ["update", "event"];
+                let statusTypes = ["update", "moment"];
                 if (!statusTypes.includes(data.statusType)) {
                     throw new Error(422);
                 }
 
-                // Ensure the data contained within the eventType, if it exists, is correct.
-                let eventTypes = ['upcoming', 'propellantLoading', 'startup', 'liftoff', 'maxQ', 'meco',
+                // Ensure the data contained within the momentType, if it exists, is correct.
+                let momentTypes = ['upcoming', 'propellantLoading', 'startup', 'liftoff', 'maxQ', 'meco',
                 'stageSeparation', 'secondStageIgnition', 'firstStageBoostbackStartup', 'firstStageBoostbackShutdown',
                 'fairingSeparation', 'firstStageReentryStartup', 'firstStageReentryShutdown', 'firstStageLandingStartup',
                 'firstStageTransonic', 'touchdown', 'landingSuccess', 'seco', 'secondStageRelight', 'seco2',
                 'dragonDeploy', 'payloadDeploy', 'launchSuccess', 'launchFailure', 'pauseCountdown',
                 'resumeCountdown', 'scrub'];
-                if (data.statusType == "event" && !eventTypes.includes(data.eventType)) {
+                if (data.statusType == "moment" && !momentTypes.includes(data.momentType)) {
                     throw new Error(422);
                 }
 
@@ -127,7 +127,7 @@ module.exports = {
 
         /**
          * `msg:appStatus`. Called when a socket sends a message updating the status of the application. This
-         * can be of the types "enableApp", "disableApp", "editLivestream", "editLaunch", or "editEvent".
+         * can be of the types "enableApp", "disableApp", "editLivestream", "editLaunch", or "editMoments".
          *
          * @param data {*} Data sent to the socket for this request.
          * @param socket {Socket} The socket in question.
@@ -138,7 +138,7 @@ module.exports = {
             authenticationService.userHasPermission("moderator", data.token).then(user => {
                 // If the statusType is not one of the permitted status types, return an error code
                 // to the originating socket.
-                let statusTypes = ["enableApp", "disableApp", "editLivestream", "editLaunch", "editEvent"];
+                let statusTypes = ["enableApp", "disableApp", "editLivestream", "editLaunch", "editMoments"];
                 if (!statusTypes.includes(data.statusType)) {
                     throw new Error(422);
                 }
@@ -167,6 +167,7 @@ module.exports = {
                             break;
 
                         case "disableApp":
+                            // TODO
                             p1 = store.isAppActive(false);
                             break;
 
@@ -175,7 +176,12 @@ module.exports = {
                             break;
 
                         case "editLaunch":
+                            // TODO
                             p1 = store.setLaunch(message.data);
+                            break;
+
+                        case "editMoments":
+                            // TODO
                             break;
                     }
 

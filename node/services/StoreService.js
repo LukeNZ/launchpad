@@ -1,4 +1,5 @@
 var Redis = require("ioredis");
+var fs = require('fs');
 
 /**
  * Service which wraps a redis redis, allowing the calling of application-specific storage functions.
@@ -7,8 +8,6 @@ var Redis = require("ioredis");
  * Download all data
  * Retrieve livestream status/information
  * Update livestream status/information
- * Get Launch Event(s)
- * Set Launch Event(s)
  * Check user/status in collection of current edit requests (hash of statusIds:username)
  * Add user/status to collection of current edit requests (hash of statusIds:username)
  * Remove user/status to collection of current edit requests (hash of statusIds:username)
@@ -218,14 +217,63 @@ class StoreService {
         });
     }
 
-    getLaunchEvents() {
+    /**
+     * Retrieves all the launch moment templates stored in redis. Additionally deserializes
+     * each moment template.
+     *
+     * Firstly checks for the presence of the hash in Redis. If the hash does not exist, it
+     * will reach from a known file where the launch moment templates can be found, and assigns
+     * them to the hash. If the hash does exist, or once the former operation has been complete, it
+     * returns all the moment templates.
+     *
+     * @returns {Promise} Resolves to an array of moment template objects.
+     */
+    getLaunchMomentTemplates() {
         return new Promise((resolve, reject) => {
 
+            this.redis.hlen('launchMomentTemplates', (err, length) => {
+
+                if (length === 0) {
+                    fs.readFile('./launchmomenttemplates.json', 'utf8', (err, data) => {
+
+                        data = JSON.parse(data);
+
+                        resolve(data);
+                        this.setLaunchMomentTemplates(data)
+                    });
+
+                } else {
+                    this.redis.hgetall('launchMomentTemplates', (err, templates) => {
+                        Object.keys(templates).forEach(key => {
+                            templates[key] = JSON.parse(templates[key]);
+                        });
+
+                        return resolve(templates);
+                    });
+                }
+            });
         });
     }
 
-    setLaunchEvents() {
+    /**
+     * For a given array of launch moment templates in the data argument, serialize the JSON values,
+     * and store them in redis.
+     *
+     * @param data {*} An array of one or more launch moment templates in JSON.
+     *
+     * @returns {Promise} Resolves to OK.
+     */
+    setLaunchMomentTemplates(data) {
+        return new Promise((resolve, reject) => {
 
+            Object.keys(data).forEach(key => {
+                data[key] = JSON.stringify(data[key]);
+            });
+
+            this.redis.hmset('launchMomentTemplates', data, (err, reply) => {
+                return resolve(reply);
+            });
+        });
     }
 
     /**

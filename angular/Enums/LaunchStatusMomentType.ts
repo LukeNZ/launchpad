@@ -1,4 +1,4 @@
-export enum LaunchStatusEventType {
+export enum LaunchStatusMomentType {
     Upcoming, PropellantLoading, Startup, Liftoff, MaxQ, MECO, StageSeparation, SecondStageIgnition,
     FirstStageBoostbackStartup, FirstStageBoostbackShutdown, FairingSeparation, FirstStageReentryStartup,
     FirstStageReentryShutdown, FirstStageLandingStartup, FirstStageTransonic, Touchdown, LandingSuccess,

@@ -4,8 +4,7 @@
 **Created by**: Any user.
 
 Sent to the server by a client when they join the application. The client may include an optional authentication
-token if they would like to be identified as a privileged user or moderator. As a join event is not broadcast
-to other clients, it does not have an `event_id`.
+token if they would like to be identified as a privileged user or moderator.
 
 ## Client to Server
 
@@ -51,9 +50,9 @@ Acronyms will be expanded out into full form. "MECO" would become:
 
 > `MECO (Main Engine Cutoff)`
 
-Launch statuses can also affect the display of the application (such as the positioning of on-screen elements) when the "statusType" parameter is set to "event", and are interwoven in the "Incoming Telemetry" timeline. These special statuses can only be played once. The server keeps track of which events have been submitted and disallows any future events of the same type. The client should disable the ability to send such an event irregardless.
+Launch statuses can also affect the display of the application (such as the positioning of on-screen elements) when the "statusType" parameter is set to "moment", and are interwoven in the "Incoming Telemetry" timeline. These special statuses can only be played once. The server keeps track of which moments have been submitted and disallows any future moments of the same type. The client should disable the ability to send such an moments irregardless.
 
-Events can be any of the following types:
+Moments can be any of the following types:
 
 * Upcoming
 * PropellantLoading
@@ -87,8 +86,8 @@ Events can be any of the following types:
 
     {
         token: <string>,
-        statusType: "update"|"event",
-        eventType: <string?>,
+        statusType: "update"|"moment",
+        momentType: <string?>,
         text: <string>
     }
 
@@ -99,8 +98,8 @@ Events can be any of the following types:
         statusId: <int>,
         timestamp: <datetime>,
         source: "twitter"|"user",
-        statusType: "update"|"event",
-        eventType: <string?>,
+        statusType: "update"|"moment",
+        momentType: <string?>,
         user: <string>,
         text: <string>,
         isDeleted: <boolean>
@@ -217,7 +216,7 @@ A status concerning the functionality of the application. This affects the displ
 
     {
         token: <string>,
-        statusType: "enableApp"|"disableApp"|"editLivestream"|"editLaunch"|"editEvent",
+        statusType: "enableApp"|"disableApp"|"editLivestream"|"editLaunch"|"editMoments",
         data: {
             // Additional optional metadata
         }
@@ -229,7 +228,7 @@ A status concerning the functionality of the application. This affects the displ
         id: <int>,
         user: <string>,
         timestamp: <datetime>,
-        statusType: <string>,
+        statusType: "enableApp"|"disableApp"|"editLivestream"|"editLaunch"|"editMoments",
         data: {
             // Additional optional metadata
         }

@@ -28,6 +28,7 @@ import {AboutTabComponent} from "./Components/Tabs/AboutTab.component";
 import {IncomingTelemetryTabComponent} from "./Components/Tabs/IncomingTelemetryTab.component";
 import {TweetsImagesTabComponent} from "./Components/Tabs/TweetsImagesTab.component";
 import {LaunchStatusComponent} from "./Components/LaunchStatus.component";
+import {KeyValuePipe} from "angular-toolshed/angular-toolshed";
 
 @NgModule({
     // Modules
@@ -36,7 +37,7 @@ import {LaunchStatusComponent} from "./Components/LaunchStatus.component";
     providers: [InitializationService, WebsocketService, AuthService, LaunchDataService, AppDataService, NotificationBannerService],
     // Components
     declarations: [TMinusTenComponent, HomeComponent, LoginComponent, HeaderComponent, CountdownComponent, StatusBarComponent, DataComponent, LivestreamComponent, NotificationBannerComponent, SettingsComponent, DateTimeEntryComponent, AboutTabComponent,
-    IncomingTelemetryTabComponent, TweetsImagesTabComponent, LaunchStatusComponent],
+    IncomingTelemetryTabComponent, TweetsImagesTabComponent, LaunchStatusComponent, KeyValuePipe],
     // Starting components
     bootstrap: [TMinusTenComponent]
 })

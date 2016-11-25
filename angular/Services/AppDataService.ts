@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
 import {WebsocketService} from "./WebsocketService";
+import {MomentTemplate} from "../Interfaces/MomentTemplate";
 
 @Injectable()
 /**
@@ -16,6 +17,9 @@ export class AppDataService {
     // Application Mode
     public isActive: boolean;
     public isLoading: boolean = false;
+
+    // Launch Moment Templates
+    public launchMomentTemplates: MomentTemplate[] = [];
 
     /**
      *

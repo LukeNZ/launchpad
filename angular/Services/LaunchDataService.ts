@@ -22,9 +22,6 @@ export class LaunchDataService {
     private _statusesSubject = new BehaviorSubject<Status[]>(this._statuses);
     private _statusesObservable = this._statusesSubject.asObservable();
 
-    // Launch Event templates
-    private _eventTemplates: Event[];
-
     /**
      *
      * @param websocketService
@@ -60,7 +57,7 @@ export class LaunchDataService {
     }
 
     /**
-     * Returns an observable for the launch model
+     * Returns an observable for the launch model.
      *
      * @returns {Observable<Launch>} An observable of the launch model.
      */
@@ -114,6 +111,8 @@ export class LaunchDataService {
     }
 
     /**
+     * Returns an observable for the array of statuses.
+     *
      * @returns {Observable<Status[]>}
      */
     public statusesObservable() : Observable<Status[]> {

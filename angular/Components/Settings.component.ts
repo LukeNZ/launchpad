@@ -9,7 +9,7 @@ import {AppDataService} from "../Services/AppDataService";
 
 enum SettingsSection {
     Display, Notifications, General, Countdown, Introduction,
-    DescriptionSections, Resources, LaunchEventTemplates, About
+    DescriptionSections, Resources, LaunchMomentTemplates, About
 }
 
 @Component({
@@ -26,7 +26,7 @@ enum SettingsSection {
                     <li (click)="currentSection = settingsSection.Introduction">Introduction</li>
                     <li (click)="currentSection = settingsSection.DescriptionSections">Description Sections</li>
                     <li (click)="currentSection = settingsSection.Resources">Resources</li>
-                    <li (click)="currentSection = settingsSection.LaunchEventTemplates">Launch Event Templates</li>
+                    <li (click)="currentSection = settingsSection.LaunchMomentTemplates">Launch Moment Templates</li>
                     <li (click)="currentSection = settingsSection.About">About the App</li>
                 </ul>
             </nav>
@@ -105,9 +105,15 @@ enum SettingsSection {
                 </ng-container>
             </section>
             
-            <!-- LAUNCH EVENT TEMPLATES -->
-            <section [hidden]="currentSection != settingsSection.LaunchEventTemplates">
-                <h1>Launch Event Templates</h1>
+            <!-- LAUNCH MOMENT TEMPLATES -->
+            <section [hidden]="currentSection != settingsSection.LaunchMomentTemplates">
+                <h1>Launch Moment Templates</h1>
+                
+                <ng-container *ngFor="let momentTemplate of appData.launchMomentTemplates | keyValue">
+                    <p>{{ momentTemplate.value.title }}</p>
+                    <textarea>{{ momentTemplate.value.text }}</textarea>
+                </ng-container>
+                <button (click)="log()">Save</button>
             </section>
             
             <!-- ABOUT -->
@@ -244,5 +250,9 @@ export class SettingsComponent implements OnInit {
     public removeResource(resource: Resource) : void {
         let index = this.launch.resources.indexOf(resource);
         this.launch.resources.splice(index, 1);
+    }
+
+    public log() {
+        console.log(this.appData.launchMomentTemplates);
     }
 }

@@ -14,12 +14,17 @@ class TMinusTenController {
      * @param response
      */
     getTMinusTen(request, response) {
-        this.store.isAppActive().then(activity => {
+
+        Promise.all([
+            this.store.isAppActive(),
+            this.store.getLaunchMomentTemplates()
+        ]).then(data => {
             response.json({
-                isActive: activity
+                isActive: data[0],
+                launchMomentTemplates: data[1]
             });
         }, () => {
-           response.status(500).end();
+            response.status(500).end();
         });
     }
 
