@@ -24,7 +24,7 @@
     "@angular/platform-browser-dynamic": "2.2.3",
     "@angular/router": "3.2.3",
     "angular-in-memory-web-api": "0.1.15",
-    "angular-toolshed": "0.0.2",
+    "angular-toolshed": "0.0.3",
     "body-parser": "~1.15.1",
     "bourbon-neat": "^1.8.0",
     "cookie-parser": "~1.4.3",

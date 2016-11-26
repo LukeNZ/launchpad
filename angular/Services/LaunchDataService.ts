@@ -34,13 +34,25 @@ export class LaunchDataService {
         this.websocketService.launchStatusResponsesStream().subscribe(websocket => {
             this.addStatus(websocket.response);
         });
+
+        this.websocketService.appStatusesStream().subscribe(websocket => {
+            if (websocket.response.type === "enableApp") {
+                this.setLaunch(websocket.data.launch);
+            }
+        });
+
+        this.websocketService.appStatusResponsesStream().subscribe(websocket => {
+            if (websocket.response.type === "enableApp") {
+                this.setLaunch(websocket.response.data.launch);
+            }
+        });
     }
 
     /**
      * Sets the launch model of the service, and also sets the subject
      * for any subscribers listening for updates.
      *
-     * @param launch    The new launch value.
+     * @param launch {Launch} The new launch value.
      */
     public setLaunch(launch: Launch) : void {
         this._launch = launch;
@@ -68,7 +80,7 @@ export class LaunchDataService {
     /**
      * Sets the array of statuses.
      *
-     * @param statuses
+     * @param statuses {Status[]}
      */
     public setStatuses(statuses: Status[]) : void {
         this._statuses = statuses;

@@ -21,7 +21,7 @@ class TMinusTenController {
         ]).then(data => {
             response.json({
                 isActive: data[0],
-                launchMomentTemplates: data[1]
+                launchMomentTemplates: [...data[1]]
             });
         }, () => {
             response.status(500).end();

@@ -136,10 +136,10 @@ module.exports = {
 
             // Ensure the socket user has the correct permissions
             authenticationService.userHasPermission("moderator", data.token).then(user => {
-                // If the statusType is not one of the permitted status types, return an error code
+                // If the type is not one of the permitted status types, return an error code
                 // to the originating socket.
-                let statusTypes = ["enableApp", "disableApp", "editLivestream", "editLaunch", "editMoments"];
-                if (!statusTypes.includes(data.statusType)) {
+                let types = ["enableApp", "disableApp", "editLivestream", "editLaunch", "editMoments"];
+                if (!types.includes(data.type)) {
                     throw new Error(422);
                 }
 
@@ -155,7 +155,7 @@ module.exports = {
 
                     // Handle multiple status types here
                     let p1;
-                    switch (data.statusType) {
+                    switch (data.type) {
                         case "enableApp":
 
                             data.data.beganAt = idAndTimestamp.timestamp;

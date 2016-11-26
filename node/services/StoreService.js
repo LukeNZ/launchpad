@@ -1,5 +1,6 @@
 var Redis = require("ioredis");
 var fs = require('fs');
+var mapHelper = require("../helpers/mapHelper");
 
 /**
  * Service which wraps a redis redis, allowing the calling of application-specific storage functions.
@@ -226,7 +227,7 @@ class StoreService {
      * them to the hash. If the hash does exist, or once the former operation has been complete, it
      * returns all the moment templates.
      *
-     * @returns {Promise} Resolves to an array of moment template objects.
+     * @returns {Promise<Map>} Resolves to a map of moment template objects.
      */
     getLaunchMomentTemplates() {
         return new Promise((resolve, reject) => {
@@ -236,10 +237,9 @@ class StoreService {
                 if (length === 0) {
                     fs.readFile('./launchmomenttemplates.json', 'utf8', (err, data) => {
 
-                        data = JSON.parse(data);
-
-                        resolve(data);
-                        this.setLaunchMomentTemplates(data)
+                        let map = mapHelper.objectToMap(JSON.parse(data));
+                        resolve(map);
+                        this.setLaunchMomentTemplates(map)
                     });
 
                 } else {
@@ -248,7 +248,7 @@ class StoreService {
                             templates[key] = JSON.parse(templates[key]);
                         });
 
-                        return resolve(templates);
+                        return resolve(mapHelper.objectToMap(templates));
                     });
                 }
             });
@@ -256,10 +256,10 @@ class StoreService {
     }
 
     /**
-     * For a given array of launch moment templates in the data argument, serialize the JSON values,
+     * For a given Map of launch moment templates in the data argument, serialize the JSON values,
      * and store them in redis.
      *
-     * @param data {*} An array of one or more launch moment templates in JSON.
+     * @param data {Map} A Map of one or more launch moment templates in JSON.
      *
      * @returns {Promise} Resolves to OK.
      */

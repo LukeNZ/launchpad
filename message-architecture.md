@@ -216,7 +216,7 @@ A status concerning the functionality of the application. This affects the displ
 
     {
         token: <string>,
-        statusType: "enableApp"|"disableApp"|"editLivestream"|"editLaunch"|"editMoments",
+        type: "enableApp"|"disableApp"|"editLivestream"|"editLaunch"|"editMoments",
         data: {
             // Additional optional metadata
         }
@@ -228,7 +228,7 @@ A status concerning the functionality of the application. This affects the displ
         id: <int>,
         user: <string>,
         timestamp: <datetime>,
-        statusType: "enableApp"|"disableApp"|"editLivestream"|"editLaunch"|"editMoments",
+        type: "enableApp"|"disableApp"|"editLivestream"|"editLaunch"|"editMoments",
         data: {
             // Additional optional metadata
         }

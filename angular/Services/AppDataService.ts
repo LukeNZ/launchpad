@@ -16,10 +16,10 @@ export class AppDataService {
 
     // Application Mode
     public isActive: boolean;
-    public isLoading: boolean = false;
+    public isLoading: boolean = true;
 
     // Launch Moment Templates
-    public launchMomentTemplates: MomentTemplate[] = [];
+    public launchMomentTemplates: [string, MomentTemplate][];
 
     /**
      *
@@ -27,16 +27,32 @@ export class AppDataService {
      */
     constructor(private websocketService: WebsocketService) {
 
-        this.websocketService.appStatusResponsesStream().subscribe(websocket => {
-            if (websocket.response.statusType === "enableApp") {
+        this.websocketService.appStatusesStream().subscribe(websocket => {
+            if (websocket.type === "enableApp") {
                 this.isActive = true;
-                this.isSettingsVisible = false;
+            }
+
+            if (websocket.response.type === "editMoments") {
+                this.launchMomentTemplates = websocket.response.launchMomentTemplates;
+            }
+
+            if (websocket.response.type === "disableApp") {
+                this.isActive = false;
             }
         });
 
-        this.websocketService.appStatusesStream().subscribe(websocket => {
-            if (websocket.statusType === "enableApp") {
+        this.websocketService.appStatusResponsesStream().subscribe(websocket => {
+            if (websocket.response.type === "enableApp") {
                 this.isActive = true;
+                this.isSettingsVisible = false;
+            }
+
+            if (websocket.response.type === "editMoments") {
+                this.launchMomentTemplates = websocket.response.launchMomentTemplates;
+            }
+
+            if (websocket.response.type === "disableApp") {
+                this.isActive = false;
             }
         });
     }

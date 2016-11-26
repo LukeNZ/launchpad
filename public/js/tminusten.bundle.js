@@ -15,7 +15,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = __webpack_require__(0);
-var BehaviorSubject_1 = __webpack_require__(111);
+var BehaviorSubject_1 = __webpack_require__(110);
 var WebsocketService_1 = __webpack_require__(73);
 var LaunchDataService = (function () {
     /**
@@ -37,12 +37,22 @@ var LaunchDataService = (function () {
         this.websocketService.launchStatusResponsesStream().subscribe(function (websocket) {
             _this.addStatus(websocket.response);
         });
+        this.websocketService.appStatusesStream().subscribe(function (websocket) {
+            if (websocket.response.type === "enableApp") {
+                _this.setLaunch(websocket.data.launch);
+            }
+        });
+        this.websocketService.appStatusResponsesStream().subscribe(function (websocket) {
+            if (websocket.response.type === "enableApp") {
+                _this.setLaunch(websocket.response.data.launch);
+            }
+        });
     }
     /**
      * Sets the launch model of the service, and also sets the subject
      * for any subscribers listening for updates.
      *
-     * @param launch    The new launch value.
+     * @param launch {Launch} The new launch value.
      */
     LaunchDataService.prototype.setLaunch = function (launch) {
         this._launch = launch;
@@ -71,7 +81,7 @@ var LaunchDataService = (function () {
     /**
      * Sets the array of statuses.
      *
-     * @param statuses
+     * @param statuses {Status[]}
      */
     LaunchDataService.prototype.setStatuses = function (statuses) {
         this._statuses = statuses;
@@ -157,12 +167,14 @@ var Observable_1 = __webpack_require__(4);
 __webpack_require__(297);
 var HomeComponent = (function () {
     function HomeComponent(authData, launchData, appData, initializationService, titleService) {
-        var _this = this;
         this.authData = authData;
         this.launchData = launchData;
         this.appData = appData;
         this.initializationService = initializationService;
         this.titleService = titleService;
+    }
+    HomeComponent.prototype.ngOnInit = function () {
+        var _this = this;
         Observable_1.Observable.forkJoin(this.initializationService.getLaunch(), this.initializationService.getStatuses(), this.initializationService.getTMinusTen()).subscribe(function (data) {
             _this.launchData.setLaunch(data[0]);
             _this.launchData.setStatuses(data[1]);
@@ -174,7 +186,7 @@ var HomeComponent = (function () {
             _this.appData.isLoading = false;
         });
         this.titleService.setTitle("T Minus Ten");
-    }
+    };
     HomeComponent = __decorate([
         core_1.Component({
             selector: 'tmt-home',
@@ -206,7 +218,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var AuthService_1 = __webpack_require__(41);
-var router_1 = __webpack_require__(113);
+var router_1 = __webpack_require__(112);
 var platform_browser_1 = __webpack_require__(35);
 var LoginComponent = (function () {
     function LoginComponent(authService, router, titleService) {
@@ -273,7 +285,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var http_1 = __webpack_require__(54);
-var angular_toolshed_1 = __webpack_require__(78);
+var angular_toolshed_1 = __webpack_require__(113);
 var Launch_1 = __webpack_require__(520);
 var InitializationService = (function (_super) {
     __extends(InitializationService, _super);
@@ -356,6 +368,10 @@ var Login_component_1 = __webpack_require__(384);
 var NotificationBanner_component_1 = __webpack_require__(527);
 var Settings_component_1 = __webpack_require__(528);
 var DateTimeEntry_component_1 = __webpack_require__(523);
+var AboutTab_component_1 = __webpack_require__(531);
+var IncomingTelemetryTab_component_1 = __webpack_require__(532);
+var TweetsImagesTab_component_1 = __webpack_require__(533);
+var LaunchStatus_component_1 = __webpack_require__(525);
 // Services
 var InitializationService_1 = __webpack_require__(385);
 var WebsocketService_1 = __webpack_require__(73);
@@ -363,11 +379,6 @@ var AuthService_1 = __webpack_require__(41);
 var LaunchDataService_1 = __webpack_require__(34);
 var NotificationBannerService_1 = __webpack_require__(72);
 var AppDataService_1 = __webpack_require__(71);
-var AboutTab_component_1 = __webpack_require__(531);
-var IncomingTelemetryTab_component_1 = __webpack_require__(532);
-var TweetsImagesTab_component_1 = __webpack_require__(533);
-var LaunchStatus_component_1 = __webpack_require__(525);
-var angular_toolshed_1 = __webpack_require__(78);
 var AppModule = (function () {
     function AppModule() {
     }
@@ -379,7 +390,7 @@ var AppModule = (function () {
             providers: [InitializationService_1.InitializationService, WebsocketService_1.WebsocketService, AuthService_1.AuthService, LaunchDataService_1.LaunchDataService, AppDataService_1.AppDataService, NotificationBannerService_1.NotificationBannerService],
             // Components
             declarations: [TMinusTen_component_1.TMinusTenComponent, Home_component_1.HomeComponent, Login_component_1.LoginComponent, Header_component_1.HeaderComponent, Countdown_component_1.CountdownComponent, StatusBar_component_1.StatusBarComponent, Data_component_1.DataComponent, Livestream_component_1.LivestreamComponent, NotificationBanner_component_1.NotificationBannerComponent, Settings_component_1.SettingsComponent, DateTimeEntry_component_1.DateTimeEntryComponent, AboutTab_component_1.AboutTabComponent,
-                IncomingTelemetryTab_component_1.IncomingTelemetryTabComponent, TweetsImagesTab_component_1.TweetsImagesTabComponent, LaunchStatus_component_1.LaunchStatusComponent, angular_toolshed_1.KeyValuePipe],
+                IncomingTelemetryTab_component_1.IncomingTelemetryTabComponent, TweetsImagesTab_component_1.TweetsImagesTabComponent, LaunchStatus_component_1.LaunchStatusComponent, AboutTab_component_1.AboutTabComponent],
             // Starting components
             bootstrap: [TMinusTen_component_1.TMinusTenComponent]
         }), 
@@ -413,7 +424,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = __webpack_require__(0);
 var http_1 = __webpack_require__(54);
-var angular_toolshed_1 = __webpack_require__(78);
+var angular_toolshed_1 = __webpack_require__(113);
 var AuthService = (function (_super) {
     __extends(AuthService, _super);
     /**
@@ -1011,10 +1022,12 @@ var SettingsComponent = (function () {
         this.launchData.launchObservable().subscribe(function (data) {
             _this.launch = Object.assign({}, data);
         });
+        this.launchMomentTemplates = Array.from(this.appData.launchMomentTemplates);
         this.websocketService.appStatusResponsesStream().subscribe(function (response) {
-            _this.settingsState.isLiftingOff = false;
-            _this.notificationBannerService.notify("App Enabled.");
-            _this.launchData.setLaunch(_this.launch);
+            if (response.response.type === "enableApp") {
+                _this.settingsState.isLiftingOff = false;
+                _this.notificationBannerService.notify("App Enabled.");
+            }
         });
     };
     /**
@@ -1086,13 +1099,10 @@ var SettingsComponent = (function () {
         var index = this.launch.resources.indexOf(resource);
         this.launch.resources.splice(index, 1);
     };
-    SettingsComponent.prototype.log = function () {
-        console.log(this.appData.launchMomentTemplates);
-    };
     SettingsComponent = __decorate([
         core_1.Component({
             selector: 'tmt-settings',
-            template: "\n        <i [hidden]=\"!appData.isActive\" (click)=\"appData.isSettingsVisible = false\">Close</i>\n        <div>\n            <nav>\n                <ul>\n                    <li (click)=\"currentSection = settingsSection.Display\">Display</li>\n                    <li (click)=\"currentSection = settingsSection.Notifications\">Notifications</li>\n                    <li (click)=\"currentSection = settingsSection.General\">General</li>\n                    <li (click)=\"currentSection = settingsSection.Countdown\">Countdown</li>\n                    <li (click)=\"currentSection = settingsSection.Introduction\">Introduction</li>\n                    <li (click)=\"currentSection = settingsSection.DescriptionSections\">Description Sections</li>\n                    <li (click)=\"currentSection = settingsSection.Resources\">Resources</li>\n                    <li (click)=\"currentSection = settingsSection.LaunchMomentTemplates\">Launch Moment Templates</li>\n                    <li (click)=\"currentSection = settingsSection.About\">About the App</li>\n                </ul>\n            </nav>\n            \n            <!-- DISPLAY -->\n            <section [hidden]=\"currentSection != settingsSection.Display\">\n                <h1>Display</h1>\n                \n                <p>Increase text size</p>\n                <p>Density settings</p>\n            </section>\n            \n            <!-- NOTIFICATIONS -->\n            <section [hidden]=\"currentSection != settingsSection.Notifications\">\n                <h1>Notifications</h1>\n                \n                <p>Play ping when a new update arrives when tab inactive</p>\n            </section>\n            \n            <!-- GENERAL -->\n            <section [hidden]=\"currentSection != settingsSection.General\">\n                <h1>General</h1>\n                <p>General launch details and application settings.</p>\n                \n                <p *ngIf=\"launch.name\">Will appear on Reddit as: <span class=\"title\">r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread</span></p>\n                <form>\n                    <label for=\"mission\">Mission Name</label>\n                    <input type=\"text\" name=\"mission\" [(ngModel)]=\"launch.name\" placeholder=\"Mission Name\">\n                </form>\n            </section>\n            \n            <!-- COUNTDOWN -->\n            <section [hidden]=\"currentSection != settingsSection.Countdown\">\n                <h1>Countdown</h1>\n                \n                <form>\n                    <tmt-datetimeentry [id]=\"'countdown'\" [date]=\"launch.countdown\" (dateChange)=\"onCountdownChanged($event)\"></tmt-datetimeentry>\n                </form>\n                \n                <p *ngIf=\"launchData.launch?.countdown != launch.countdown\">New countdown of {{ launch.countdown.toISOString() }}</p>\n            </section>\n            \n            <!-- INTRODUCTION -->\n            <section [hidden]=\"currentSection != settingsSection.Introduction\">\n                <h1>Introduction</h1>\n                <form>\n                    <textarea name=\"introduction\" [(ngModel)]=\"launch.introduction\" placeholder=\"Introductory paragraph about the launch.\"></textarea>\n                    <span>{{ launch.introduction?.length }} + characters.</span>\n                </form>\n            </section>\n            \n            <!-- DESCRIPTION SECTIONS -->\n            <section [hidden]=\"currentSection != settingsSection.DescriptionSections\">\n                <h1>Description Sections</h1>\n                \n                <button (click)=\"addDescriptionSection()\">Add Section</button>\n                \n                <ng-container *ngFor=\"let section of launch.descriptionSections\">\n                    <input type=\"text\" placeholder=\"Section title\" [(ngModel)]=\"section.title\" />\n                    <textarea placeholder=\"Section description\" [(ngModel)]=\"section.description\" ></textarea>\n                    <button (click)=\"removeDescriptionSection(section)\">Remove</button>\n                </ng-container>\n            </section>\n            \n            <!-- RESOURCES -->\n            <section [hidden]=\"currentSection != settingsSection.Resources\">\n                <h1>Resources</h1>\n                \n                <button (click)=\"addResource()\">Add Resource</button>\n                \n                <ng-container *ngFor=\"let resource of launch.resources\">\n                    <input type=\"text\" placeholder=\"Resource Title\" [(ngModel)]=\"resource.title\" />\n                    <input type=\"text\" placeholder=\"Resource URL\" [(ngModel)]=\"resource.url\" />\n                    <input type=\"text\" placeholder=\"Resource Note\" [(ngModel)]=\"resource.note\" />          \n                    <button (click)=\"removeResource(resource)\">Remove</button>\n                </ng-container>\n            </section>\n            \n            <!-- LAUNCH MOMENT TEMPLATES -->\n            <section [hidden]=\"currentSection != settingsSection.LaunchMomentTemplates\">\n                <h1>Launch Moment Templates</h1>\n                \n                <ng-container *ngFor=\"let momentTemplate of appData.launchMomentTemplates | keyValue\">\n                    <p>{{ momentTemplate.value.title }}</p>\n                    <textarea>{{ momentTemplate.value.text }}</textarea>\n                </ng-container>\n                <button (click)=\"log()\">Save</button>\n            </section>\n            \n            <!-- ABOUT -->\n            <section [hidden]=\"currentSection != settingsSection.About\">\n                <h1>About the App</h1>\n                <p>Written by Luke. View on GitHub here: https://github.com/LukeNZ/tminusten.</p>\n            </section>\n            \n            <!-- GLOBAL SETTINGS OPTIONS -->\n            <div>\n                <button (click)=\"liftoff()\" [disabled]=\"settingsState.isLiftingOff\">\n                    {{ settingsState.isLiftingOff ? \"Lifting off...\" : \"Liftoff\" }}\n                </button>\n            </div>\n        </div>\n    "
+            template: "\n        <i [hidden]=\"!appData.isActive\" (click)=\"appData.isSettingsVisible = false\">Close</i>\n        <div>\n            <nav>\n                <ul>\n                    <li (click)=\"currentSection = settingsSection.Display\">Display</li>\n                    <li (click)=\"currentSection = settingsSection.Notifications\">Notifications</li>\n                    <li (click)=\"currentSection = settingsSection.General\">General</li>\n                    <li (click)=\"currentSection = settingsSection.Countdown\">Countdown</li>\n                    <li (click)=\"currentSection = settingsSection.Introduction\">Introduction</li>\n                    <li (click)=\"currentSection = settingsSection.DescriptionSections\">Description Sections</li>\n                    <li (click)=\"currentSection = settingsSection.Resources\">Resources</li>\n                    <li (click)=\"currentSection = settingsSection.LaunchMomentTemplates\">Launch Moment Templates</li>\n                    <li (click)=\"currentSection = settingsSection.About\">About the App</li>\n                </ul>\n            </nav>\n            \n            <!-- DISPLAY -->\n            <section [hidden]=\"currentSection != settingsSection.Display\">\n                <h1>Display</h1>\n                \n                <p>Increase text size</p>\n                <p>Density settings</p>\n            </section>\n            \n            <!-- NOTIFICATIONS -->\n            <section [hidden]=\"currentSection != settingsSection.Notifications\">\n                <h1>Notifications</h1>\n                \n                <p>Play ping when a new update arrives when tab inactive</p>\n            </section>\n            \n            <!-- GENERAL -->\n            <section [hidden]=\"currentSection != settingsSection.General\">\n                <h1>General</h1>\n                <p>General launch details and application settings.</p>\n                \n                <p *ngIf=\"launch.name\">Will appear on Reddit as: <span class=\"title\">r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread</span></p>\n                <form>\n                    <label for=\"mission\">Mission Name</label>\n                    <input type=\"text\" name=\"mission\" [(ngModel)]=\"launch.name\" placeholder=\"Mission Name\">\n                </form>\n            </section>\n            \n            <!-- COUNTDOWN -->\n            <section [hidden]=\"currentSection != settingsSection.Countdown\">\n                <h1>Countdown</h1>\n                \n                <form>\n                    <tmt-datetimeentry [id]=\"'countdown'\" [date]=\"launch.countdown\" (dateChange)=\"onCountdownChanged($event)\"></tmt-datetimeentry>\n                </form>\n                \n                <p *ngIf=\"launchData.launch?.countdown != launch.countdown\">New countdown of {{ launch.countdown.toISOString() }}</p>\n            </section>\n            \n            <!-- INTRODUCTION -->\n            <section [hidden]=\"currentSection != settingsSection.Introduction\">\n                <h1>Introduction</h1>\n                <form>\n                    <textarea name=\"introduction\" [(ngModel)]=\"launch.introduction\" placeholder=\"Introductory paragraph about the launch.\"></textarea>\n                    <span>{{ launch.introduction?.length }} + characters.</span>\n                </form>\n            </section>\n            \n            <!-- DESCRIPTION SECTIONS -->\n            <section [hidden]=\"currentSection != settingsSection.DescriptionSections\">\n                <h1>Description Sections</h1>\n                \n                <button (click)=\"addDescriptionSection()\">Add Section</button>\n                \n                <ng-container *ngFor=\"let section of launch.descriptionSections\">\n                    <input type=\"text\" placeholder=\"Section title\" [(ngModel)]=\"section.title\" />\n                    <textarea placeholder=\"Section description\" [(ngModel)]=\"section.description\" ></textarea>\n                    <button (click)=\"removeDescriptionSection(section)\">Remove</button>\n                </ng-container>\n            </section>\n            \n            <!-- RESOURCES -->\n            <section [hidden]=\"currentSection != settingsSection.Resources\">\n                <h1>Resources</h1>\n                \n                <button (click)=\"addResource()\">Add Resource</button>\n                \n                <ng-container *ngFor=\"let resource of launch.resources\">\n                    <input type=\"text\" placeholder=\"Resource Title\" [(ngModel)]=\"resource.title\" />\n                    <input type=\"text\" placeholder=\"Resource URL\" [(ngModel)]=\"resource.url\" />\n                    <input type=\"text\" placeholder=\"Resource Note\" [(ngModel)]=\"resource.note\" />          \n                    <button (click)=\"removeResource(resource)\">Remove</button>\n                </ng-container>\n            </section>\n            \n            <!-- LAUNCH MOMENT TEMPLATES -->\n            <section [hidden]=\"currentSection != settingsSection.LaunchMomentTemplates\">\n                <h1>Launch Moment Templates</h1>\n                \n                <ng-container *ngFor=\"let momentTemplate of launchMomentTemplates\">\n                    <p>{{ momentTemplate[1].title }}</p>\n                    <textarea>{{ momentTemplate[1].text }}</textarea>\n                </ng-container>\n                <button>Save</button>\n            </section>\n            \n            <!-- ABOUT -->\n            <section [hidden]=\"currentSection != settingsSection.About\">\n                <h1>About the App</h1>\n                <p>Written by Luke. View on GitHub here: https://github.com/LukeNZ/tminusten.</p>\n            </section>\n            \n            <!-- GLOBAL SETTINGS OPTIONS -->\n            <div>\n                <button (click)=\"liftoff()\" [disabled]=\"settingsState.isLiftingOff\">\n                    {{ settingsState.isLiftingOff ? \"Lifting off...\" : \"Liftoff\" }}\n                </button>\n            </div>\n        </div>\n    "
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof WebsocketService_1.WebsocketService !== 'undefined' && WebsocketService_1.WebsocketService) === 'function' && _a) || Object, (typeof (_b = typeof NotificationBannerService_1.NotificationBannerService !== 'undefined' && NotificationBannerService_1.NotificationBannerService) === 'function' && _b) || Object, (typeof (_c = typeof LaunchDataService_1.LaunchDataService !== 'undefined' && LaunchDataService_1.LaunchDataService) === 'function' && _c) || Object, (typeof (_d = typeof AppDataService_1.AppDataService !== 'undefined' && AppDataService_1.AppDataService) === 'function' && _d) || Object])
     ], SettingsComponent);
@@ -1336,7 +1346,7 @@ exports.TweetsImagesTabComponent = TweetsImagesTabComponent;
 
 "use strict";
 "use strict";
-var router_1 = __webpack_require__(113);
+var router_1 = __webpack_require__(112);
 var Home_component_1 = __webpack_require__(383);
 var Login_component_1 = __webpack_require__(384);
 var appRoutes = [
@@ -1389,18 +1399,28 @@ var AppDataService = (function () {
         this.websocketService = websocketService;
         // Is the settings pane open?
         this.isSettingsVisible = false;
-        this.isLoading = false;
-        // Launch Moment Templates
-        this.launchMomentTemplates = [];
+        this.isLoading = true;
+        this.websocketService.appStatusesStream().subscribe(function (websocket) {
+            if (websocket.type === "enableApp") {
+                _this.isActive = true;
+            }
+            if (websocket.response.type === "editMoments") {
+                _this.launchMomentTemplates = websocket.response.launchMomentTemplates;
+            }
+            if (websocket.response.type === "disableApp") {
+                _this.isActive = false;
+            }
+        });
         this.websocketService.appStatusResponsesStream().subscribe(function (websocket) {
-            if (websocket.response.statusType === "enableApp") {
+            if (websocket.response.type === "enableApp") {
                 _this.isActive = true;
                 _this.isSettingsVisible = false;
             }
-        });
-        this.websocketService.appStatusesStream().subscribe(function (websocket) {
-            if (websocket.statusType === "enableApp") {
-                _this.isActive = true;
+            if (websocket.response.type === "editMoments") {
+                _this.launchMomentTemplates = websocket.response.launchMomentTemplates;
+            }
+            if (websocket.response.type === "disableApp") {
+                _this.isActive = false;
             }
         });
     }
@@ -1675,20 +1695,20 @@ var WebsocketService = (function () {
         });
     };
     /**
-     * Emit a app status to the server. This includes statuses such as `enableApp`, `disableApp`,
+     * Emit a app status to the server. This includes types such as `enableApp`, `disableApp`,
      * `editLivestream`, `editLaunch`, and `editEvent`.
      *
-     * @param statusType {string} One of `enableApp`, `disableApp`,`editLivestream`,
+     * @param type {string} One of `enableApp`, `disableApp`,`editLivestream`,
      * `editLaunch`, and `editEvent`.
      * @param data {*} Data to be sent up to the server as payload.
      */
-    WebsocketService.prototype.emitAppStatus = function (statusType, data) {
+    WebsocketService.prototype.emitAppStatus = function (type, data) {
         if (!data) {
             data = {};
         }
         this.socketClient.emit("msg:appStatus", {
             token: this.authService.authtoken,
-            statusType: statusType,
+            type: type,
             data: data
         });
     };

@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {Title} from "@angular/platform-browser";
 import {AuthService} from "../Services/AuthService";
 import {LaunchDataService} from "../Services/LaunchDataService";
@@ -50,15 +50,16 @@ import 'rxjs/add/observable/forkJoin';
  * for most of the application's functionality.
  * @class
  */
-export class HomeComponent {
+export class HomeComponent implements OnInit {
 
     constructor(
         public authData: AuthService,
         public launchData: LaunchDataService,
         public appData: AppDataService,
         public initializationService: InitializationService,
-        public titleService: Title) {
+        public titleService: Title) {}
 
+    public ngOnInit() : void {
         Observable.forkJoin(
             this.initializationService.getLaunch(),
             this.initializationService.getStatuses(),

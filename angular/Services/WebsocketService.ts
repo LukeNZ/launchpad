@@ -205,20 +205,20 @@ export class WebsocketService {
     }
 
     /**
-     * Emit a app status to the server. This includes statuses such as `enableApp`, `disableApp`,
+     * Emit a app status to the server. This includes types such as `enableApp`, `disableApp`,
      * `editLivestream`, `editLaunch`, and `editEvent`.
      *
-     * @param statusType {string} One of `enableApp`, `disableApp`,`editLivestream`,
+     * @param type {string} One of `enableApp`, `disableApp`,`editLivestream`,
      * `editLaunch`, and `editEvent`.
      * @param data {*} Data to be sent up to the server as payload.
      */
-    public emitAppStatus(statusType: string, data? : any) : void {
+    public emitAppStatus(type: string, data? : any) : void {
 
         if (!data) { data = {}; }
 
         this.socketClient.emit("msg:appStatus", {
             token: this.authService.authtoken,
-            statusType: statusType,
+            type: type,
             data: data
         });
     }

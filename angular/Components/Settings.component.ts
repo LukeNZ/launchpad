@@ -6,6 +6,7 @@ import {Launch} from "../Classes/Launch";
 import {DescriptionSection} from "../Interfaces/DescriptionSection";
 import {Resource} from "../Interfaces/Resource";
 import {AppDataService} from "../Services/AppDataService";
+import {MomentTemplate} from "../Interfaces/MomentTemplate";
 
 enum SettingsSection {
     Display, Notifications, General, Countdown, Introduction,
@@ -109,11 +110,11 @@ enum SettingsSection {
             <section [hidden]="currentSection != settingsSection.LaunchMomentTemplates">
                 <h1>Launch Moment Templates</h1>
                 
-                <ng-container *ngFor="let momentTemplate of appData.launchMomentTemplates | keyValue">
-                    <p>{{ momentTemplate.value.title }}</p>
-                    <textarea>{{ momentTemplate.value.text }}</textarea>
+                <ng-container *ngFor="let momentTemplate of launchMomentTemplates">
+                    <p>{{ momentTemplate[1].title }}</p>
+                    <textarea>{{ momentTemplate[1].text }}</textarea>
                 </ng-container>
-                <button (click)="log()">Save</button>
+                <button>Save</button>
             </section>
             
             <!-- ABOUT -->
@@ -142,6 +143,7 @@ export class SettingsComponent implements OnInit {
     public currentSection: SettingsSection = this.settingsSection.General;
 
     public launch: Launch;
+    public launchMomentTemplates: [string, MomentTemplate][];
 
     public settingsState = {
         isLiftingOff: false,
@@ -164,10 +166,13 @@ export class SettingsComponent implements OnInit {
             this.launch = Object.assign({}, data);
         });
 
+        this.launchMomentTemplates = Array.from(this.appData.launchMomentTemplates);
+
         this.websocketService.appStatusResponsesStream().subscribe(response => {
-            this.settingsState.isLiftingOff = false;
-            this.notificationBannerService.notify("App Enabled.");
-            this.launchData.setLaunch(this.launch);
+            if (response.response.type === "enableApp") {
+                this.settingsState.isLiftingOff = false;
+                this.notificationBannerService.notify("App Enabled.");
+            }
         });
     }
 
@@ -250,9 +255,5 @@ export class SettingsComponent implements OnInit {
     public removeResource(resource: Resource) : void {
         let index = this.launch.resources.indexOf(resource);
         this.launch.resources.splice(index, 1);
-    }
-
-    public log() {
-        console.log(this.appData.launchMomentTemplates);
     }
 }

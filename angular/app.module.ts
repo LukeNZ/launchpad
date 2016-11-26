@@ -16,6 +16,10 @@ import {LoginComponent} from "./Components/Login.component";
 import {NotificationBannerComponent} from "./Components/NotificationBanner.component";
 import {SettingsComponent} from "./Components/Settings.component";
 import {DateTimeEntryComponent} from "./Components/DateTimeEntry.component";
+import {AboutTabComponent} from "./Components/Tabs/AboutTab.component";
+import {IncomingTelemetryTabComponent} from "./Components/Tabs/IncomingTelemetryTab.component";
+import {TweetsImagesTabComponent} from "./Components/Tabs/TweetsImagesTab.component";
+import {LaunchStatusComponent} from "./Components/LaunchStatus.component";
 
 // Services
 import {InitializationService} from "./Services/InitializationService";
@@ -24,11 +28,6 @@ import {AuthService} from "./Services/AuthService";
 import {LaunchDataService} from "./Services/LaunchDataService";
 import {NotificationBannerService} from "./Services/NotificationBannerService";
 import {AppDataService} from "./Services/AppDataService";
-import {AboutTabComponent} from "./Components/Tabs/AboutTab.component";
-import {IncomingTelemetryTabComponent} from "./Components/Tabs/IncomingTelemetryTab.component";
-import {TweetsImagesTabComponent} from "./Components/Tabs/TweetsImagesTab.component";
-import {LaunchStatusComponent} from "./Components/LaunchStatus.component";
-import {KeyValuePipe} from "angular-toolshed/angular-toolshed";
 
 @NgModule({
     // Modules
@@ -37,7 +36,7 @@ import {KeyValuePipe} from "angular-toolshed/angular-toolshed";
     providers: [InitializationService, WebsocketService, AuthService, LaunchDataService, AppDataService, NotificationBannerService],
     // Components
     declarations: [TMinusTenComponent, HomeComponent, LoginComponent, HeaderComponent, CountdownComponent, StatusBarComponent, DataComponent, LivestreamComponent, NotificationBannerComponent, SettingsComponent, DateTimeEntryComponent, AboutTabComponent,
-    IncomingTelemetryTabComponent, TweetsImagesTabComponent, LaunchStatusComponent, KeyValuePipe],
+    IncomingTelemetryTabComponent, TweetsImagesTabComponent, LaunchStatusComponent, AboutTabComponent],
     // Starting components
     bootstrap: [TMinusTenComponent]
 })
