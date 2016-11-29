@@ -37,6 +37,10 @@ enum SettingsSection {
             
             <p>Increase text size</p>
             <p>Density settings</p>
+            <p>Disable Acronyms</p>
+            <p>Nightmode</p>
+            
+            <div>Example of launch status here</div>
         </section>
         
         <!-- NOTIFICATIONS -->

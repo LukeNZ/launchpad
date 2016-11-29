@@ -14,7 +14,7 @@ var jstz = require('jstimezonedetect');
             <span>{{ formattedLocalTime() }}</span>
         </div>
         <div class="launch-status-content">
-            <p>{{ launchStatus.text }}</p>
+            <p>{{ launchStatus.text | acronyms }}</p>
             
             <ul class="launch-status-tools" *ngIf="">
                 <li class="request-edit">Request Edit</li>

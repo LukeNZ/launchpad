@@ -28,6 +28,7 @@ import {AuthService} from "./Services/AuthService";
 import {LaunchDataService} from "./Services/LaunchDataService";
 import {NotificationBannerService} from "./Services/NotificationBannerService";
 import {AppDataService} from "./Services/AppDataService";
+import {AcronymsPipe} from "./Pipes/AcronymsPipe";
 
 @NgModule({
     // Modules
@@ -36,7 +37,7 @@ import {AppDataService} from "./Services/AppDataService";
     providers: [InitializationService, WebsocketService, AuthService, LaunchDataService, AppDataService, NotificationBannerService],
     // Components
     declarations: [TMinusTenComponent, HomeComponent, LoginComponent, HeaderComponent, CountdownComponent, StatusBarComponent, DataComponent, LivestreamComponent, NotificationBannerComponent, SettingsComponent, DateTimeEntryComponent, AboutTabComponent,
-    IncomingTelemetryTabComponent, TweetsImagesTabComponent, LaunchStatusComponent, AboutTabComponent],
+    IncomingTelemetryTabComponent, TweetsImagesTabComponent, LaunchStatusComponent, AboutTabComponent, AcronymsPipe],
     // Starting components
     bootstrap: [TMinusTenComponent]
 })
