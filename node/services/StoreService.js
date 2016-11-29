@@ -115,7 +115,10 @@ class StoreService {
                 });
 
             } else if (typeof propertyOrProperties === "string" || Array.isArray(propertyOrProperties)) {
-                return this.redis.hmget("launch", propertyOrProperties, (err, reply) => resolve(JSON.parse(reply)));
+                return this.redis.hmget("launch", "countdown", "isPaused", (err, reply) =>
+                {
+                    resolve(reply.map(element => JSON.parse(element)));
+                });
 
             }
             return reject();

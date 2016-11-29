@@ -59,6 +59,9 @@ export class HomeComponent implements OnInit {
         public initializationService: InitializationService,
         public titleService: Title) {}
 
+    /**
+     *
+     */
     public ngOnInit() : void {
         Observable.forkJoin(
             this.initializationService.getLaunch(),
@@ -74,6 +77,9 @@ export class HomeComponent implements OnInit {
             if (!this.appData.isActive) { this.appData.isSettingsVisible = true; }
             this.appData.isLoading = false;
         });
+
         this.titleService.setTitle("T Minus Ten");
+
+
     }
 }
