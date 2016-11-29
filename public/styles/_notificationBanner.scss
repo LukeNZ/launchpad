@@ -1,4 +1,5 @@
 tmt-notification-banner {
     display:block;
-    position:absolute;
+    position:fixed;
+    z-index:200;
 }

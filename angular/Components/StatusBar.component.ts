@@ -8,10 +8,12 @@ import {LaunchDataService} from "../Services/LaunchDataService";
 @Component({
     selector:'tmt-statusbar',
     template: `
-        <textarea class="status-entry" (keypress)="onEnterKeypress($event.key)" placeholder="Type launch updates here. Hit enter to send." [(ngModel)]="status"></textarea>
-        <div class="typers">
-            <span *ngFor="let typer of typing">{{ typer }}</span>
-        </div>
+        <ng-container *ngIf="authData.isLoggedIn">
+            <textarea class="status-entry" (keypress)="onEnterKeypress($event.key)" placeholder="Type launch updates here. Hit enter to send." [(ngModel)]="status"></textarea>
+            <div class="typers">
+                <span *ngFor="let typer of typing">{{ typer }}</span>
+            </div>
+        </ng-container>
     `
 })
 export class StatusBarComponent implements OnInit {

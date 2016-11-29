@@ -112,11 +112,21 @@ module.exports = {
                     data.timestamp = idAndTimestamp.timestamp;
                     data.isDeleted = false;
 
-                    store.addLaunchStatus(data).then(index => {
+                    // Fetch the countdown details at this time, so if the countdown changes we will
+                    // always have a reference of what the countdown was when this launch status
+                    // was posted.
+                    store.getLaunch(["countdown", "isPaused"]).then(launchDetails => {
 
-                        data.statusId = index;
-                        socket.broadcast.emit("msg:launchStatusCreate", data);
-                        socket.emit("response:launchStatusCreate", {responseCode: 200, response: data });
+                        data.countdown = launchDetails.countdown;
+                        data.isPaused = launchDetails.isPaused;
+
+                        // Add the launch status.
+                        store.addLaunchStatus(data).then(index => {
+                            data.statusId = index;
+                            // Emit the launch status
+                            socket.broadcast.emit("msg:launchStatusCreate", data);
+                            socket.emit("response:launchStatusCreate", {responseCode: 200, response: data });
+                        });
                     });
                 });
 

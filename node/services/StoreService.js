@@ -95,29 +95,27 @@ class StoreService {
      *
      * If launchProperty is not passed into the function, all fields from the launch hash will be retrieved.
      * If the launchProperty is a string, that specific field from the launch hash will be fetched. Otherwise,
-     * the function will reject.
+     * the function will reject. If the launchProperty is an array of strings, all hashes will be returned.
      *
-     * @param launchProperty {undefined|string} Optional argument, that if set will return only that field from
-     * the launch hash.
+     * @param propertyOrProperties {undefined|string|string[]} Optional argument, that if set will return
+     * only that field from the launch hash.
      *
      * @returns {Promise} Returns a promise that resolves to the launch hash or specific hash field.
      */
-    getLaunch(launchProperty) {
+    getLaunch(propertyOrProperties) {
         return new Promise((resolve, reject) => {
-            if (launchProperty == undefined) {
+            if (propertyOrProperties == undefined) {
                 return this.redis.hgetall("launch", (err, reply) => {
 
                     if (reply != null) {
-                        Object.keys(reply).forEach(key => {
-                            reply[key] = JSON.parse(reply[key]);
-                        });
+                        Object.keys(reply).forEach(key => reply[key] = JSON.parse(reply[key]));
                     }
 
                     return resolve(reply);
                 });
 
-            } else if (typeof launchProperty === "string") {
-                return this.redis.hget("launch", launchProperty, (err, reply) => resolve(JSON.parse(reply)));
+            } else if (typeof propertyOrProperties === "string" || Array.isArray(propertyOrProperties)) {
+                return this.redis.hmget("launch", propertyOrProperties, (err, reply) => resolve(JSON.parse(reply)));
 
             }
             return reject();

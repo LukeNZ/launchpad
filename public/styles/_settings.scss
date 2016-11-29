@@ -17,7 +17,7 @@ tmt-settings {
     // Display
     border-radius:$small-border-radius;
     background-color:$grey;
-    z-index:200;
+    z-index:400;
 
     section {
         @include span-columns(9);
@@ -30,9 +30,10 @@ tmt-settings {
 }
 
 #modal-backdrop {
-    background-color:grey;
+    background-color:$charcoal;
+    opacity:0.75;
     position:fixed;
-    z-index:100;
+    z-index:300;
     top:0;
     left:0;
     right:0;

@@ -1,4 +1,8 @@
 tmt-livestream {
     display:block;
+    width:100vw;
+    left:calc(-50vw + 50%);
+    position:relative;
+
     background-color:grey;
 }

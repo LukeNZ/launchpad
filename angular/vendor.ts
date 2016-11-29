@@ -21,4 +21,5 @@ import 'rxjs/add/operator/switchMap';
 import 'angular-toolshed/angular-toolshed';
 
 import 'socket.io-client';
-import 'moment';
+import 'moment-timezone';
+import 'jstimezonedetect';
