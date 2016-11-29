@@ -38,10 +38,20 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
+# IntelliJ files
 .idea/
+
+# Local environment variables
 .env
 
+# Logins file
 /logins.json
+
+# Stop unconfigured Redis instances from persisting to disk
 /dump.rdb
 
+# Stop JS output
 public/js
+
+# Stop CSS output
+public/styles/styles.css

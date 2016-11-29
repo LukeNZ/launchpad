@@ -37,13 +37,14 @@ export class LaunchDataService {
 
         this.websocketService.appStatusesStream().subscribe(websocket => {
             if (websocket.response.type === "enableApp") {
-                this.setLaunch(websocket.data.launch);
+                this.setLaunch(Launch.create(websocket.data));
             }
         });
 
         this.websocketService.appStatusResponsesStream().subscribe(websocket => {
+            console.log(websocket);
             if (websocket.response.type === "enableApp") {
-                this.setLaunch(websocket.response.data.launch);
+                this.setLaunch(Launch.create(websocket.response.data));
             }
         });
     }

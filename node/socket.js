@@ -159,6 +159,7 @@ module.exports = {
                         case "enableApp":
 
                             data.data.beganAt = idAndTimestamp.timestamp;
+                            data.data.isPaused = false;
 
                             p1 = Promise.all([
                                 store.isAppActive(true),

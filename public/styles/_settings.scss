@@ -1,5 +1,40 @@
+$settings-top-offset:50px;
+$settings-width:1000px;
+
 tmt-settings {
-    display:block;
+    // Positioning
     position:fixed;
+    left:0;
+    right:0;
+    margin:0 auto;
+    top:50px;
+    // Box Model
+    display:block;
+    height:calc(100vh - #{$settings-top-offset * 2});
+    max-width:1000px;
+    width:100%;
+    padding:$small-padding;
+    // Display
+    border-radius:$small-border-radius;
     background-color:$grey;
+    z-index:200;
+
+    section {
+        @include span-columns(9);
+        @include omega();
+    }
+}
+
+#settings-nav {
+    @include span-columns(3);
+}
+
+#modal-backdrop {
+    background-color:grey;
+    position:fixed;
+    z-index:100;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
 }

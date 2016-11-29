@@ -28,7 +28,8 @@ export class CountdownComponent implements OnInit {
     public minutes: number;
     public seconds: number;
 
-    constructor(public launchData: LaunchDataService) {}
+    constructor(public launchData: LaunchDataService) {
+    }
 
     /**
      * Runs the countdown processor.
@@ -42,6 +43,8 @@ export class CountdownComponent implements OnInit {
      * remain before the launch time is reached.
      */
     public countdownProcessor() : void {
+
+        console.log(this.launchData.launch);
 
         if (!this.launchData.launch.isPaused) {
             let relativeSecondsBetween = ((+(moment().milliseconds(0).toDate()) - +this.launchData.launch.countdown) / 1000);

@@ -7,3 +7,11 @@ html, body {
     padding:0;
     margin:0;
 }
+
+body {
+    @include outer-container;
+}
+
+nav ul {
+    list-style:none;
+}

@@ -17,118 +17,116 @@ enum SettingsSection {
     selector:'tmt-settings',
     template: `
         <i [hidden]="!appData.isActive" (click)="appData.isSettingsVisible = false">Close</i>
+        <nav id="settings-nav">
+            <ul>
+                <li (click)="currentSection = settingsSection.Display">Display</li>
+                <li (click)="currentSection = settingsSection.Notifications">Notifications</li>
+                <li (click)="currentSection = settingsSection.General">General</li>
+                <li (click)="currentSection = settingsSection.Countdown">Countdown</li>
+                <li (click)="currentSection = settingsSection.Introduction">Introduction</li>
+                <li (click)="currentSection = settingsSection.DescriptionSections">Description Sections</li>
+                <li (click)="currentSection = settingsSection.Resources">Resources</li>
+                <li (click)="currentSection = settingsSection.LaunchMomentTemplates">Launch Moment Templates</li>
+                <li (click)="currentSection = settingsSection.About">About the App</li>
+            </ul>
+        </nav>
+        
+        <!-- DISPLAY -->
+        <section [hidden]="currentSection != settingsSection.Display">
+            <h1>Display</h1>
+            
+            <p>Increase text size</p>
+            <p>Density settings</p>
+        </section>
+        
+        <!-- NOTIFICATIONS -->
+        <section [hidden]="currentSection != settingsSection.Notifications">
+            <h1>Notifications</h1>
+            
+            <p>Play ping when a new update arrives when tab inactive</p>
+        </section>
+        
+        <!-- GENERAL -->
+        <section [hidden]="currentSection != settingsSection.General">
+            <h1>General</h1>
+            <p>General launch details and application settings.</p>
+            
+            <p *ngIf="launch.name">Will appear on Reddit as: <span class="title">r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread</span></p>
+            <form>
+                <label for="mission">Mission Name</label>
+                <input type="text" name="mission" [(ngModel)]="launch.name" placeholder="Mission Name">
+            </form>
+        </section>
+        
+        <!-- COUNTDOWN -->
+        <section [hidden]="currentSection != settingsSection.Countdown">
+            <h1>Countdown</h1>
+            
+            <form>
+                <tmt-datetimeentry [id]="'countdown'" [date]="launch.countdown" (dateChange)="onCountdownChanged($event)"></tmt-datetimeentry>
+            </form>
+            
+            <p *ngIf="launchData.launch?.countdown != launch.countdown">New countdown of {{ launch.countdown.toISOString() }}</p>
+        </section>
+        
+        <!-- INTRODUCTION -->
+        <section [hidden]="currentSection != settingsSection.Introduction">
+            <h1>Introduction</h1>
+            <form>
+                <textarea name="introduction" [(ngModel)]="launch.introduction" placeholder="Introductory paragraph about the launch."></textarea>
+                <span>{{ launch.introduction?.length }} + characters.</span>
+            </form>
+        </section>
+        
+        <!-- DESCRIPTION SECTIONS -->
+        <section [hidden]="currentSection != settingsSection.DescriptionSections">
+            <h1>Description Sections</h1>
+            
+            <button (click)="addDescriptionSection()">Add Section</button>
+            
+            <ng-container *ngFor="let section of launch.descriptionSections">
+                <input type="text" placeholder="Section title" [(ngModel)]="section.title" />
+                <textarea placeholder="Section description" [(ngModel)]="section.description" ></textarea>
+                <button (click)="removeDescriptionSection(section)">Remove</button>
+            </ng-container>
+        </section>
+        
+        <!-- RESOURCES -->
+        <section [hidden]="currentSection != settingsSection.Resources">
+            <h1>Resources</h1>
+            
+            <button (click)="addResource()">Add Resource</button>
+            
+            <ng-container *ngFor="let resource of launch.resources">
+                <input type="text" placeholder="Resource Title" [(ngModel)]="resource.title" />
+                <input type="text" placeholder="Resource URL" [(ngModel)]="resource.url" />
+                <input type="text" placeholder="Resource Note" [(ngModel)]="resource.note" />          
+                <button (click)="removeResource(resource)">Remove</button>
+            </ng-container>
+        </section>
+        
+        <!-- LAUNCH MOMENT TEMPLATES -->
+        <section [hidden]="currentSection != settingsSection.LaunchMomentTemplates">
+            <h1>Launch Moment Templates</h1>
+            
+            <ng-container *ngFor="let momentTemplate of launchMomentTemplates">
+                <p>{{ momentTemplate[1].title }}</p>
+                <textarea>{{ momentTemplate[1].text }}</textarea>
+            </ng-container>
+            <button>Save</button>
+        </section>
+        
+        <!-- ABOUT -->
+        <section [hidden]="currentSection != settingsSection.About">
+            <h1>About the App</h1>
+            <p>Written by Luke. View on GitHub here: https://github.com/LukeNZ/tminusten.</p>
+        </section>
+        
+        <!-- GLOBAL SETTINGS OPTIONS -->
         <div>
-            <nav>
-                <ul>
-                    <li (click)="currentSection = settingsSection.Display">Display</li>
-                    <li (click)="currentSection = settingsSection.Notifications">Notifications</li>
-                    <li (click)="currentSection = settingsSection.General">General</li>
-                    <li (click)="currentSection = settingsSection.Countdown">Countdown</li>
-                    <li (click)="currentSection = settingsSection.Introduction">Introduction</li>
-                    <li (click)="currentSection = settingsSection.DescriptionSections">Description Sections</li>
-                    <li (click)="currentSection = settingsSection.Resources">Resources</li>
-                    <li (click)="currentSection = settingsSection.LaunchMomentTemplates">Launch Moment Templates</li>
-                    <li (click)="currentSection = settingsSection.About">About the App</li>
-                </ul>
-            </nav>
-            
-            <!-- DISPLAY -->
-            <section [hidden]="currentSection != settingsSection.Display">
-                <h1>Display</h1>
-                
-                <p>Increase text size</p>
-                <p>Density settings</p>
-            </section>
-            
-            <!-- NOTIFICATIONS -->
-            <section [hidden]="currentSection != settingsSection.Notifications">
-                <h1>Notifications</h1>
-                
-                <p>Play ping when a new update arrives when tab inactive</p>
-            </section>
-            
-            <!-- GENERAL -->
-            <section [hidden]="currentSection != settingsSection.General">
-                <h1>General</h1>
-                <p>General launch details and application settings.</p>
-                
-                <p *ngIf="launch.name">Will appear on Reddit as: <span class="title">r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread</span></p>
-                <form>
-                    <label for="mission">Mission Name</label>
-                    <input type="text" name="mission" [(ngModel)]="launch.name" placeholder="Mission Name">
-                </form>
-            </section>
-            
-            <!-- COUNTDOWN -->
-            <section [hidden]="currentSection != settingsSection.Countdown">
-                <h1>Countdown</h1>
-                
-                <form>
-                    <tmt-datetimeentry [id]="'countdown'" [date]="launch.countdown" (dateChange)="onCountdownChanged($event)"></tmt-datetimeentry>
-                </form>
-                
-                <p *ngIf="launchData.launch?.countdown != launch.countdown">New countdown of {{ launch.countdown.toISOString() }}</p>
-            </section>
-            
-            <!-- INTRODUCTION -->
-            <section [hidden]="currentSection != settingsSection.Introduction">
-                <h1>Introduction</h1>
-                <form>
-                    <textarea name="introduction" [(ngModel)]="launch.introduction" placeholder="Introductory paragraph about the launch."></textarea>
-                    <span>{{ launch.introduction?.length }} + characters.</span>
-                </form>
-            </section>
-            
-            <!-- DESCRIPTION SECTIONS -->
-            <section [hidden]="currentSection != settingsSection.DescriptionSections">
-                <h1>Description Sections</h1>
-                
-                <button (click)="addDescriptionSection()">Add Section</button>
-                
-                <ng-container *ngFor="let section of launch.descriptionSections">
-                    <input type="text" placeholder="Section title" [(ngModel)]="section.title" />
-                    <textarea placeholder="Section description" [(ngModel)]="section.description" ></textarea>
-                    <button (click)="removeDescriptionSection(section)">Remove</button>
-                </ng-container>
-            </section>
-            
-            <!-- RESOURCES -->
-            <section [hidden]="currentSection != settingsSection.Resources">
-                <h1>Resources</h1>
-                
-                <button (click)="addResource()">Add Resource</button>
-                
-                <ng-container *ngFor="let resource of launch.resources">
-                    <input type="text" placeholder="Resource Title" [(ngModel)]="resource.title" />
-                    <input type="text" placeholder="Resource URL" [(ngModel)]="resource.url" />
-                    <input type="text" placeholder="Resource Note" [(ngModel)]="resource.note" />          
-                    <button (click)="removeResource(resource)">Remove</button>
-                </ng-container>
-            </section>
-            
-            <!-- LAUNCH MOMENT TEMPLATES -->
-            <section [hidden]="currentSection != settingsSection.LaunchMomentTemplates">
-                <h1>Launch Moment Templates</h1>
-                
-                <ng-container *ngFor="let momentTemplate of launchMomentTemplates">
-                    <p>{{ momentTemplate[1].title }}</p>
-                    <textarea>{{ momentTemplate[1].text }}</textarea>
-                </ng-container>
-                <button>Save</button>
-            </section>
-            
-            <!-- ABOUT -->
-            <section [hidden]="currentSection != settingsSection.About">
-                <h1>About the App</h1>
-                <p>Written by Luke. View on GitHub here: https://github.com/LukeNZ/tminusten.</p>
-            </section>
-            
-            <!-- GLOBAL SETTINGS OPTIONS -->
-            <div>
-                <button (click)="liftoff()" [disabled]="settingsState.isLiftingOff">
-                    {{ settingsState.isLiftingOff ? "Lifting off..." : "Liftoff" }}
-                </button>
-            </div>
+            <button (click)="liftoff()" [disabled]="settingsState.isLiftingOff">
+                {{ settingsState.isLiftingOff ? "Lifting off..." : "Liftoff" }}
+            </button>
         </div>
     `
 })

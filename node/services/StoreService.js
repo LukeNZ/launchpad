@@ -127,7 +127,7 @@ class StoreService {
     /**
      * Sets launch properties for the application.
      *
-     * Inserts the keys and values of dataObj as the keys and values of fields on the `launch` hash in Redis.
+     * Inserts the keys and values of data as the keys and values of fields on the `launch` hash in Redis.
      * If dataObj is null or undefined the function will reject.
      *
      * @param data {*} An object of keys and values to be set on the `launch` hash in Redis.
@@ -138,12 +138,11 @@ class StoreService {
     setLaunch(data) {
         return new Promise((resolve, reject) => {
 
-            Object.keys(data).forEach(key => {
-                data[key] = JSON.stringify(data[key]);
-            });
+            let obj = {};
+            Object.keys(data).forEach(key => obj[key] = JSON.stringify(data[key]));
 
             if (data != null) {
-                this.redis.hmset("launch", data, (err, reply) => resolve(reply));
+                this.redis.hmset("launch", obj, (err, reply) => resolve(reply));
             } else {
                 return reject();
             }
@@ -266,11 +265,10 @@ class StoreService {
     setLaunchMomentTemplates(data) {
         return new Promise((resolve, reject) => {
 
-            Object.keys(data).forEach(key => {
-                data[key] = JSON.stringify(data[key]);
-            });
+            let map = new Map();
+            data.forEach((value, key) => map.set(key, JSON.stringify(value)));
 
-            this.redis.hmset('launchMomentTemplates', data, (err, reply) => {
+            this.redis.hmset('launchMomentTemplates', map, (err, reply) => {
                 return resolve(reply);
             });
         });

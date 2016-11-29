@@ -9,6 +9,7 @@ import {AppDataService} from "../Services/AppDataService";
     template: `
         <tmt-notification-banner></tmt-notification-banner>
         <router-outlet></router-outlet>
+        <div id="modal-backdrop" *ngIf="appData.isSettingsVisible" (click)="closeSettings()"></div>
     `
 })
 /**
@@ -31,4 +32,15 @@ export class TMinusTenComponent {
         public notificationBannerService: NotificationBannerService,
         public launchData: LaunchDataService,
         public appData: AppDataService) {}
+
+    /**
+     * Closes the settings pane if the app is active.
+     *
+     * Used as an onclick method for the modal backdrop, which appears when the settings pane is open.
+     */
+    public closeSettings() : void {
+        if (this.appData.isActive) {
+            this.appData.isSettingsVisible = false;
+        }
+    }
 }

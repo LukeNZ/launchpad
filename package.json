@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "run-server": "node node/server.js",
-    "run-redis": "redis-server",
+    "run-redis": "redis-server ~/.redis/redis.conf",
     "run": "npm run run-redis | npm run run-server",
     "build-webpack": "webpack --watch",
     "start": "webpack-dev-server --inline --watch"
