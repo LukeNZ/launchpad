@@ -6,7 +6,6 @@ var mapHelper = require("../helpers/mapHelper");
  * Service which wraps a redis redis, allowing the calling of application-specific storage functions.
  *
  * TODO:
- * Download all data
  * Retrieve livestream status/information
  * Update livestream status/information
  * Check user/status in collection of current edit requests (hash of statusIds:username)
@@ -287,9 +286,7 @@ class StoreService {
      */
     getRedditThreadId() {
         return new Promise((resolve, reject) => {
-            this.redis.get('redditThreadId', (err, reply) => {
-                return resolve(reply);
-            });
+            this.redis.get('redditThreadId', (err, reply) => resolve(reply));
         });
     }
 
@@ -303,9 +300,7 @@ class StoreService {
      */
     setRedditThreadId(data) {
         return new Promise((resolve, reject) => {
-            this.redis.set('redditThreadId', data, (err, reply) => {
-                return resolve(reply);
-            });
+            this.redis.set('redditThreadId', data, (err, reply) => resolve(reply));
         });
     }
 
@@ -339,6 +334,17 @@ class StoreService {
     decrementCurrentViewers() {
         return new Promise((resolve, reject) => {
             this.redis.decr('currentViewers', (err, newValue) => resolve(newValue));
+        });
+    }
+
+    /**
+     * Returns all logged events.
+     *
+     * @returns {Promise} Resolves to all the events logged in the application.
+     */
+    getLogs() {
+        return new Promise((resolve, reject) => {
+            this.redis.lrange("events", 0, -1, (err, data) => resolve(data));
         });
     }
 }

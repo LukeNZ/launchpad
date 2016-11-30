@@ -1,4 +1,4 @@
-# Welcome to the r/SpaceX {{=title}} Official Launch Discussion & Updates Thread!
+# Welcome to the r/SpaceX {{=it.launch.name}} Official Launch Discussion & Updates Thread!
 
 {{=it.launch.introduction}}
 
@@ -32,13 +32,13 @@ To watch the launch live, pick your preferred streaming provider from the table 
 {{ for(var section in it.launch.descriptionSections) { }}
 ### {{=section.title}}
 
-{{=section.text }}
+{{=section.description }}
 {{ } }}
 
 ### Useful Resources, Data, ♫, & FAQ
 {{ for (var resource in it.launch.resources) { }}
-{{? resource.courtesy !== null}}
-* [{{=resource.title}}]({{=resource.url}}), {{=resource.courtesy}}
+{{? resource.note !== null}}
+* [{{=resource.title}}]({{=resource.url}}), {{=resource.note}}
 {{??}}
 * [{{=resource.title}}]({{=resource.url}})
 {{?}}
@@ -46,8 +46,8 @@ To watch the launch live, pick your preferred streaming provider from the table 
 
 ### Participate in the discussion!
 
-* First of all, launch threads are party threads! We understand everyone is excited, so we relax the rules in these venues - low effort comments are allowed. The most important thing is that everyone enjoy themselves :D
-* All other threads are fair game. We will remove low effort comments elsewhere!
+* First of all, launch threads are party threads! We understand everyone is excited, so we relax the rules in these venues - low effort comments are allowed. The most important thing is that everyone enjoy themselves!
+* All other threads continue to be subject to our strict rules. Report any rule-breaking comments that you see.
 * Real-time chat on our official Internet Relay Chat (IRC) [#spacex at irc.esper.net](https://kiwiirc.com/client/irc.esper.net/?nick=SpaceX_guest%7C?#SpaceX). Please read the IRC rules [here](https://www.irccloud.com/pastebin/U4CMHwUk) before participating.
 * Please post small launch updates, discussions, and questions here, rather than as a separate post. Thanks!
 

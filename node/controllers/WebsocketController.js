@@ -107,7 +107,7 @@ class WebsocketController {
                 // was posted.
                 this.store.getLaunch(["countdown", "isPaused"]).then(launchDetails => {
 
-                    data.countdown = launchDetails[0]
+                    data.countdown = launchDetails[0];
                     data.isPaused = launchDetails[1];
 
                     // Add the launch status.
@@ -120,7 +120,7 @@ class WebsocketController {
                         socket.emit("response:launchStatusCreate", {responseCode: 200, response: data });
 
                         // Update the Reddit thread
-                        this.reddit.updateThread();
+                        this.reddit.editThread();
                     });
                 });
             });
@@ -132,17 +132,17 @@ class WebsocketController {
 
     /**
      * `msg:appStatus`. Called when a socket sends a message updating the status of the application. This
-     * can be of the types "enableApp", "disableApp", "editLivestream", "editLaunch", or "editMoments".
+     * can be of the types "enableApp", "disableApp", "editLaunch", or "editMoments".
      *
      * @param data {*} Data sent to the socket for this request.
      * @param socket {Socket} The socket in question.
      */
-    appStatus() {
+    appStatus(data, socket) {
         // Ensure the socket user has the correct permissions
         this.authenticationService.userHasPermission("moderator", data.token).then(user => {
             // If the type is not one of the permitted status types, return an error code
             // to the originating socket.
-            let types = ["enableApp", "disableApp", "editLivestream", "editLaunch", "editMoments"];
+            let types = ["enableApp", "disableApp", "editLaunch", "editMoments"];
             if (!types.includes(data.type)) {
                 throw new Error(422);
             }
@@ -168,27 +168,35 @@ class WebsocketController {
                             this.store.isAppActive(true),
                             this.store.setLaunch(data.data)
                         ]).then(() => {
-                            // Begin livestream monitoring
+                            // Reddit thread creation
+                            return this.reddit.createThread();
+                        }).then(() => {
                             // Broadcast response
                             socket.broadcast.emit("msg:appStatus", data);
                             socket.emit("response:appStatus", {responseCode: 200, response: data });
-                            // Reddit thread creation
-                            this.reddit.createThread();
+
+                        }).catch(() => {
+                            socket.emit("response:appStatus", {responseCode: 500, response: data });
                         });
                         break;
 
                     case "disableApp":
-                        // TODO
-                        this.store.isAppActive(false);
-                        break;
-
-                    case "editLivestream":
-                        // TODO
+                        this.store.isAppActive(false).then(() => {
+                            socket.broadcast.emit("msg:appStatus", data);
+                            socket.emit("response:appStatus", {responseCode: 200, response: data });
+                        });
                         break;
 
                     case "editLaunch":
-                        // TODO
-                        this.store.setLaunch(message.data);
+                        this.store.setLaunch(message.data).then(() => {
+                            return this.reddit.editThread();
+                        }).then(() => {
+                            socket.broadcast.emit("msg:appStatus", data);
+                            socket.emit("response:appStatus", {responseCode: 200, response: data });
+
+                        }).catch(() => {
+                            socket.emit("response:appStatus", {responseCode: 500, response: data });
+                        });
                         break;
 
                     case "editMoments":
@@ -205,7 +213,7 @@ class WebsocketController {
         });
     }
 
-    webcastStatus() {
+    webcastStatus(data, socket) {
 
     }
 

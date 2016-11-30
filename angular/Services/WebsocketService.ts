@@ -206,10 +206,9 @@ export class WebsocketService {
 
     /**
      * Emit a app status to the server. This includes types such as `enableApp`, `disableApp`,
-     * `editLivestream`, `editLaunch`, and `editEvent`.
-     *
-     * @param type {string} One of `enableApp`, `disableApp`,`editLivestream`,
      * `editLaunch`, and `editEvent`.
+     *
+     * @param type {string} One of `enableApp`, `disableApp`, `editLaunch`, and `editEvent`.
      * @param data {*} Data to be sent up to the server as payload.
      */
     public emitAppStatus(type: string, data? : any) : void {

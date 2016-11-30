@@ -52,8 +52,10 @@ export class AppDataService {
 
         this.websocketService.appStatusResponsesStream().subscribe(websocket => {
             if (websocket.response.type === "enableApp") {
-                this.isActive = true;
-                this.isSettingsVisible = false;
+                if (websocket.responseCode === 200) {
+                    this.isActive = true;
+                    this.isSettingsVisible = false;
+                }
             }
 
             if (websocket.response.type === "editMoments") {

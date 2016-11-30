@@ -4,13 +4,19 @@ const dot = require('dot');
 require('dotenv').config();
 var StoreService = require('../services/StoreService');
 
+/**
+ * @class
+ */
 class RedditService {
 
     constructor() {
-        this.subreddit = process.env.SUBREDDIT;
-
+        // Cached template for quick reconstruction
         this.template = null;
 
+        // Subreddit to submit to
+        this.subreddit = process.env.SUBREDDIT;
+
+        // Register a reddit snoowrap instance
         this.r = new snoowrap({
             userAgent: process.env.REDDIT_USER_AGENT,
             clientId: process.env.REDDIT_CLIENT_ID,
@@ -19,43 +25,50 @@ class RedditService {
             password: process.env.REDDIT_PASSWORD,
         });
 
+        // Preserve whitespace
+        dot.templateSettings.strip = false;
+
         this.store = new StoreService();
     }
 
     /**
-     * Creates a reddit selfpost thread, in the subreddit specified in the constructor argument, with
-     * the title determined by the launch name. The thread is created with prefilled data based on the
-     * launch and livestream hashes from the Redis store.
+     * Creates a reddit selfpost thread, in the subreddit specified in the application's environment settings,
+     * with the thread title determined by the launch name. The thread is created with prefilled data.
+     *
+     * @returns {Promise} Fulfills when the request completes successfully. Rejects if an error is encountered.
      */
     createThread() {
-        // Fetch redis data
-        Promise.all([
-            this.store.getLaunch(),
-            this.store.getLivestreams()
-
-        ]).then(data => {
-            // Render the template
-            this.render({
-                launch: data[0],
-                livestreams: data[1],
-                launchStatuses: []
-            }).then(templateResult => {
-                // Submit to reddit
-                this.r.getSubreddit(this.subreddit).submitSelfpost(
-                    {
-                        title: `r/SpaceX ${this.launch.name} Official Launch Discussion & Updates Thread`,
-                        text: templateResult
-                    }
-                ).then(submission => {
-                    // Store thread id
-                    this.store.setRedditThreadId(submission.id);
-                });
-            }, err => console.log(err));
+        return new Promise((resolve, reject) => {
+            // Fetch redis data
+            Promise.all([
+                this.store.getLaunch(),
+                this.store.getLivestreams()
+            ])
+            .then(data => {
+                // Render the template and create the title.
+                return Promise.all([
+                    `r/SpaceX ${data[0].name} Official Launch Discussion & Updates Thread`,
+                    this.render({
+                        launch: data[0],
+                        livestreams: data[1],
+                        launchStatuses: []
+                    })
+                ]);
+            })
+            .then(this.submitToReddit.bind(this))
+            .then(submission => {
+                // Store thread id
+                return this.store.setRedditThreadId(submission.id);
+            })
+            .then(okay => resolve(okay))
+            .catch(err => reject(err));
         });
     }
 
     /**
      * Edits the current reddit selfpost with updated data.
+     *
+     * @returns {Promise} Resolves if the operation completes successfully, rejects if otherwise.
      */
     editThread() {
         // Fetch redis data
@@ -63,25 +76,49 @@ class RedditService {
             this.store.getLaunch(),
             this.store.getLivestreams(),
             this.store.getLaunchStatuses()
-        ]).then(data => {
-
-            Promise.all([
+        ])
+        .then(data => {
+            return Promise.all([
                 this.render({
                     launch: data[0],
                     livestreams: data[1],
                     launchStatuses: data[2]
                 }),
                 this.store.getRedditThreadId()
-            ]).then(templateResultAndSubmissionId => {
+            ]);
+        })
+        .then(this.editReddit.bind(this))
+        .then(okay => resolve(okay))
+        .catch(err => reject(err));
+    }
 
-                this.r.getSubmission(templateResultAndSubmissionId[1])
-                    .edit(templateResultAndSubmissionId[0]);
-            });
+    /**
+     * @internal
+     * @param data
+     * @returns {Promise}
+     */
+    submitToReddit(data) {
+        return this.r.getSubreddit(this.subreddit).submitSelfpost({
+            title: data[0],
+            text: data[1],
+            sendReplies: false
         });
     }
 
     /**
-     * @private
+     *
+     * @internal
+     * @param data
+     * @returns {Promise}
+     */
+    editReddit(data) {
+        return this.r.getSubmission(data[1]).edit(data[0]);
+    }
+
+    /**
+     * @internal
+     * @param values
+     * @returns {Promise}
      */
     render(values) {
         return new Promise((resolve, reject) => {
@@ -95,8 +132,7 @@ class RedditService {
                     this.template = data;
 
                     let templateFn = dot.template(this.template);
-                    let val = templateFn(values);
-                    return resolve(val);
+                    return resolve(templateFn(values));
                 });
             }
         });
