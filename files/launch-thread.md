@@ -26,7 +26,7 @@ To watch the launch live, pick your preferred streaming provider from the table 
 | Time | Countdown | Update |
 | --- |--- | --- |
 {{ for (var status in it.launchStatuses) { }}
-| {{#def.formattedUTCTime(status)}} | {{#def.relativeTime(status)}} | {{=status.text}} |
+| {{=def.formattedUTCTime(status)}} | {{=def.relativeTime(status)}} | {{=status.text}} |
 {{ } }}
 
 {{ for(var section in it.launch.descriptionSections) { }}

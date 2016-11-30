@@ -1,0 +1,32 @@
+[
+  {
+    "username": "echo",
+    "password": "JxebYgPNmXBN",
+    "permissions": ["moderator", "privileges"]
+  },
+  {
+    "username": "FoxhoundBat",
+    "password": "IhzRjErpM4Ty",
+    "permissions": ["moderator", "privileges"]
+  },
+  {
+    "username": "zlsa",
+    "password": "JxebYgPNmXBN",
+    "permissions": ["moderator", "privileges"]
+  },
+  {
+    "username": "Zucal",
+    "password": "JVMEAj3oDHXk",
+    "permissions": ["moderator", "privileges"]
+  },
+  {
+    "username": "TheVehicleDestroyer",
+    "password": "uVHkUkEW7bwR",
+    "permissions": ["moderator", "privileges"]
+  },
+  {
+    "username": "retiringonmars",
+    "password": "frP4walL5b6Z",
+    "permissions": ["moderator", "privileges"]
+  }
+]

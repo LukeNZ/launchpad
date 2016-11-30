@@ -240,7 +240,7 @@ class StoreService {
             this.redis.hlen('launchMomentTemplates', (err, length) => {
 
                 if (length === 0) {
-                    fs.readFile('./launchmomenttemplates.json', 'utf8', (err, data) => {
+                    fs.readFile('./files/launch-moment-templates.json', 'utf8', (err, data) => {
 
                         let map = mapHelper.objectToMap(JSON.parse(data));
                         resolve(map);

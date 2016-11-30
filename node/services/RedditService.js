@@ -91,7 +91,7 @@ class RedditService {
                 return resolve(templateFn(values));
 
             } else {
-                fs.readFile('./launch-thread.md', 'utf8', (err, data) => {
+                fs.readFile('./files/launch-thread.md', 'utf8', (err, data) => {
                     this.template = data;
 
                     let templateFn = dot.template(this.template);

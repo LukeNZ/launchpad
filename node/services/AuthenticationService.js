@@ -10,7 +10,7 @@ var User = require("../models/User");
 class AuthenticationService {
 
     constructor() {
-        this.filename = './logins.json';
+        this.filename = './files/logins.json';
         this.cache = [];
     }
 
