@@ -240,3 +240,16 @@ A status concerning the functionality of the application. This affects the displ
         responseCode: <int>,
         response: <BroadcastedMessage>
     }
+
+# msg:webcastStatus
+
+**Sent to**: All connections.  
+**Created by**: T Minus Ten.
+
+## Server to Client
+
+    {
+        id: <int>,
+        
+    }
+    

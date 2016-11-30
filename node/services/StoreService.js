@@ -114,13 +114,18 @@ class StoreService {
                     return resolve(reply);
                 });
 
-            } else if (typeof propertyOrProperties === "string" || Array.isArray(propertyOrProperties)) {
-                return this.redis.hmget("launch", "countdown", "isPaused", (err, reply) =>
+            } else if (Array.isArray(propertyOrProperties)) {
+                return this.redis.hmget("launch", propertyOrProperties, (err, reply) =>
                 {
                     resolve(reply.map(element => JSON.parse(element)));
                 });
 
+            } else if (typeof propertyOrProperties === "string") {
+                return this.redis.hget("launch", propertyOrProperties, (err, reply) => {
+                    resolve(reply);
+                });
             }
+
             return reject();
         });
     }
@@ -150,12 +155,12 @@ class StoreService {
         });
     }
 
-    getLivestream(livestreamKey) {
-
+    getLivestreams(propertyOrProperties) {
+        return Promise.resolve();
     }
 
-    setLivestream(livestreamKey, data) {
-
+    setLivestreams(data) {
+        return Promise.resolve();
     }
 
     /**
@@ -270,6 +275,35 @@ class StoreService {
             data.forEach((value, key) => map.set(key, JSON.stringify(value)));
 
             this.redis.hmset('launchMomentTemplates', map, (err, reply) => {
+                return resolve(reply);
+            });
+        });
+    }
+
+    /**
+     * Gets the reddit thread id.
+     *
+     * @returns {Promise} Resolves to the id of the created reddit thread.
+     */
+    getRedditThreadId() {
+        return new Promise((resolve, reject) => {
+            this.redis.get('redditThreadId', (err, reply) => {
+                return resolve(reply);
+            });
+        });
+    }
+
+
+    /**
+     * Sets the reddit thread id.
+     *
+     * @param data {string} The id of the reddit thread.
+     *
+     * @returns {Promise} Resolves to ok.
+     */
+    setRedditThreadId(data) {
+        return new Promise((resolve, reject) => {
+            this.redis.set('redditThreadId', data, (err, reply) => {
                 return resolve(reply);
             });
         });

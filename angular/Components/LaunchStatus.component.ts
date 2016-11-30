@@ -24,6 +24,9 @@ var jstz = require('jstimezonedetect');
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
+/**
+ * @class
+ */
 export class LaunchStatusComponent {
     @Input() public launchStatus: Status;
     @Output() public onEditRequest: EventEmitter<string> = new EventEmitter<string>();
@@ -41,7 +44,7 @@ export class LaunchStatusComponent {
      * only the first two components of the relative time difference are displayed, i.e. `T-6d 4h` or
      * `T-8s`.
      *
-     * @returns {string}
+     * @returns {string} A string showing the relative time to T-0.
      */
     public relativeTimeToLaunch() : string {
         if (this._relativeTimeToLaunch) {

@@ -1,12 +1,16 @@
 var SocketServer = require('socket.io');
 var AuthenticationService = require('./services/AuthenticationService');
 var Store = require('./services/StoreService');
+var Reddit = require('./services/RedditService');
+var LivestreamMonitor = require('./services/LivestreamService');
 
 module.exports = {
     createServer: function(server) {
         var io = new SocketServer(server);
         var authenticationService = new AuthenticationService();
         var store = new Store();
+        var reddit = new Reddit();
+        var livestreamMonitor = new LivestreamMonitor(io);
 
         /**
          * Handle incoming events.
@@ -117,15 +121,20 @@ module.exports = {
                     // was posted.
                     store.getLaunch(["countdown", "isPaused"]).then(launchDetails => {
 
-                        data.countdown = launchDetails.countdown;
-                        data.isPaused = launchDetails.isPaused;
+                        data.countdown = launchDetails[0]
+                        data.isPaused = launchDetails[1];
 
                         // Add the launch status.
                         store.addLaunchStatus(data).then(index => {
+
                             data.statusId = index;
+
                             // Emit the launch status
                             socket.broadcast.emit("msg:launchStatusCreate", data);
                             socket.emit("response:launchStatusCreate", {responseCode: 200, response: data });
+
+                            // Update the Reddit thread
+                            reddit.updateThread();
                         });
                     });
                 });
@@ -164,22 +173,26 @@ module.exports = {
                     data.timestamp = idAndTimestamp.timestamp;
 
                     // Handle multiple status types here
-                    let p1;
                     switch (data.type) {
                         case "enableApp":
 
                             data.data.beganAt = idAndTimestamp.timestamp;
                             data.data.isPaused = false;
 
-                            p1 = Promise.all([
+                            Promise.all([
                                 store.isAppActive(true),
                                 store.setLaunch(data.data)
-                            ]);
+                            ]).then(() => {
+                                socket.broadcast.emit("msg:appStatus", data);
+                                socket.emit("response:appStatus", {responseCode: 200, response: data });
+                                // Reddit thread creation
+                                reddit.createThread();
+                            });
                             break;
 
                         case "disableApp":
                             // TODO
-                            p1 = store.isAppActive(false);
+                            store.isAppActive(false);
                             break;
 
                         case "editLivestream":
@@ -188,19 +201,13 @@ module.exports = {
 
                         case "editLaunch":
                             // TODO
-                            p1 = store.setLaunch(message.data);
+                            store.setLaunch(message.data);
                             break;
 
                         case "editMoments":
                             // TODO
                             break;
                     }
-
-                    // Broadcast a response once the data has been added to the store.
-                    p1.then(() => {
-                        socket.broadcast.emit("msg:appStatus", data);
-                        socket.emit("response:appStatus", {responseCode: 200, response: data });
-                    });
                 });
 
             }, () => {

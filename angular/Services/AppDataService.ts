@@ -27,6 +27,9 @@ export class AppDataService {
     // Launch Moment Templates
     public launchMomentTemplates: [string, MomentTemplate][];
 
+    // Livestream Data
+    public livestreams;
+
     /**
      *
      * @param websocketService
