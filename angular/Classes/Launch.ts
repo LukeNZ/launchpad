@@ -1,6 +1,6 @@
 import {Resource} from "../Interfaces/Resource";
 import {DescriptionSection} from "../Interfaces/DescriptionSection";
-import {Webcast} from "../Interfaces/Webcast";
+import {Webcast} from "../Interfaces/Livestream";
 
 export class Launch {
     public name : string;

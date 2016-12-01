@@ -2,7 +2,7 @@ var SocketServer = require('socket.io');
 var AuthenticationService = require('../services/authenticationService');
 var Store = require('../services/StoreService');
 var Reddit = require('../services/RedditService');
-var LivestreamMonitor = require('../services/LivestreamService');
+var Livestream = require('../services/LivestreamService');
 
 class WebsocketController {
 
@@ -159,8 +159,8 @@ class WebsocketController {
 
                 // Handle multiple status types here
                 switch (data.type) {
+                    // When the application is enabled.
                     case "enableApp":
-
                         data.data.beganAt = idAndTimestamp.timestamp;
                         data.data.isPaused = false;
 
@@ -213,8 +213,8 @@ class WebsocketController {
         });
     }
 
-    webcastStatus(data, socket) {
-
+    webcastStatus(data) {
+        return this.io.emit('msg:webcastStatus', data);
     }
 
     /**

@@ -104,24 +104,17 @@ class StoreService {
     getLaunch(propertyOrProperties) {
         return new Promise((resolve, reject) => {
             if (propertyOrProperties == undefined) {
-                return this.redis.hgetall("launch", (err, reply) => {
-
-                    if (reply != null) {
-                        Object.keys(reply).forEach(key => reply[key] = JSON.parse(reply[key]));
-                    }
-
-                    return resolve(reply);
-                });
+                return this.redis.hgetall("launch", (err, reply) => resolve(this.transformOutput(reply)));
 
             } else if (Array.isArray(propertyOrProperties)) {
                 return this.redis.hmget("launch", propertyOrProperties, (err, reply) =>
                 {
-                    resolve(reply.map(element => JSON.parse(element)));
+                    resolve(this.transformOutput(reply));
                 });
 
             } else if (typeof propertyOrProperties === "string") {
                 return this.redis.hget("launch", propertyOrProperties, (err, reply) => {
-                    resolve(reply);
+                    resolve(this.transformOutput(reply))
                 });
             }
 
@@ -143,8 +136,7 @@ class StoreService {
     setLaunch(data) {
         return new Promise((resolve, reject) => {
 
-            let obj = {};
-            Object.keys(data).forEach(key => obj[key] = JSON.stringify(data[key]));
+            let obj = this.transformInput(data);
 
             if (data != null) {
                 this.redis.hmset("launch", obj, (err, reply) => resolve(reply));
@@ -154,8 +146,17 @@ class StoreService {
         });
     }
 
-    getLivestreams(propertyOrProperties) {
-        return Promise.resolve();
+    /**
+     *
+     *
+     * @returns {Promise}
+     */
+    getLivestreams() {
+        return new Promise((resolve, reject) => {
+            this.redis.hgetall("livestreams", (err, livestreams) => {
+            return resolve(this.transformOutput(livestreams));
+            });
+        });
     }
 
     setLivestreams(data) {
@@ -170,7 +171,7 @@ class StoreService {
      */
     getLaunchStatuses() {
         return new Promise((resolve, reject) => {
-            this.redis.lrange("launchStatuses", 0, -1, (err, statuses) => resolve(statuses.map(status => JSON.parse(status))));
+            this.redis.lrange("launchStatuses", 0, -1, (err, statuses) => resolve(this.transformOutput(statuses)));
         });
     }
 
@@ -185,7 +186,7 @@ class StoreService {
      */
     getLaunchStatus(index) {
         return new Promise((resolve, reject) => {
-            this.redis.lindex("launchStatuses", index, (err, launchStatus) => resolve(JSON.parse(launchStatus)));
+            this.redis.lindex("launchStatuses", index, (err, status) => resolve(this.transformOutput(status)));
         });
     }
 
@@ -216,9 +217,7 @@ class StoreService {
      */
     addLaunchStatus(data) {
         return new Promise((resolve, reject) => {
-            this.redis.rpushindex("launchStatuses", "statusId", JSON.stringify(data), (err, index) => {
-                resolve(index);
-            });
+            this.redis.rpushindex("launchStatuses", "statusId", JSON.stringify(data), (err, index) => resolve(index));
         });
     }
 
@@ -231,7 +230,7 @@ class StoreService {
      * them to the hash. If the hash does exist, or once the former operation has been complete, it
      * returns all the moment templates.
      *
-     * @returns {Promise<Map>} Resolves to a map of moment template objects.
+     * @returns {Promise} Resolves to an object of moment template objects.
      */
     getLaunchMomentTemplates() {
         return new Promise((resolve, reject) => {
@@ -241,18 +240,15 @@ class StoreService {
                 if (length === 0) {
                     fs.readFile('./files/launch-moment-templates.json', 'utf8', (err, data) => {
 
-                        let map = mapHelper.objectToMap(JSON.parse(data));
-                        resolve(map);
-                        this.setLaunchMomentTemplates(map)
+                        data = JSON.parse(data);
+                        resolve(data);
+                        this.setLaunchMomentTemplates(data);
                     });
 
                 } else {
                     this.redis.hgetall('launchMomentTemplates', (err, templates) => {
-                        Object.keys(templates).forEach(key => {
-                            templates[key] = JSON.parse(templates[key]);
-                        });
-
-                        return resolve(mapHelper.objectToMap(templates));
+                        let templates = this.transformOutput(templates);
+                        return resolve(templates);
                     });
                 }
             });
@@ -260,22 +256,17 @@ class StoreService {
     }
 
     /**
-     * For a given Map of launch moment templates in the data argument, serialize the JSON values,
+     * For a given JSON object of launch moment templates in the data argument, serialize the JSON values,
      * and store them in redis.
      *
-     * @param data {Map} A Map of one or more launch moment templates in JSON.
+     * @param data {Object} JSON of one or more launch templates.
      *
      * @returns {Promise} Resolves to OK.
      */
     setLaunchMomentTemplates(data) {
         return new Promise((resolve, reject) => {
-
-            let map = new Map();
-            data.forEach((value, key) => map.set(key, JSON.stringify(value)));
-
-            this.redis.hmset('launchMomentTemplates', map, (err, reply) => {
-                return resolve(reply);
-            });
+            let obj = this.transformInput(data);
+            this.redis.hmset('launchMomentTemplates', obj, (err, reply) => resolve(reply));
         });
     }
 
@@ -289,7 +280,6 @@ class StoreService {
             this.redis.get('redditThreadId', (err, reply) => resolve(reply));
         });
     }
-
 
     /**
      * Sets the reddit thread id.
@@ -347,6 +337,51 @@ class StoreService {
             this.redis.lrange("events", 0, -1, (err, data) => resolve(data));
         });
     }
+
+    /**
+     * Transforms the input data from JSON to a string..
+     * @internal
+     *
+     * @param data {JSON} Input data to transform.
+     *
+     * @returns {string} Stringified data.
+     */
+    transformInput(data) {
+        let transformedData;
+
+        if (Array.isArray(data)) {
+            transformedData = data.map(element => JSON.stringify(element));
+
+        } else if (typeof data === "object") {
+            Object.keys(data).forEach(key => transformedData[key] = JSON.stringify(data[key]));
+
+        } else {
+            transformedData = JSON.stringify(data);
+        }
+
+        return transformedData;
+    }
+
+    /**
+     * Transforms output data from a string into JSON by parsing it.
+     *
+     * @param data {string} Output data to transform.
+     *
+     * @returns {*} JSON output.
+     */
+    transformOutput(data) {
+        if (Array.isArray(data)) {
+            return data.map(element => JSON.parse(element));
+
+        } else if (typeof data === "object") {
+            Object.keys(data).forEach(key => data[key] = JSON.parse(data[key]));
+            return data;
+
+        } else {
+            return JSON.parse(data);
+        }
+    }
+
 }
 
 module.exports = StoreService;

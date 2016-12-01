@@ -17,13 +17,15 @@ class TMinusTenController {
 
         Promise.all([
             this.store.isAppActive(),
-            this.store.getLaunchMomentTemplates()
+            this.store.getLaunchMomentTemplates(),
+            this.store.getLivestreams()
         ]).then(data => {
             response.json({
                 isActive: data[0],
-                launchMomentTemplates: [...data[1]]
+                launchMomentTemplates: data[1],
+                livestreams: data[2]
             });
-        }, () => {
+        }).catch(() => {
             response.status(500).end();
         });
     }
@@ -51,9 +53,9 @@ class TMinusTenController {
     getLaunch(request, response) {
         this.store.getLaunch().then(launch => {
             response.json(launch);
-        }, () => {
+        }).catch(() => {
             response.status(500).end();
-        })
+        });
     }
 }
 

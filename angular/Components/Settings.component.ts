@@ -7,9 +7,10 @@ import {DescriptionSection} from "../Interfaces/DescriptionSection";
 import {Resource} from "../Interfaces/Resource";
 import {AppDataService} from "../Services/AppDataService";
 import {MomentTemplate} from "../Interfaces/MomentTemplate";
+import {AuthService} from "../Services/AuthService";
 
 enum SettingsSection {
-    Display, Notifications, General, Countdown, Introduction,
+    Display, Notifications, GeneralSetup, Countdown, Introduction,
     DescriptionSections, Resources, LaunchMomentTemplates, About
 }
 
@@ -19,20 +20,38 @@ enum SettingsSection {
         <i [hidden]="!appData.isActive" (click)="appData.isSettingsVisible = false">Close</i>
         <nav id="settings-nav">
             <ul>
-                <li (click)="currentSection = settingsSection.Display">Display</li>
-                <li (click)="currentSection = settingsSection.Notifications">Notifications</li>
-                <li (click)="currentSection = settingsSection.General">General</li>
-                <li (click)="currentSection = settingsSection.Countdown">Countdown</li>
-                <li (click)="currentSection = settingsSection.Introduction">Introduction</li>
-                <li (click)="currentSection = settingsSection.DescriptionSections">Description Sections</li>
-                <li (click)="currentSection = settingsSection.Resources">Resources</li>
-                <li (click)="currentSection = settingsSection.LaunchMomentTemplates">Launch Moment Templates</li>
-                <li (click)="currentSection = settingsSection.About">About the App</li>
+                <li (click)="setCurrentSection(settings.Display)">
+                    Display
+                </li>
+                <li (click)="setsetCurrentSection(settings.Notifications">
+                    Notifications
+                </li>
+                <li (click)="setCurrentSection(settings.GeneralSetup)" *ngIf="!appData.isActive && authData.isLoggedIn">
+                    <bulb [state]="hasSeen(settings.GeneralSetup)"></bulb> General Setup
+                </li>
+                <li (click)="setCurrentSection(settings.Countdown)" *ngIf="authData.isLoggedIn">
+                    <bulb [state]="hasSeen(settings.Countdown)"></bulb> Countdown
+                </li>
+                <li (click)="setCurrentSection(settings.Introduction)" *ngIf="authData.isLoggedIn">
+                    <bulb [state]="hasSeen(settings.Introduction)"></bulb> Introduction
+                </li>
+                <li (click)="setCurrentSection(settings.DescriptionSections)" *ngIf="authData.isLoggedIn">
+                    <bulb [state]="hasSeen(settings.DescriptionSections)"></bulb> Description Sections
+                </li>
+                <li (click)="setCurrentSection(settings.Resources)" *ngIf="authData.isLoggedIn">
+                    <bulb [state]="hasSeen(settings.Resources)"></bulb> Resources
+                </li>
+                <li (click)="setCurrentSection(settings.LaunchMomentTemplates)" *ngIf="authData.isLoggedIn">
+                    <bulb [state]="hasSeen(settings.LaunchMomentTemplates)"></bulb> Launch Moment Templates
+                </li>
+                <li (click)="setCurrentSection(settings.About)">
+                    About the App
+                </li>
             </ul>
         </nav>
         
         <!-- DISPLAY -->
-        <section [hidden]="currentSection != settingsSection.Display">
+        <section [hidden]="currentSection != settings.Display">
             <h1>Display</h1>
             
             <p>Increase text size</p>
@@ -44,26 +63,30 @@ enum SettingsSection {
         </section>
         
         <!-- NOTIFICATIONS -->
-        <section [hidden]="currentSection != settingsSection.Notifications">
+        <section [hidden]="currentSection != settings.Notifications">
             <h1>Notifications</h1>
             
             <p>Play ping when a new update arrives when tab inactive</p>
         </section>
         
-        <!-- GENERAL -->
-        <section [hidden]="currentSection != settingsSection.General">
-            <h1>General</h1>
-            <p>General launch details and application settings.</p>
+        <!-- GENERAL SETUP -->
+        <section [hidden]="currentSection != settings.GeneralSetup" *ngIf="!appData.isActive && authData.isLoggedIn">
+            <h1>General Setup</h1>
+            <p>General launch setup details and specific application settings.</p>
             
+            <h2>Launch Name</h2>
             <p *ngIf="launch.name">Will appear on Reddit as: <span class="title">r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread</span></p>
             <form>
                 <label for="mission">Mission Name</label>
                 <input type="text" name="mission" [(ngModel)]="launch.name" placeholder="Mission Name">
             </form>
+            
+            <h2>Livestreams</h2>
+            
         </section>
         
         <!-- COUNTDOWN -->
-        <section [hidden]="currentSection != settingsSection.Countdown">
+        <section [hidden]="currentSection != settings.Countdown" *ngIf="authData.isLoggedIn">
             <h1>Countdown</h1>
             
             <form>
@@ -74,7 +97,7 @@ enum SettingsSection {
         </section>
         
         <!-- INTRODUCTION -->
-        <section [hidden]="currentSection != settingsSection.Introduction">
+        <section [hidden]="currentSection != settings.Introduction" *ngIf="authData.isLoggedIn">
             <h1>Introduction</h1>
             <form>
                 <textarea name="introduction" [(ngModel)]="launch.introduction" placeholder="Introductory paragraph about the launch."></textarea>
@@ -83,7 +106,7 @@ enum SettingsSection {
         </section>
         
         <!-- DESCRIPTION SECTIONS -->
-        <section [hidden]="currentSection != settingsSection.DescriptionSections">
+        <section [hidden]="currentSection != settings.DescriptionSections" *ngIf="authData.isLoggedIn">
             <h1>Description Sections</h1>
             
             <button (click)="addDescriptionSection()">Add Section</button>
@@ -96,7 +119,7 @@ enum SettingsSection {
         </section>
         
         <!-- RESOURCES -->
-        <section [hidden]="currentSection != settingsSection.Resources">
+        <section [hidden]="currentSection != settings.Resources" *ngIf="authData.isLoggedIn">
             <h1>Resources</h1>
             
             <button (click)="addResource()">Add Resource</button>
@@ -110,7 +133,7 @@ enum SettingsSection {
         </section>
         
         <!-- LAUNCH MOMENT TEMPLATES -->
-        <section [hidden]="currentSection != settingsSection.LaunchMomentTemplates">
+        <section [hidden]="currentSection != settings.LaunchMomentTemplates" *ngIf="authData.isLoggedIn">
             <h1>Launch Moment Templates</h1>
             
             <ng-container *ngFor="let momentTemplate of launchMomentTemplates">
@@ -121,13 +144,13 @@ enum SettingsSection {
         </section>
         
         <!-- ABOUT -->
-        <section [hidden]="currentSection != settingsSection.About">
+        <section [hidden]="currentSection != settings.About">
             <h1>About the App</h1>
             <p>Written by Luke. View on GitHub here: https://github.com/LukeNZ/tminusten.</p>
         </section>
         
-        <!-- GLOBAL SETTINGS OPTIONS -->
-        <div>
+        <!-- LIFTOFF OPTIONS -->
+        <div *ngIf="!appData.isActive && authData.isLoggedIn">
             <button (click)="liftoff()" [disabled]="settingsState.isLiftingOff">
                 {{ settingsState.isLiftingOff ? "Lifting off..." : "Liftoff" }}
             </button>
@@ -141,8 +164,8 @@ enum SettingsSection {
  */
 export class SettingsComponent implements OnInit {
 
-    public settingsSection = SettingsSection;
-    public currentSection: SettingsSection = this.settingsSection.General;
+    public settings = SettingsSection;
+    public currentSection: SettingsSection;
 
     public launch: Launch;
     public launchMomentTemplates: [string, MomentTemplate][];
@@ -150,20 +173,23 @@ export class SettingsComponent implements OnInit {
     public settingsState = {
         isLiftingOff: false,
         isSaving: false,
-        tempCountdown: null
+        seenSections: []
     };
 
     constructor(
         public websocketService : WebsocketService,
         public notificationBannerService: NotificationBannerService,
         public launchData: LaunchDataService,
-        public appData: AppDataService
+        public appData: AppDataService,
+        public authData: AuthService
     ) {}
 
     /**
-     * On component initialization,
+     * On component initialization, set the current setting section page, and
      */
     public ngOnInit() : void {
+        this.setDefaultSettingPane();
+
         this.launchData.launchObservable().subscribe(data => {
             this.launch = Object.assign({}, data);
         });
@@ -179,9 +205,35 @@ export class SettingsComponent implements OnInit {
                 } else {
                     this.notificationBannerService.notify("Looks like something went wrong.");
                 }
-
             }
         });
+    }
+
+    /**
+     * Called by ngOnInit, sets the default setting section based on whether you're logged into
+     * the app or not, and if the application is running.
+     */
+    private setDefaultSettingPane() {
+        if (this.authData.isLoggedIn && !this.appData.isActive) {
+            this.currentSection = this.settings.GeneralSetup;
+        } else {
+            this.currentSection = this.settings.Display;
+        }
+    }
+
+    public setCurrentSection(section: SettingsSection) {
+        this.currentSection = section;
+        this.settingsState.seenSections.push(section);
+    }
+
+    /**
+     *
+     * @param section
+     * 
+     * @returns {boolean}
+     */
+    public hasSeen(section) {
+        return this.settingsState.seenSections.indexOf(section) !== -1;
     }
 
     /**
