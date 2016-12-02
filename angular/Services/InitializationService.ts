@@ -3,7 +3,7 @@ import {Observable} from "rxjs/Observable";
 import {Http} from "@angular/http";
 import {AbstractService} from "angular-toolshed/angular-toolshed";
 import {Status} from "../Interfaces/Status";
-import {Launch} from "../Classes/Launch";
+import {Launch} from "../Interfaces/Launch";
 
 @Injectable()
 /**
@@ -48,7 +48,9 @@ export class InitializationService extends AbstractService {
         return this.http.get('/api/launch', this.headers())
             .map(this.extractData)
             .map(data => {
-                return Launch.create(data);
+                data.beganAt = typeof data.beganAt === 'string' ? new Date(data.beganAt) : data.beganAt;
+                data.countdown = typeof data.countdown === 'string' ? new Date(data.countdown) : data.countdown;
+                return data;
             });
     }
 }

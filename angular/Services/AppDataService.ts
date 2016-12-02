@@ -1,6 +1,7 @@
 import {Injectable} from "@angular/core";
 import {WebsocketService} from "./WebsocketService";
 import {MomentTemplate} from "../Interfaces/MomentTemplate";
+import {Livestream} from "../Interfaces/Livestream";
 
 @Injectable()
 /**
@@ -25,10 +26,10 @@ export class AppDataService {
     public isLoading: boolean = true;
 
     // Launch Moment Templates
-    public launchMomentTemplates: [string, MomentTemplate][];
+    public launchMomentTemplates: MomentTemplate[];
 
     // Livestream Data
-    public livestreams;
+    public livestreams: Livestream[];
 
     /**
      *

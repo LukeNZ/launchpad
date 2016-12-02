@@ -1,0 +1,23 @@
+[
+  {
+    "name": "SpaceX Hosted",
+    "url": null,
+    "status": null,
+    "isAvailable": true,
+    "viewers": null
+  },
+  {
+    "name": "SpaceX Technical",
+    "url": null,
+    "status": null,
+    "isAvailable": true,
+    "viewers": null
+  },
+  {
+    "name": "NASA",
+    "url": null,
+    "status": null,
+    "isAvailable": true,
+    "viewers": null
+  }
+]

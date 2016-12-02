@@ -175,8 +175,8 @@ class WebsocketController {
                             socket.broadcast.emit("msg:appStatus", data);
                             socket.emit("response:appStatus", {responseCode: 200, response: data });
 
-                        }).catch(() => {
-                            socket.emit("response:appStatus", {responseCode: 500, response: data });
+                        }).catch(err => {
+                            socket.emit("response:appStatus", {responseCode: 500, response: err });
                         });
                         break;
 

@@ -1,13 +1,10 @@
-var Redis = require("ioredis");
-var fs = require('fs');
-var mapHelper = require("../helpers/mapHelper");
+const Redis = require("ioredis");
+const fs = require('fs');
 
 /**
  * Service which wraps a redis redis, allowing the calling of application-specific storage functions.
  *
  * TODO:
- * Retrieve livestream status/information
- * Update livestream status/information
  * Check user/status in collection of current edit requests (hash of statusIds:username)
  * Add user/status to collection of current edit requests (hash of statusIds:username)
  * Remove user/status to collection of current edit requests (hash of statusIds:username)
@@ -153,14 +150,37 @@ class StoreService {
      */
     getLivestreams() {
         return new Promise((resolve, reject) => {
-            this.redis.hgetall("livestreams", (err, livestreams) => {
-            return resolve(this.transformOutput(livestreams));
+
+            this.redis.hlen('livestreams', (err, length) => {
+
+                if (length === 0) {
+                    fs.readFile('./files/livestreams.json', 'utf8', (err, data) => {
+
+                        data = JSON.parse(data);
+                        this.setLivestreams(data);
+                        resolve(data);
+                    });
+
+                } else {
+                    this.redis.hgetall('livestreams', (err, livestreams) => {
+                        return resolve(this.objectToArray(this.transformOutput(livestreams)));
+                    });
+                }
             });
         });
     }
 
+    /**
+     *
+     * @param data
+     *
+     * @returns {Promise} Resolves to ok.
+     */
     setLivestreams(data) {
-        return Promise.resolve();
+        return new Promise((resolve, reject) => {
+            let obj = this.transformInput(this.arrayToObject(data, "name"));
+            this.redis.hmset('livestreams', obj, (err, reply) => resolve(reply));
+        });
     }
 
     /**
@@ -241,14 +261,13 @@ class StoreService {
                     fs.readFile('./files/launch-moment-templates.json', 'utf8', (err, data) => {
 
                         data = JSON.parse(data);
-                        resolve(data);
                         this.setLaunchMomentTemplates(data);
+                        resolve(data);
                     });
 
                 } else {
                     this.redis.hgetall('launchMomentTemplates', (err, templates) => {
-                        let templates = this.transformOutput(templates);
-                        return resolve(templates);
+                        return resolve(this.objectToArray(this.transformOutput(templates)));
                     });
                 }
             });
@@ -256,16 +275,16 @@ class StoreService {
     }
 
     /**
-     * For a given JSON object of launch moment templates in the data argument, serialize the JSON values,
+     * For a given array of launch moment templates in the data argument, serialize the JSON values,
      * and store them in redis.
      *
-     * @param data {Object} JSON of one or more launch templates.
+     * @param data {[]} Array of  launch templates.
      *
      * @returns {Promise} Resolves to OK.
      */
     setLaunchMomentTemplates(data) {
         return new Promise((resolve, reject) => {
-            let obj = this.transformInput(data);
+            let obj = this.transformInput(this.arrayToObject(data, "title"));
             this.redis.hmset('launchMomentTemplates', obj, (err, reply) => resolve(reply));
         });
     }
@@ -342,12 +361,12 @@ class StoreService {
      * Transforms the input data from JSON to a string..
      * @internal
      *
-     * @param data {JSON} Input data to transform.
+     * @param data {Object} Input data to transform.
      *
      * @returns {string} Stringified data.
      */
     transformInput(data) {
-        let transformedData;
+        let transformedData = {};
 
         if (Array.isArray(data)) {
             transformedData = data.map(element => JSON.stringify(element));
@@ -380,6 +399,31 @@ class StoreService {
         } else {
             return JSON.parse(data);
         }
+    }
+
+    /**
+     *
+     * @param array
+     * @param key
+     *
+     * @returns {Object}
+     */
+    arrayToObject(array, key) {
+        let obj = {};
+        array.forEach(el => {
+            obj[el[key].replace(/\s+/g, '')] = el;
+        });
+        return obj;
+    }
+
+    /**
+     *
+     * @param object
+     *
+     * @returns {Array}
+     */
+    objectToArray(object) {
+        return Object.keys(object).map(key => object[key]);
     }
 
 }

@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Launch} from "../Classes/Launch";
+import {Launch} from "../Interfaces/Launch";
 import {Status} from "../Interfaces/Status";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
@@ -37,14 +37,14 @@ export class LaunchDataService {
 
         this.websocketService.appStatusesStream().subscribe(websocket => {
             if (websocket.response.type === "enableApp") {
-                this.setLaunch(Launch.create(websocket.data));
+                this.setLaunch(websocket.data);
             }
         });
 
         this.websocketService.appStatusResponsesStream().subscribe(websocket => {
             console.log(websocket);
             if (websocket.response.type === "enableApp") {
-                this.setLaunch(Launch.create(websocket.response.data));
+                this.setLaunch(websocket.response.data);
             }
         });
     }

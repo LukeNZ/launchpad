@@ -73,6 +73,7 @@ export class HomeComponent implements OnInit {
 
             this.appData.isActive = data[2].isActive;
             this.appData.launchMomentTemplates = data[2].launchMomentTemplates;
+            this.appData.livestreams = data[2].livestreams;
 
             if (!this.appData.isActive) { this.appData.isSettingsVisible = true; }
             this.appData.isLoading = false;

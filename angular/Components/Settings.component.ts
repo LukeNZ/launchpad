@@ -1,13 +1,16 @@
 import {Component, OnInit} from "@angular/core";
+import {FormGroup, Form, FormBuilder} from "@angular/forms";
 import {WebsocketService} from "../Services/WebsocketService";
 import {NotificationBannerService} from "../Services/NotificationBannerService";
 import {LaunchDataService} from "../Services/LaunchDataService";
-import {Launch} from "../Classes/Launch";
+import {Launch} from "../Interfaces/Launch";
 import {DescriptionSection} from "../Interfaces/DescriptionSection";
 import {Resource} from "../Interfaces/Resource";
 import {AppDataService} from "../Services/AppDataService";
 import {MomentTemplate} from "../Interfaces/MomentTemplate";
 import {AuthService} from "../Services/AuthService";
+import {Livestream} from "../Interfaces/Livestream";
+
 
 enum SettingsSection {
     Display, Notifications, GeneralSetup, Countdown, Introduction,
@@ -23,7 +26,7 @@ enum SettingsSection {
                 <li (click)="setCurrentSection(settings.Display)">
                     Display
                 </li>
-                <li (click)="setsetCurrentSection(settings.Notifications">
+                <li (click)="setCurrentSection(settings.Notifications)">
                     Notifications
                 </li>
                 <li (click)="setCurrentSection(settings.GeneralSetup)" *ngIf="!appData.isActive && authData.isLoggedIn">
@@ -42,7 +45,7 @@ enum SettingsSection {
                     <bulb [state]="hasSeen(settings.Resources)"></bulb> Resources
                 </li>
                 <li (click)="setCurrentSection(settings.LaunchMomentTemplates)" *ngIf="authData.isLoggedIn">
-                    <bulb [state]="hasSeen(settings.LaunchMomentTemplates)"></bulb> Launch Moment Templates
+                    Launch Moment Templates
                 </li>
                 <li (click)="setCurrentSection(settings.About)">
                     About the App
@@ -51,107 +54,30 @@ enum SettingsSection {
         </nav>
         
         <!-- DISPLAY -->
-        <section [hidden]="currentSection != settings.Display">
-            <h1>Display</h1>
-            
-            <p>Increase text size</p>
-            <p>Density settings</p>
-            <p>Disable Acronyms</p>
-            <p>Nightmode</p>
-            
-            <div>Example of launch status here</div>
-        </section>
+        <tmt-display-settings [hidden]="currentSection != settings.Display"></tmt-display-settings>
         
         <!-- NOTIFICATIONS -->
-        <section [hidden]="currentSection != settings.Notifications">
-            <h1>Notifications</h1>
-            
-            <p>Play ping when a new update arrives when tab inactive</p>
-        </section>
+        <tmt-notification-settings [hidden]="currentSection != settings.Notifications"></tmt-notification-settings>
         
         <!-- GENERAL SETUP -->
-        <section [hidden]="currentSection != settings.GeneralSetup" *ngIf="!appData.isActive && authData.isLoggedIn">
-            <h1>General Setup</h1>
-            <p>General launch setup details and specific application settings.</p>
-            
-            <h2>Launch Name</h2>
-            <p *ngIf="launch.name">Will appear on Reddit as: <span class="title">r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread</span></p>
-            <form>
-                <label for="mission">Mission Name</label>
-                <input type="text" name="mission" [(ngModel)]="launch.name" placeholder="Mission Name">
-            </form>
-            
-            <h2>Livestreams</h2>
-            
-        </section>
+        <tmt-general-setup-settings [hidden]="currentSection != settings.GeneralSetup" 
+        [launch]="launch" [livestreams]="livestreams"
+        *ngIf="!appData.isActive && authData.isLoggedIn"></tmt-general-setup-settings>
         
         <!-- COUNTDOWN -->
-        <section [hidden]="currentSection != settings.Countdown" *ngIf="authData.isLoggedIn">
-            <h1>Countdown</h1>
-            
-            <form>
-                <tmt-datetimeentry [id]="'countdown'" [date]="launch.countdown" (dateChange)="onCountdownChanged($event)"></tmt-datetimeentry>
-            </form>
-            
-            <p *ngIf="launchData.launch?.countdown != launch.countdown">New countdown of {{ launch.countdown.toISOString() }}</p>
-        </section>
-        
-        <!-- INTRODUCTION -->
-        <section [hidden]="currentSection != settings.Introduction" *ngIf="authData.isLoggedIn">
-            <h1>Introduction</h1>
-            <form>
-                <textarea name="introduction" [(ngModel)]="launch.introduction" placeholder="Introductory paragraph about the launch."></textarea>
-                <span>{{ launch.introduction?.length }} + characters.</span>
-            </form>
-        </section>
-        
-        <!-- DESCRIPTION SECTIONS -->
-        <section [hidden]="currentSection != settings.DescriptionSections" *ngIf="authData.isLoggedIn">
-            <h1>Description Sections</h1>
-            
-            <button (click)="addDescriptionSection()">Add Section</button>
-            
-            <ng-container *ngFor="let section of launch.descriptionSections">
-                <input type="text" placeholder="Section title" [(ngModel)]="section.title" />
-                <textarea placeholder="Section description" [(ngModel)]="section.description" ></textarea>
-                <button (click)="removeDescriptionSection(section)">Remove</button>
-            </ng-container>
-        </section>
-        
-        <!-- RESOURCES -->
-        <section [hidden]="currentSection != settings.Resources" *ngIf="authData.isLoggedIn">
-            <h1>Resources</h1>
-            
-            <button (click)="addResource()">Add Resource</button>
-            
-            <ng-container *ngFor="let resource of launch.resources">
-                <input type="text" placeholder="Resource Title" [(ngModel)]="resource.title" />
-                <input type="text" placeholder="Resource URL" [(ngModel)]="resource.url" />
-                <input type="text" placeholder="Resource Note" [(ngModel)]="resource.note" />          
-                <button (click)="removeResource(resource)">Remove</button>
-            </ng-container>
-        </section>
-        
-        <!-- LAUNCH MOMENT TEMPLATES -->
-        <section [hidden]="currentSection != settings.LaunchMomentTemplates" *ngIf="authData.isLoggedIn">
-            <h1>Launch Moment Templates</h1>
-            
-            <ng-container *ngFor="let momentTemplate of launchMomentTemplates">
-                <p>{{ momentTemplate[1].title }}</p>
-                <textarea>{{ momentTemplate[1].text }}</textarea>
-            </ng-container>
-            <button>Save</button>
-        </section>
-        
+        <tmt-countdown-settings [hidden]="currentSection != settings.Countdown" 
+        [launch]="launch"
+        *ngIf="authData.isLoggedIn"></tmt-countdown-settings>
+    
         <!-- ABOUT -->
-        <section [hidden]="currentSection != settings.About">
-            <h1>About the App</h1>
-            <p>Written by Luke. View on GitHub here: https://github.com/LukeNZ/tminusten.</p>
-        </section>
-        
+        <tmt-about-settings [hidden]="currentSection != settings.About"></tmt-about-settings>
+
         <!-- LIFTOFF OPTIONS -->
         <div *ngIf="!appData.isActive && authData.isLoggedIn">
-            <button (click)="liftoff()" [disabled]="settingsState.isLiftingOff">
+        
+            <form id="liftoffForm"></form>
+        
+            <button form="liftoffForm" (click)="liftoff()" [disabled]="settingsState.isLiftingOff">
                 {{ settingsState.isLiftingOff ? "Lifting off..." : "Liftoff" }}
             </button>
         </div>
@@ -168,7 +94,8 @@ export class SettingsComponent implements OnInit {
     public currentSection: SettingsSection;
 
     public launch: Launch;
-    public launchMomentTemplates: [string, MomentTemplate][];
+    public livestreams : Livestream[] = [];
+    public launchMomentTemplates: MomentTemplate[];
 
     public settingsState = {
         isLiftingOff: false,
@@ -195,6 +122,7 @@ export class SettingsComponent implements OnInit {
         });
 
         this.launchMomentTemplates = Array.from(this.appData.launchMomentTemplates);
+        this.livestreams = Array.from(this.appData.livestreams);
 
         this.websocketService.appStatusResponsesStream().subscribe(response => {
             if (response.response.type === "enableApp") {
@@ -221,18 +149,24 @@ export class SettingsComponent implements OnInit {
         }
     }
 
+    /**
+     * Sets the current settings section pane of the Settings component.
+     *
+     * @param section {SettingsSection} the section to set as current.
+     */
     public setCurrentSection(section: SettingsSection) {
         this.currentSection = section;
         this.settingsState.seenSections.push(section);
     }
 
     /**
+     * Checks whether the provided section has been viewed at least once.
      *
-     * @param section
+     * @param section {SettingsSection} The section to query.
      * 
-     * @returns {boolean}
+     * @returns {boolean} Whether the section has been seen.
      */
-    public hasSeen(section) {
+    public hasSeen(section: SettingsSection) {
         return this.settingsState.seenSections.indexOf(section) !== -1;
     }
 
@@ -241,27 +175,12 @@ export class SettingsComponent implements OnInit {
      * menu. Emits an `appStatus` to the server of type "enableApp".
      */
     public liftoff(): void {
-        let data = {
-            name: this.launch.name,
-            countdown: this.launch.countdown.toISOString(),
-            introduction: this.launch.introduction,
-            resources: this.launch.resources,
-            descriptionSections: this.launch.descriptionSections
-        };
+
+        console.log(this.launch);
+        console.log(this.livestreams);
 
         this.settingsState.isLiftingOff = true;
-
-        this.websocketService.emitAppStatus("enableApp", data);
-    }
-
-    /**
-     * Called when the countdown date within the countdowns tab is adjusted. Sets the `countdown` field on the
-     * local `launch` property.
-     *
-     * @param newCountdown {Date} The new temporary countdown value.
-     */
-    public onCountdownChanged(newCountdown: Date) : void {
-        this.launch.countdown = newCountdown;
+        this.websocketService.emitAppStatus("enableApp", this.launch);
     }
 
     /**

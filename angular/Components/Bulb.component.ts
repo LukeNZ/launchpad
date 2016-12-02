@@ -11,15 +11,15 @@ export class BulbComponent implements OnInit {
     constructor(public elementRef: ElementRef, public appData: AppDataService) {}
 
     public ngOnInit() : void {
-        this.elementRef.nativeElement.addClass('bulb-enabled');
+        this.elementRef.nativeElement.classList.add('bulb-enabled');
     }
 
-    @Input
+    @Input()
     set state(value: boolean) {
         this._state = value;
 
         if (this._state) {
-            this.elementRef.nativeElement.removeClass('bulb-enabled');
+            this.elementRef.nativeElement.classList.remove('bulb-enabled');
         }
     }
 

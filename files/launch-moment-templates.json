@@ -1,5 +1,5 @@
-{
-  "Upcoming": {
+[
+  {
     "title": "Upcoming",
     "start": null,
     "end": 0,
@@ -7,7 +7,7 @@
     "isEnabled": true,
     "isSubmitted": false
   },
-  "PropellantLoading": {
+  {
     "title": "Propellant Loading",
     "start": -3600,
     "end": 0,
@@ -15,7 +15,7 @@
     "isEnabled": true,
     "isSubmitted": false
   },
-  "Startup": {
+  {
     "title": "Startup",
     "start": -120,
     "end": 0,
@@ -23,7 +23,7 @@
     "isEnabled": true,
     "isSubmitted": false
   },
-  "Liftoff": {
+  {
     "title": "Liftoff",
     "start": "-30",
     "end": "30",
@@ -31,4 +31,4 @@
     "isEnabled": true,
     "isSubmitted": false
   }
-}
+]

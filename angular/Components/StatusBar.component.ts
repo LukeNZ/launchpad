@@ -2,7 +2,6 @@ import {Component, OnInit} from "@angular/core";
 import {WebsocketService} from "../Services/WebsocketService";
 import {AuthService} from "../Services/AuthService";
 import {NotificationBannerService} from "../Services/NotificationBannerService";
-import {Launch} from "../Classes/Launch";
 import {LaunchDataService} from "../Services/LaunchDataService";
 
 @Component({
