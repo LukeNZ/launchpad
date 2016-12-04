@@ -1,5 +1,4 @@
 import {Component, OnInit} from "@angular/core";
-import {FormGroup, Form, FormBuilder} from "@angular/forms";
 import {WebsocketService} from "../Services/WebsocketService";
 import {NotificationBannerService} from "../Services/NotificationBannerService";
 import {LaunchDataService} from "../Services/LaunchDataService";
@@ -66,8 +65,23 @@ enum SettingsSection {
         
         <!-- COUNTDOWN -->
         <tmt-countdown-settings [hidden]="currentSection != settings.Countdown" 
-        [launch]="launch"
-        *ngIf="authData.isLoggedIn"></tmt-countdown-settings>
+        [launch]="launch" *ngIf="authData.isLoggedIn"></tmt-countdown-settings>
+        
+                <!-- INTRODUCTION -->
+        <tmt-introduction-settings [hidden]="currentSection != settings.Introduction" 
+        [launch]="launch" *ngIf="authData.isLoggedIn"></tmt-introduction-settings>
+        
+        <!-- DESCRIPTION SECTIONS -->
+        <tmt-description-sections-settings [hidden]="currentSection != settings.DescriptionSections" 
+        [launch]="launch" *ngIf="authData.isLoggedIn"></tmt-description-sections-settings>
+        
+        <!-- RESOURCES -->
+        <tmt-resources-settings [hidden]="currentSection != settings.Resources" 
+        [launch]="launch" *ngIf="authData.isLoggedIn"></tmt-resources-settings>
+        
+        <!-- LAUNCH MOMENT TEMPLATES -->
+        <tmt-launch-moment-templates-settings [hidden]="currentSection != settings.LaunchMomentTemplates" 
+        [launchMomentTemplates]="launchMomentTemplates" *ngIf="authData.isLoggedIn"></tmt-launch-moment-templates-settings>
     
         <!-- ABOUT -->
         <tmt-about-settings [hidden]="currentSection != settings.About"></tmt-about-settings>
@@ -115,7 +129,7 @@ export class SettingsComponent implements OnInit {
      * On component initialization, set the current setting section page, and
      */
     public ngOnInit() : void {
-        this.setDefaultSettingPane();
+        this.registerDefaultSettingsSection();
 
         this.launchData.launchObservable().subscribe(data => {
             this.launch = Object.assign({}, data);
@@ -141,7 +155,7 @@ export class SettingsComponent implements OnInit {
      * Called by ngOnInit, sets the default setting section based on whether you're logged into
      * the app or not, and if the application is running.
      */
-    private setDefaultSettingPane() {
+    private registerDefaultSettingsSection() {
         if (this.authData.isLoggedIn && !this.appData.isActive) {
             this.currentSection = this.settings.GeneralSetup;
         } else {

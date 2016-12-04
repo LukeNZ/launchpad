@@ -241,7 +241,7 @@ A status concerning the functionality of the application. This affects the displ
         response: <BroadcastedMessage>
     }
 
-# msg:webcastStatus
+# msg:livestreamStatus
 
 **Sent to**: All connections.  
 **Created by**: T Minus Ten.

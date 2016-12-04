@@ -4,6 +4,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {HttpModule} from "@angular/http";
 import {FormsModule} from "@angular/forms";
 import {routing} from "./app.routes";
+
 // Components
 import {TMinusTenComponent} from "./Components/TMinusTen.component";
 import {HomeComponent} from "./Components/Home.component";
@@ -13,6 +14,7 @@ import {StatusBarComponent} from "./Components/StatusBar.component";
 import {LivestreamComponent} from "./Components/Livestream.component";
 import {LoginComponent} from "./Components/Login.component";
 import {NotificationBannerComponent} from "./Components/NotificationBanner.component";
+import {SanitizePipe} from "angular-toolshed/angular-toolshed";
 
 // Services
 import {InitializationService} from "./Services/InitializationService";
@@ -21,8 +23,13 @@ import {AuthService} from "./Services/AuthService";
 import {LaunchDataService} from "./Services/LaunchDataService";
 import {NotificationBannerService} from "./Services/NotificationBannerService";
 import {AppDataService} from "./Services/AppDataService";
+
 import {SettingsModule} from "./settings.module";
 import {TabsModule} from "./tabs.module";
+import {DraggableDirective} from "./Directives/Draggable.directive";
+import {DroppableDirective} from "./Directives/Droppable.directive";
+import {NestedLivestreamPlayerComponent} from "./Components/NestedLivestreamPlayer.component";
+import {MovableDirective} from "./Directives/Movable.directive";
 
 @NgModule({
     // Modules
@@ -52,7 +59,10 @@ import {TabsModule} from "./tabs.module";
         CountdownComponent,
         StatusBarComponent,
         LivestreamComponent,
-        NotificationBannerComponent
+        NotificationBannerComponent,
+        SanitizePipe,
+        NestedLivestreamPlayerComponent,
+        MovableDirective
     ],
     // Starting components
     bootstrap: [

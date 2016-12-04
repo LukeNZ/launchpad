@@ -91,7 +91,7 @@ class LivestreamService {
                 .map(livestream => {
                     return {
                         name: this.getLivestreamName(livestream),
-                        url: `https://youtube.com/embed/${livestream.id}`,
+                        url: `https://youtube.com/embed/${livestream.id}?modestbranding=1&showinfo=0`,
                         viewers: livestream.liveStreamingDetails.concurrentViewers,
                         isAvailable: oldLivestreamData[this.getLivestreamName(livestream)].isAvailable,
                         status: livestream.snippet.liveBroadcastContent

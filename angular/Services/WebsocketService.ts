@@ -3,6 +3,7 @@ import {Observable} from "rxjs/Observable";
 import {AuthService} from "./AuthService";
 import {Status} from "../Interfaces/Status";
 import {WebsocketResponse} from "../Interfaces/WebsocketResponse";
+import {Livestream} from "../Interfaces/Livestream";
 var io = require('socket.io-client');
 
 @Injectable()
@@ -236,7 +237,7 @@ export class WebsocketService {
     }
 
     /**
-     * An observably stream of app status responses used to confirm when an appStatus message
+     * An observable stream of app status responses used to confirm when an appStatus message
      * sent by the client is acknowledged by the server.
      *
      * @returns {Observable<WebsocketResponse>}
@@ -246,5 +247,18 @@ export class WebsocketService {
             this.socketClient.on('response:appStatus', data => observer.next(data));
             return () => this.socketClient.disconnect();
         });
+    }
+
+    /**
+     * An observable stream of livestream statuses indicating changes to the current settings and properties
+     * of the livestreams for the app.
+     *
+     * @returns {Observable<Livestream[]>}
+     */
+    public livestreamStatusesStream() : Observable<Livestream[]> {
+        return new Observable(observer => {
+            this.socketClient.on('msg:livestreamStatus', data => observer.next(data));
+            return () => this.socketClient.disconnect();
+        })
     }
 }

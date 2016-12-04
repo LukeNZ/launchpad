@@ -42,7 +42,6 @@ export class LaunchDataService {
         });
 
         this.websocketService.appStatusResponsesStream().subscribe(websocket => {
-            console.log(websocket);
             if (websocket.response.type === "enableApp") {
                 this.setLaunch(websocket.response.data);
             }

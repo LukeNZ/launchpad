@@ -9,14 +9,14 @@ To watch the launch live, pick your preferred streaming provider from the table 
 {{? it.livestreams }}
 | [r/SpaceX Live (Webcasts + Live Updates)](https://live.rspacex.com) |
 | --- |
-{{? '' in it.spacexHostedIsAvailable}}
-| **[SpaceX Hosted Webcast (YouTube)](https://youtube.com/watch?v={{=it.spacexHostedVideoId}})** |
+{{? it.livestreams.filter(l => l.name === "SpaceX Hosted" && l.isAvailable) }}
+| **[SpaceX Hosted Webcast (YouTube)](https://youtube.com/watch?v=)** |
 {{?}}
-{{? it.spacexTechnicalIsAvailable}}
-| **[SpaceX Technical Webcast (YouTube)](https://youtube.com/watch?v={{=it.spacexTechnicalVideoId}})** |
+{{? it.livestreams.filter(l => l.name === "SpaceX Technical" && l.isAvailable) }}
+| **[SpaceX Technical Webcast (YouTube)](https://youtube.com/watch?v=)** |
 {{?}}
-{{? it.nasaIsAvailable}}
-| **[NASA TV (YouTube)](https://youtube.com/watch?v={{=it.nasaVideoId}})** |
+{{? it.livestreams.filter(l => l.name === "NASA" && l.isAvailable) }}
+| **[NASA TV (YouTube)](https://youtube.com/watch?v=)** |
 | **[NASA TV (Ustream)](http://www.ustream.tv/nasahdtv)** |
 {{?}}
 {{?}}
@@ -48,7 +48,6 @@ To watch the launch live, pick your preferred streaming provider from the table 
 
 * First of all, launch threads are party threads! We understand everyone is excited, so we relax the rules in these venues - low effort comments are allowed. The most important thing is that everyone enjoy themselves!
 * All other threads continue to be subject to our strict rules. Report any rule-breaking comments that you see.
-* Real-time chat on our official Internet Relay Chat (IRC) [#spacex at irc.esper.net](https://kiwiirc.com/client/irc.esper.net/?nick=SpaceX_guest%7C?#SpaceX). Please read the IRC rules [here](https://www.irccloud.com/pastebin/U4CMHwUk) before participating.
 * Please post small launch updates, discussions, and questions here, rather than as a separate post. Thanks!
 
 ### Previous r/SpaceX Live Events

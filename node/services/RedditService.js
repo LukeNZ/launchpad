@@ -55,7 +55,7 @@ class RedditService {
                     })
                 ]);
             })
-            .then(this.submitToReddit.bind(this))
+            .then(data => this.submitToReddit(data))
             .then(submission => {
                 // Store thread id
                 return this.store.setRedditThreadId(submission.id);
@@ -72,7 +72,7 @@ class RedditService {
      */
     editThread() {
         // Fetch redis data
-        Promise.all([
+        return Promise.all([
             this.store.getLaunch(),
             this.store.getLivestreams(),
             this.store.getLaunchStatuses()
@@ -87,7 +87,7 @@ class RedditService {
                 this.store.getRedditThreadId()
             ]);
         })
-        .then(this.editReddit.bind(this))
+        .then(data => this.editReddit(data))
         .then(okay => resolve(okay))
         .catch(err => reject(err));
     }
