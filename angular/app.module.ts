@@ -11,10 +11,8 @@ import {HomeComponent} from "./Components/Home.component";
 import {HeaderComponent} from "./Components/Header.component";
 import {CountdownComponent} from "./Components/Countdown.component";
 import {StatusBarComponent} from "./Components/StatusBar.component";
-import {LivestreamComponent} from "./Components/Livestream.component";
 import {LoginComponent} from "./Components/Login.component";
 import {NotificationBannerComponent} from "./Components/NotificationBanner.component";
-import {SanitizePipe} from "angular-toolshed/angular-toolshed";
 
 // Services
 import {InitializationService} from "./Services/InitializationService";
@@ -24,12 +22,11 @@ import {LaunchDataService} from "./Services/LaunchDataService";
 import {NotificationBannerService} from "./Services/NotificationBannerService";
 import {AppDataService} from "./Services/AppDataService";
 
+// Other modules
 import {SettingsModule} from "./settings.module";
 import {TabsModule} from "./tabs.module";
-import {DraggableDirective} from "./Directives/Draggable.directive";
-import {DroppableDirective} from "./Directives/Droppable.directive";
-import {NestedLivestreamPlayerComponent} from "./Components/NestedLivestreamPlayer.component";
-import {MovableDirective} from "./Directives/Movable.directive";
+import {LivestreamsModule} from "./livestreams.module";
+import {UserPreferencesService} from "./Services/UserPreferencesService";
 
 @NgModule({
     // Modules
@@ -39,6 +36,7 @@ import {MovableDirective} from "./Directives/Movable.directive";
         FormsModule,
         SettingsModule,
         TabsModule,
+        LivestreamsModule,
         routing
     ],
     // Services
@@ -48,7 +46,8 @@ import {MovableDirective} from "./Directives/Movable.directive";
         AuthService,
         LaunchDataService,
         AppDataService,
-        NotificationBannerService
+        NotificationBannerService,
+        UserPreferencesService
     ],
     // Components
     declarations: [
@@ -58,11 +57,7 @@ import {MovableDirective} from "./Directives/Movable.directive";
         HeaderComponent,
         CountdownComponent,
         StatusBarComponent,
-        LivestreamComponent,
-        NotificationBannerComponent,
-        SanitizePipe,
-        NestedLivestreamPlayerComponent,
-        MovableDirective
+        NotificationBannerComponent
     ],
     // Starting components
     bootstrap: [

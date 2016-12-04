@@ -3,6 +3,7 @@ import {AuthService} from "../Services/AuthService";
 import {NotificationBannerService} from "../Services/NotificationBannerService";
 import {LaunchDataService} from "../Services/LaunchDataService";
 import {AppDataService} from "../Services/AppDataService";
+import {UserPreferencesService} from "../Services/UserPreferencesService";
 
 @Component({
     selector:'body',
@@ -10,7 +11,9 @@ import {AppDataService} from "../Services/AppDataService";
         <tmt-notification-banner></tmt-notification-banner>
         <router-outlet></router-outlet>
         <div id="modal-backdrop" *ngIf="appData.isSettingsVisible" (click)="closeSettings()"></div>
-    `
+    `,
+    providers: [AuthService, NotificationBannerService, LaunchDataService, AppDataService,
+    UserPreferencesService]
 })
 /**
  * @class
@@ -26,12 +29,14 @@ export class TMinusTenComponent {
      * @param notificationBannerService
      * @param launchData
      * @param appData
+     * @param userPreferences
      */
     constructor(
         public authData: AuthService,
         public notificationBannerService: NotificationBannerService,
         public launchData: LaunchDataService,
-        public appData: AppDataService) {}
+        public appData: AppDataService,
+        public userPreferences: UserPreferencesService) {}
 
     /**
      * Closes the settings pane if the app is active.

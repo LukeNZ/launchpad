@@ -3,24 +3,23 @@ import {AuthService} from "../Services/AuthService";
 import {AppDataService} from "../Services/AppDataService";
 import {Livestream} from "../Interfaces/Livestream";
 import {Dimension} from "../Interfaces/Dimension";
+import {Position} from "../Interfaces/Position";
+import {GuardSharedService} from "../Services/GuardSharedService";
+import {UserPreferencesService} from "../Services/UserPreferencesService";
 
 @Component({
     selector:'tmt-livestream',
-    template: `
-
-        <div class="livestream-guard" [hidden]="!guardEnabled"></div>
-
-        <iframe class="livestream main-livestream" [width]="componentSize.width" [height]="componentSize.height" 
-        [src]="getLivestreamByName(appData.livestreamMainIfNested).url | sanitize:'resource'" frameborder="0" allowfullscreen></iframe>
-        
-        <tmt-nested-livestream-player 
-        [video]="getLivestreamByName(appData.livestreamMainIfNested).url | sanitize:'resource'"
-        [style.width.px]="nestedLivestreamSize.width" [style.height.px]="nestedLivestreamSize.height"
-        (moves)="guardEnabled = true" (movee)="guardEnabled = false"
-        ></tmt-nested-livestream-player>
-        
-        <iframe class="livestream" [width]="" [height]="" [src]="" frameborder="0" allowfullscreen></iframe>
-    `
+    template: `      
+        <tmt-livestream-player *ngFor="let livestream of visibleLivestreams; let i = index"
+        [display]="userPrefs.livestreamPositioningMode"
+        [video]="livestream.url | sanitize:'resource'"
+        [style.width.px]="calculateLivestreamWidth(livestream, i)" 
+        [style.height.px]="calculateLivestreamHeight(livestream, i)"
+        [style.left.px]="calculateLivestreamLeftOffset(livestream, i)"
+        [style.top.px]="calculateLivestreamTopOffset(livestream, i)"       
+        ></tmt-livestream-player>
+    `,
+    providers: [GuardSharedService]
 })
 /**
  * @class
@@ -29,10 +28,18 @@ export class LivestreamComponent implements OnInit {
 
     public componentSize: Dimension;
     public nestedLivestreamSize: Dimension;
+    public defaultSpacing: Position = {
+        x: 40,
+        y: 60
+    };
 
-    public guardEnabled : boolean = false;
+    public visibleLivestreams: Livestream[];
 
-    constructor(public elem: ElementRef, public authService: AuthService, public appData: AppDataService) {}
+    constructor(public elem: ElementRef,
+                public authService: AuthService,
+                public appData: AppDataService,
+                public userPrefs: UserPreferencesService,
+                public guardState: GuardSharedService) {}
 
     /**
      *
@@ -40,6 +47,7 @@ export class LivestreamComponent implements OnInit {
     public ngOnInit() : void {
         this.calculateElementDimensions();
         this.calculateNestedLivestreamDimensions();
+        this.getVisibleLivestreams();
     }
 
     /**
@@ -50,6 +58,7 @@ export class LivestreamComponent implements OnInit {
     @HostListener('window:resize', ['$event'])
     public onResize(event) : void {
         this.calculateElementDimensions();
+        this.calculateNestedLivestreamDimensions();
     }
 
     /**
@@ -96,7 +105,56 @@ export class LivestreamComponent implements OnInit {
         }
     }
 
-    public getLivestreamByName(name: string) : Livestream {
-        return this.appData.livestreams.filter(l => l.name === name)[0];
+    /**
+     * Retrieves the visible livestreams, with the main livestream as the first element of the array.
+     *
+     * @return {Livestream[]}
+     */
+    public getVisibleLivestreams() : void {
+        this.visibleLivestreams = this.appData.livestreams
+            .filter(l => this.userPrefs.visibleLivestreams.indexOf(l) != -1)
+            .sort((a, b) => {
+                if (a.name === this.userPrefs.livestreamMainIfNested) { return 1; }
+                if (b.name === this.userPrefs.livestreamMainIfNested) { return -1; }
+                return 0;
+            })
+    }
+
+    public calculateLivestreamWidth(livestream: Livestream, index: number) : number {
+        if (this.userPrefs.livestreamPositioningMode === "nested") {
+            if (index === 0) {
+                return this.componentSize.width;
+            }
+            return this.nestedLivestreamSize.width;
+        }
+    }
+
+    public calculateLivestreamHeight(livestream: Livestream, index: number) : number {
+        if (this.userPrefs.livestreamPositioningMode === "nested") {
+            if (index === 0) {
+                return this.componentSize.height;
+            }
+            return this.nestedLivestreamSize.height;
+        }
+    }
+
+    public calculateLivestreamLeftOffset(livestream: Livestream, index: number) : number {
+        if (this.userPrefs.livestreamPositioningMode === "nested") {
+            if (index === 0) {
+                return 0;
+            }
+
+            return this.defaultSpacing.x * index + this.nestedLivestreamSize.width * (index - 1);
+        }
+    }
+
+    public calculateLivestreamTopOffset(livestream: Livestream, index: number) : number {
+        if (this.userPrefs.livestreamPositioningMode === "nested") {
+            if (index === 0) {
+                return 0;
+            }
+
+            return this.componentSize.height - this.nestedLivestreamSize.height - this.defaultSpacing.y;
+        }
     }
 }
