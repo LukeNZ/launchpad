@@ -34,22 +34,11 @@ export class HeaderComponent {
     }
 
     public rotateNestedLivestreams() : void {
-        // Grab the current main livestream
+        // shift element off _visibleLivestreams
+        let elem = this.userPrefs.visibleLivestreams.shift();
+        // push element onto _visibleStreams
+        this.userPrefs.visibleLivestreams.push(elem);
+
         console.log(this.userPrefs.visibleLivestreams);
-
-
-        // Grab the first livestream from the livestreams list which isn't the main
-        /*let livestreamToMakeMain = this.userPrefs.visibleLivestreams
-            .filter(l => l.name !== this.userPrefs.livestreamMainIfNested)[0];
-
-        this.userPrefs.visibleLivestreams.splice(this.userPrefs.visibleLivestreams.indexOf(livestreamToMakeMain), 1);
-        this.userPrefs.visibleLivestreams.unshift(livestreamToMakeMain);
-
-        // Shouldn't be possible as the command to rotate through the livestreams is not visible if there
-        // is only one visible livestream
-        if (livestreamToMakeMain != null) {
-            this.userPrefs.livestreamMainIfNested = livestreamToMakeMain.name;
-            console.log(this.userPrefs.livestreamMainIfNested);
-        }*/
     }
 }

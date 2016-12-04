@@ -17,9 +17,12 @@ export class UserPreferencesService {
     private _uiMode: string = window.localStorage.getItem("appData:uiMode") || "day";
 
     // Livestream user preferences
-    private _livestreamsVisible: string[] = JSON.parse(window.localStorage.getItem("appData:livestreams:enabled")) || ['SpaceX Hosted', 'SpaceX Technical', 'NASA'];
+    // Order of visibility strings /does/ imply livestream order. The 0th livestream in this list should be treated
+    // as the main livestream when nested.
+    private _visibleLivestreams: string[] = JSON.parse(window.localStorage.getItem("appData:livestreams:enabled")) || ['SpaceX Hosted', 'SpaceX Technical', 'NASA'];
+
+    // One of either "nested" or "linear"
     private _livestreamPositioningMode: string = window.localStorage.getItem("appData:livestreams:positioningMode") || "nested";
-    private _livestreamMainIfNested: string = window.localStorage.getItem("appData:livestreams:mainIfNested") || "SpaceX Hosted";
 
     constructor(private appData: AppDataService) {}
 
@@ -102,34 +105,62 @@ export class UserPreferencesService {
 
     /**
      *
-     * @returns {Livestream[]}
+     * @returns {string[]}
      */
-    get visibleLivestreams() : Livestream[] {
-        return this.appData.availableLivestreams().filter(l => this._livestreamsVisible.indexOf(l.name) != -1);
+    get visibleLivestreams() : string[] {
+        return this._visibleLivestreams;
     }
 
+    /**
+     *
+     * @param value
+     */
+    set visibleLivestreams(value: string[]) {
+        this._visibleLivestreams = value;
+    }
+
+    /**
+     * Returns an array of visible livestreams, ordered by the order of the _visibleLivestreams string array field.
+     *
+     * @returns {Livestream[]}
+     */
+    public visibleLivestreamsAsLivestreams() : Livestream[] {
+        return this.appData.availableLivestreams()
+            .filter(l => this._visibleLivestreams.indexOf(l.name) != -1)
+            .sort((a, b) => this._visibleLivestreams.indexOf(a.name) < this._visibleLivestreams.indexOf(b.name) ? -1 : 1);
+    }
+
+    /**
+     * Returns the current livestream positioning mode the user has set. Is one of either 'nested' or 'linear'.
+     *
+     * @returns {string}
+     */
     get livestreamPositioningMode() : string {
         return this._livestreamPositioningMode;
     }
 
     /**
-     * Returns the main livestream when the application is in the nested display state.
+     * Sets the livestream positioning mode of the application. Acceptable values are one of 'nested' or 'linear'.
      *
-     * @returns {string} The main livestream.
+     * @param value {string} The positioning mode to set.
      */
-    get livestreamMainIfNested() : string {
-        return this._livestreamMainIfNested;
+    set livestreamPositioningMode(value: string) {
+        this._livestreamPositioningMode = value;
     }
 
     /**
-     * Sets the main livestream when the application is in the nested display state.
+     * Finds the main livestream for the application. This is determined by taking the first element in the
+     * _visibleLivestreams field, and finding a livestream object in the array that is returned by the
+     * visibleLivestreams() method with a matching name.
      *
-     * @param value {string} the livestream name.
+     * If there are no visible livestreams, null is returned.
+     *
+     * @returns {Livestream} The main livestream of the application.
      */
-    set livestreamMainIfNested(value: string) {
-        if (typeof value === 'string') {
-            this._livestreamMainIfNested = value;
-            window.localStorage.setItem("appData:livestream:mainIfNested", value);
+    public mainLivestream() : Livestream {
+        if (this._visibleLivestreams.length > 0) {
+            return this.visibleLivestreamsAsLivestreams().filter(l => l.name === this._visibleLivestreams[0])[0];
         }
+        return null;
     }
 }

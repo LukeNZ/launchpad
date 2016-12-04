@@ -10,7 +10,7 @@ import {UserPreferencesService} from "../Services/UserPreferencesService";
 @Component({
     selector:'tmt-livestream',
     template: `      
-        <tmt-livestream-player *ngFor="let livestream of visibleLivestreams; let i = index"
+        <tmt-livestream-player *ngFor="let livestream of userPrefs.visibleLivestreamsAsLivestreams(); let i = index"
         [display]="userPrefs.livestreamPositioningMode"
         [video]="livestream.url | sanitize:'resource'"
         [style.width.px]="calculateLivestreamWidth(livestream, i)" 
@@ -47,7 +47,6 @@ export class LivestreamComponent implements OnInit {
     public ngOnInit() : void {
         this.calculateElementDimensions();
         this.calculateNestedLivestreamDimensions();
-        this.getVisibleLivestreams();
     }
 
     /**
@@ -106,20 +105,12 @@ export class LivestreamComponent implements OnInit {
     }
 
     /**
-     * Retrieves the visible livestreams, with the main livestream as the first element of the array.
      *
-     * @return {Livestream[]}
+     * @param livestream
+     * @param index
+     *
+     * @returns {number}
      */
-    public getVisibleLivestreams() : void {
-        this.visibleLivestreams = this.appData.livestreams
-            .filter(l => this.userPrefs.visibleLivestreams.indexOf(l) != -1)
-            .sort((a, b) => {
-                if (a.name === this.userPrefs.livestreamMainIfNested) { return 1; }
-                if (b.name === this.userPrefs.livestreamMainIfNested) { return -1; }
-                return 0;
-            })
-    }
-
     public calculateLivestreamWidth(livestream: Livestream, index: number) : number {
         if (this.userPrefs.livestreamPositioningMode === "nested") {
             if (index === 0) {
@@ -129,6 +120,13 @@ export class LivestreamComponent implements OnInit {
         }
     }
 
+    /**
+     *
+     * @param livestream
+     * @param index
+     *
+     * @returns {number}
+     */
     public calculateLivestreamHeight(livestream: Livestream, index: number) : number {
         if (this.userPrefs.livestreamPositioningMode === "nested") {
             if (index === 0) {
@@ -138,6 +136,13 @@ export class LivestreamComponent implements OnInit {
         }
     }
 
+    /**
+     *
+     * @param livestream
+     * @param index
+     *
+     * @returns {number}
+     */
     public calculateLivestreamLeftOffset(livestream: Livestream, index: number) : number {
         if (this.userPrefs.livestreamPositioningMode === "nested") {
             if (index === 0) {
@@ -148,6 +153,14 @@ export class LivestreamComponent implements OnInit {
         }
     }
 
+    /**
+     *
+     *
+     * @param livestream
+     * @param index
+     *
+     * @returns {number}
+     */
     public calculateLivestreamTopOffset(livestream: Livestream, index: number) : number {
         if (this.userPrefs.livestreamPositioningMode === "nested") {
             if (index === 0) {
