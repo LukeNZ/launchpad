@@ -1,0 +1,44 @@
+$statusbar-height:150px;
+$statusbar-slant-width:100px;
+$statusbar-at-a-glance-width:40%;
+
+tmt-statusbar {
+    display:flex;
+    position:relative;
+    width:100vw;
+    left:calc(-50vw + 50%);
+    height:$statusbar-height;
+    overflow:hidden;
+    border-bottom:1px solid rgba($charcoal, 0.1);
+    background-color:#fcfcfc;
+}
+
+#at-a-glance {
+    max-width:1000px;
+    width:calc(#{$statusbar-at-a-glance-width} - #{$statusbar-slant-width});
+    height: $statusbar-height;
+    background-color:darkkhaki;
+    position:relative;
+    display:inline-block;
+
+    &::after {
+        content:"";
+        display:block;
+        position:absolute;
+        bottom:0;
+        right:-100px;
+        width:0;
+        height:0;
+        border: {
+            right:100px solid transparent;
+            top:150px solid darkkhaki;
+        }
+    }
+}
+
+#most-recent-status {
+    display:inline-block;
+    margin-left:$statusbar-slant-width;
+    vertical-align: top;
+    flex-grow:1;
+}

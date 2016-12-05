@@ -1,5 +1,6 @@
 $settings-top-offset:50px;
 $settings-width:1000px;
+$settings-height:50px;
 
 tmt-settings {
     // Positioning
@@ -7,11 +8,11 @@ tmt-settings {
     left:0;
     right:0;
     margin:0 auto;
-    top:50px;
+    top:$settings-height;
     // Box Model
     display:block;
     height:calc(100vh - #{$settings-top-offset * 2});
-    max-width:1000px;
+    max-width:$settings-width;
     width:100%;
     padding:$small-padding;
     // Display

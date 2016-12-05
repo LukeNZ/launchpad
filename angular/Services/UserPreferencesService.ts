@@ -120,17 +120,6 @@ export class UserPreferencesService {
     }
 
     /**
-     * Returns an array of visible livestreams, ordered by the order of the _visibleLivestreams string array field.
-     *
-     * @returns {Livestream[]}
-     */
-    public visibleLivestreamsAsLivestreams() : Livestream[] {
-        return this.appData.availableLivestreams()
-            .filter(l => this._visibleLivestreams.indexOf(l.name) != -1)
-            .sort((a, b) => this._visibleLivestreams.indexOf(a.name) < this._visibleLivestreams.indexOf(b.name) ? -1 : 1);
-    }
-
-    /**
      * Returns the current livestream positioning mode the user has set. Is one of either 'nested' or 'linear'.
      *
      * @returns {string}
@@ -155,11 +144,11 @@ export class UserPreferencesService {
      *
      * If there are no visible livestreams, null is returned.
      *
-     * @returns {Livestream} The main livestream of the application.
+     * @returns {string} The main livestream of the application.
      */
-    public mainLivestream() : Livestream {
+    public mainLivestream() : string {
         if (this._visibleLivestreams.length > 0) {
-            return this.visibleLivestreamsAsLivestreams().filter(l => l.name === this._visibleLivestreams[0])[0];
+            return this._visibleLivestreams[0];
         }
         return null;
     }

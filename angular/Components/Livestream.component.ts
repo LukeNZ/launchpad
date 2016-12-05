@@ -10,7 +10,7 @@ import {UserPreferencesService} from "../Services/UserPreferencesService";
 @Component({
     selector:'tmt-livestream',
     template: `      
-        <tmt-livestream-player *ngFor="let livestream of userPrefs.visibleLivestreamsAsLivestreams(); let i = index"
+        <tmt-livestream-player *ngFor="let livestream of visibleLivestreams; let i = index; trackBy: livestreamTrackByFn"
         [display]="userPrefs.livestreamPositioningMode"
         [video]="livestream.url | sanitize:'resource'"
         [style.width.px]="calculateLivestreamWidth(livestream, i)" 
@@ -47,6 +47,8 @@ export class LivestreamComponent implements OnInit {
     public ngOnInit() : void {
         this.calculateElementDimensions();
         this.calculateNestedLivestreamDimensions();
+        this.visibleLivestreams = this.appData.availableLivestreams()
+            .filter(l => this.userPrefs.visibleLivestreams.indexOf(l.name) != -1);
     }
 
     /**
@@ -58,6 +60,12 @@ export class LivestreamComponent implements OnInit {
     public onResize(event) : void {
         this.calculateElementDimensions();
         this.calculateNestedLivestreamDimensions();
+
+        let temp = this.userPrefs.visibleLivestreams;
+
+        this.visibleLivestreams.sort((a,b) => {
+            return temp.indexOf(a.name) < temp.indexOf(b.name) ? -1 : 1;
+        });
     }
 
     /**
@@ -69,7 +77,7 @@ export class LivestreamComponent implements OnInit {
 
         // calculate the height of the livestream component based on the 16:9 ratio for the livestream video
         // and the current viewport width
-        let allowanceHeight = this.authService.isLoggedIn ? 400 : 200;
+        let allowanceHeight = this.authService.isLoggedIn ? 400 : 150;
 
         let calculatedHeight = Math.min(
             Math.floor(viewportWidth / (16/9)),
@@ -169,5 +177,9 @@ export class LivestreamComponent implements OnInit {
 
             return this.componentSize.height - this.nestedLivestreamSize.height - this.defaultSpacing.y;
         }
+    }
+
+    public livestreamTrackByFn(index: number, item: Livestream) : string {
+        return item.name;
     }
 }
