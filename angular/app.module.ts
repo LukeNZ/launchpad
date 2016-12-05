@@ -6,7 +6,7 @@ import {FormsModule} from "@angular/forms";
 import {routing} from "./app.routes";
 
 // Components
-import {TMinusTenComponent} from "./Components/TMinusTen.component";
+import {LaunchpadComponent} from "./Components/Launchpad.component";
 import {HomeComponent} from "./Components/Home.component";
 import {HeaderComponent} from "./Components/Header.component";
 import {CountdownComponent} from "./Components/Countdown.component";
@@ -51,7 +51,7 @@ import {UserPreferencesService} from "./Services/UserPreferencesService";
     ],
     // Components
     declarations: [
-        TMinusTenComponent,
+        LaunchpadComponent,
         HomeComponent,
         LoginComponent,
         HeaderComponent,
@@ -61,7 +61,7 @@ import {UserPreferencesService} from "./Services/UserPreferencesService";
     ],
     // Starting components
     bootstrap: [
-        TMinusTenComponent
+        LaunchpadComponent
     ]
 })
 export class AppModule {}

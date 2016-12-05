@@ -3,7 +3,7 @@ import {Launch} from "../../Interfaces/Launch";
 import {FormGroup} from "@angular/forms";
 
 @Component({
-    selector: 'tmt-description-sections-settings',
+    selector: 'lp-description-sections-settings',
     template: `
         <h1>Description Sections</h1>            
         <form id="descriptionSectionsForm"></form>

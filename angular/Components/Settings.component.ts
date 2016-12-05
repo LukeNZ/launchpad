@@ -17,7 +17,7 @@ enum SettingsSection {
 }
 
 @Component({
-    selector:'tmt-settings',
+    selector:'lp-settings',
     template: `
         <i [hidden]="!appData.isActive" (click)="appData.isSettingsVisible = false">Close</i>
         <nav id="settings-nav">
@@ -53,38 +53,38 @@ enum SettingsSection {
         </nav>
         
         <!-- DISPLAY -->
-        <tmt-display-settings [hidden]="currentSection != settings.Display"></tmt-display-settings>
+        <lp-display-settings [hidden]="currentSection != settings.Display"></lp-display-settings>
         
         <!-- NOTIFICATIONS -->
-        <tmt-notification-settings [hidden]="currentSection != settings.Notifications"></tmt-notification-settings>
+        <lp-notification-settings [hidden]="currentSection != settings.Notifications"></lp-notification-settings>
         
         <!-- GENERAL SETUP -->
-        <tmt-general-setup-settings [hidden]="currentSection != settings.GeneralSetup" 
+        <lp-general-setup-settings [hidden]="currentSection != settings.GeneralSetup" 
         [launch]="launch" [livestreams]="livestreams"
-        *ngIf="!appData.isActive && authData.isLoggedIn"></tmt-general-setup-settings>
+        *ngIf="!appData.isActive && authData.isLoggedIn"></lp-general-setup-settings>
         
         <!-- COUNTDOWN -->
-        <tmt-countdown-settings [hidden]="currentSection != settings.Countdown" 
-        [launch]="launch" *ngIf="authData.isLoggedIn"></tmt-countdown-settings>
+        <lp-countdown-settings [hidden]="currentSection != settings.Countdown" 
+        [launch]="launch" *ngIf="authData.isLoggedIn"></lp-countdown-settings>
         
                 <!-- INTRODUCTION -->
-        <tmt-introduction-settings [hidden]="currentSection != settings.Introduction" 
-        [launch]="launch" *ngIf="authData.isLoggedIn"></tmt-introduction-settings>
+        <lp-introduction-settings [hidden]="currentSection != settings.Introduction" 
+        [launch]="launch" *ngIf="authData.isLoggedIn"></lp-introduction-settings>
         
         <!-- DESCRIPTION SECTIONS -->
-        <tmt-description-sections-settings [hidden]="currentSection != settings.DescriptionSections" 
-        [launch]="launch" *ngIf="authData.isLoggedIn"></tmt-description-sections-settings>
+        <lp-description-sections-settings [hidden]="currentSection != settings.DescriptionSections" 
+        [launch]="launch" *ngIf="authData.isLoggedIn"></lp-description-sections-settings>
         
         <!-- RESOURCES -->
-        <tmt-resources-settings [hidden]="currentSection != settings.Resources" 
-        [launch]="launch" *ngIf="authData.isLoggedIn"></tmt-resources-settings>
+        <lp-resources-settings [hidden]="currentSection != settings.Resources" 
+        [launch]="launch" *ngIf="authData.isLoggedIn"></lp-resources-settings>
         
         <!-- LAUNCH MOMENT TEMPLATES -->
-        <tmt-launch-moment-templates-settings [hidden]="currentSection != settings.LaunchMomentTemplates" 
-        [launchMomentTemplates]="launchMomentTemplates" *ngIf="authData.isLoggedIn"></tmt-launch-moment-templates-settings>
+        <lp-launch-moment-templates-settings [hidden]="currentSection != settings.LaunchMomentTemplates" 
+        [launchMomentTemplates]="launchMomentTemplates" *ngIf="authData.isLoggedIn"></lp-launch-moment-templates-settings>
     
         <!-- ABOUT -->
-        <tmt-about-settings [hidden]="currentSection != settings.About"></tmt-about-settings>
+        <lp-about-settings [hidden]="currentSection != settings.About"></lp-about-settings>
 
         <!-- LIFTOFF OPTIONS -->
         <div *ngIf="!appData.isActive && authData.isLoggedIn">

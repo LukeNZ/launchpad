@@ -2,7 +2,7 @@ import {Component, Input, Output, OnInit, EventEmitter} from "@angular/core";
 import moment = require("moment");
 
 @Component({
-    selector: 'tmt-datetimeentry',
+    selector: 'lp-datetimeentry',
     template: `
         <div class="entryfield hours">
             <span (click)="increment('hours')">Up</span>

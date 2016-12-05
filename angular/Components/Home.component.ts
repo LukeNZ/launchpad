@@ -9,7 +9,7 @@ import {Observable} from "rxjs/Observable";
 import 'rxjs/add/observable/forkJoin';
 
 @Component({
-    selector:'tmt-home',
+    selector:'lp-home',
     template: `
         <p *ngIf="appData.isLoading">Loading...</p>
         
@@ -19,9 +19,9 @@ import 'rxjs/add/observable/forkJoin';
             <!-- Allow a logged in user to access the application settings to start a launch,
              allow a logged in user to edit the launch, allow a general user to set their personal 
              preferences. -->
-            <tmt-settings 
+            <lp-settings 
             *ngIf="(authData.isLoggedIn && !appData.isActive) || appData.isActive" 
-            [hidden]="!appData.isSettingsVisible"></tmt-settings>
+            [hidden]="!appData.isSettingsVisible"></lp-settings>
                 
         
             <!-- Only show if the application is not active. -->
@@ -36,10 +36,10 @@ import 'rxjs/add/observable/forkJoin';
             
             <!-- Show if the application is active. -->
             <ng-container *ngIf="appData.isActive">
-                <tmt-header></tmt-header>
-                <tmt-livestream></tmt-livestream>
-                <tmt-statusbar></tmt-statusbar>
-                <tmt-data></tmt-data>
+                <lp-header></lp-header>
+                <lp-livestream></lp-livestream>
+                <lp-statusbar></lp-statusbar>
+                <lp-data></lp-data>
             </ng-container>  
              
         </ng-container>     
@@ -66,7 +66,7 @@ export class HomeComponent implements OnInit {
         Observable.forkJoin(
             this.initializationService.getLaunch(),
             this.initializationService.getStatuses(),
-            this.initializationService.getTMinusTen()
+            this.initializationService.getLaunchpad()
         ).subscribe(data => {
             this.launchData.setLaunch(data[0]);
             this.launchData.setStatuses(data[1]);

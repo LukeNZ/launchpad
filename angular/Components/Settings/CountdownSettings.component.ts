@@ -3,14 +3,14 @@ import {Launch} from "../../Interfaces/Launch";
 import {LaunchDataService} from "../../Services/LaunchDataService";
 
 @Component({
-    selector: `tmt-countdown-settings`,
+    selector: `lp-countdown-settings`,
     template: `
         <h1>Countdown</h1>            
         <form id="countdownForm"></form>
         
-            <tmt-datetimeentry id="countdown"
+            <lp-datetimeentry id="countdown"
             [date]="launch.countdown" 
-            (dateChange)="onCountdownChanged($event)"></tmt-datetimeentry>
+            (dateChange)="onCountdownChanged($event)"></lp-datetimeentry>
             
         <p *ngIf="launchData.launch?.countdown != launch.countdown">New countdown of {{ launch.countdown.toISOString() }}</p>
     `

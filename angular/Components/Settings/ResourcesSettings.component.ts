@@ -2,7 +2,7 @@ import {Component, Input} from "@angular/core";
 import {Launch} from "../../Interfaces/Launch";
 
 @Component({
-    selector: 'tmt-resources-settings',
+    selector: 'lp-resources-settings',
     template: `
         <h1>Resources</h1>            
         <form id="resourcesForm"></form>

@@ -5,7 +5,7 @@ var moment = require("moment-timezone");
 var jstz = require('jstimezonedetect');
 
 @Component({
-    selector: 'tmt-launch-status',
+    selector: 'lp-launch-status',
     template: `
         <div class="launch-status-info">
             <span></span>

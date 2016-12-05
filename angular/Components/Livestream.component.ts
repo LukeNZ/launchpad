@@ -8,16 +8,16 @@ import {GuardSharedService} from "../Services/GuardSharedService";
 import {UserPreferencesService} from "../Services/UserPreferencesService";
 
 @Component({
-    selector:'tmt-livestream',
+    selector:'lp-livestream',
     template: `      
-        <tmt-livestream-player *ngFor="let livestream of visibleLivestreams; let i = index; trackBy: livestreamTrackByFn"
+        <lp-livestream-player *ngFor="let livestream of visibleLivestreams; let i = index; trackBy: livestreamTrackByFn"
         [display]="userPrefs.livestreamPositioningMode"
         [video]="livestream.url | sanitize:'resource'"
         [style.width.px]="calculateLivestreamWidth(livestream, i)" 
         [style.height.px]="calculateLivestreamHeight(livestream, i)"
         [style.left.px]="calculateLivestreamLeftOffset(livestream, i)"
         [style.top.px]="calculateLivestreamTopOffset(livestream, i)"       
-        ></tmt-livestream-player>
+        ></lp-livestream-player>
     `,
     providers: [GuardSharedService]
 })

@@ -2,7 +2,7 @@ import {Component, Input} from "@angular/core";
 import {MomentTemplate} from "../../Interfaces/MomentTemplate";
 
 @Component({
-    selector: 'tmt-launch-moment-templates-settings',
+    selector: 'lp-launch-moment-templates-settings',
     template: `
         <h1>Launch Moment Templates</h1>            
         <form id="lauchMomentTemplatesForm"></form>

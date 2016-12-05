@@ -5,10 +5,10 @@ import {UserPreferencesService} from "../Services/UserPreferencesService";
 import {LaunchDataService} from "../Services/LaunchDataService";
 
 @Component({
-    selector:'tmt-header',
+    selector:'lp-header',
     template: `
         <div class="header-area">
-            <tmt-countdown></tmt-countdown>
+            <lp-countdown></lp-countdown>
             <span>{{ launchData.launch.name }} Mission</span>
             <ul class="quick-opts">
                 <li *ngFor="let livestream of availableLivestreams">

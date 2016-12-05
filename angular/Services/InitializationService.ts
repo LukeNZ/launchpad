@@ -19,12 +19,12 @@ export class InitializationService extends AbstractService {
     }
 
     /**
-     * Fetches the status of the T Minus Ten application.
+     * Fetches the status of the application.
      *
      * @returns {Observable<any>}
      */
-    public getTMinusTen() : Observable<any> {
-        return this.http.get('/api/tminusten', this.headers())
+    public getLaunchpad() : Observable<any> {
+        return this.http.get('/api/launchpad', this.headers())
             .map(this.extractData);
     }
 

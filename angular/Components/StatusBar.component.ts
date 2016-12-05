@@ -3,18 +3,22 @@ import {WebsocketService} from "../Services/WebsocketService";
 import {AuthService} from "../Services/AuthService";
 import {NotificationBannerService} from "../Services/NotificationBannerService";
 import {LaunchDataService} from "../Services/LaunchDataService";
+import {Status} from "../Interfaces/Status";
 
+/**
+ * @class
+ */
 @Component({
-    selector:'tmt-statusbar',
+    selector:'lp-statusbar',
     template: `
         <div id="at-a-glance">
-            <p>Current state</p>
+            <p>{{ mostRecentMoment.momentType }}</p>
             <span>Last updated</span>
-            <span>updates</span>
+            <span>{{ launchData.statuses.length }} {{ launchData.statuses.length !== 1 ? "updates" : "update" }}</span>
         </div>
         
         <div id="most-recent-status" *ngIf="authData.isLoggedIn">
-             <textarea class="status-entry" (keypress)="onEnterKeypress($event.key)" placeholder="Type launch updates here. Hit enter to send." [(ngModel)]="status"></textarea>
+             <textarea class="status-entry" (keypress)="onEnterKeypress($event.key)" placeholder="Type launch updates here. Hit enter to send." [(ngModel)]="inProgressStatus" maxlength="500"></textarea>
             <div class="typers">
                 <span *ngFor="let typer of typing">{{ typer }}</span>
             </div>
@@ -27,8 +31,12 @@ import {LaunchDataService} from "../Services/LaunchDataService";
 })
 export class StatusBarComponent implements OnInit {
 
+    // Admin
     public typing: string[] = [];
-    public status: string;
+    public inProgressStatus: string;
+
+    // Store most recent moment
+    public mostRecentMoment : Status;
 
     constructor(public authData: AuthService,
                 public launchData: LaunchDataService,
@@ -39,6 +47,8 @@ export class StatusBarComponent implements OnInit {
      *
      */
     public ngOnInit() : void {
+        this.registerCurrentMoment();
+
         if (this.authData.isLoggedIn) {
             this.websocketService.typingStatusesStream().subscribe(websocket => {
 
@@ -47,7 +57,15 @@ export class StatusBarComponent implements OnInit {
             this.websocketService.launchStatusResponsesStream().subscribe(websocket => {
                 this.notificationBannerService.notify("Launch Status Posted.");
             });
+
+            this.launchData.statusesObservable().subscribe(statuses => {
+                this.registerCurrentMoment();
+            });
         }
+    }
+
+    public registerCurrentMoment() : void {
+        this.mostRecentMoment = this.launchData.statuses.filter(s => s.statusType === "moment").pop();
     }
 
     /**
@@ -56,8 +74,8 @@ export class StatusBarComponent implements OnInit {
      */
     public onEnterKeypress(key: string) : boolean {
         if (key === "Enter") {
-            this.websocketService.emitLaunchStatusCreate(this.status, "update");
-            this.status = "";
+            this.websocketService.emitLaunchStatusCreate(this.inProgressStatus, "update");
+            this.inProgressStatus = "";
             return false;
         }
     }

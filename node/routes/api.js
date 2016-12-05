@@ -1,17 +1,17 @@
 var express = require('express');
 var path = require('path');
 var router = express.Router();
-var TMinusTenController = require('../controllers/TMinusTenController');
+var LaunchpadController = require('../controllers/LaunchpadController');
 var AuthController = require('../controllers/AuthController');
 
-var tMinusTenController = new TMinusTenController();
+var launchpadController = new LaunchpadController();
 var authController = new AuthController();
 
-router.get('/tminusten', tMinusTenController.getTMinusTen.bind(tMinusTenController));
+router.get('/launchpad', launchpadController.getLaunchpad.bind(launchpadController));
 
-router.get('/statuses', tMinusTenController.getStatuses.bind(tMinusTenController));
+router.get('/statuses', launchpadController.getStatuses.bind(launchpadController));
 
-router.get('/launch', tMinusTenController.getLaunch.bind(tMinusTenController));
+router.get('/launch', launchpadController.getLaunch.bind(launchpadController));
 
 router.post('/auth/login', authController.login.bind(authController));
 

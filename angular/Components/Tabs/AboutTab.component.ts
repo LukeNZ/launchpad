@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 
 @Component({
-    selector: 'tmt-about-tab',
+    selector: 'lp-about-tab',
     template: ``
 })
 /**

@@ -1,19 +1,19 @@
 var path = require('path');
 var Store = require('../services/StoreService');
 
-class TMinusTenController {
+class LaunchpadController {
 
     constructor() {
         this.store = new Store();
     }
     /**
-     * Returns the current status of the TMinusTen application.
-     * GET:/api/tminusten
+     * Returns the current status of the application.
+     * GET:/api/launchpad
      *
      * @param request
      * @param response
      */
-    getTMinusTen(request, response) {
+    getLaunchpad(request, response) {
 
         Promise.all([
             this.store.isAppActive(),
@@ -59,4 +59,4 @@ class TMinusTenController {
     }
 }
 
-module.exports = TMinusTenController;
+module.exports = LaunchpadController;

@@ -5,7 +5,7 @@ import {Router} from "@angular/router";
 import {Title} from "@angular/platform-browser";
 
 @Component({
-    selector: 'tmt-login',
+    selector: 'lp-login',
     template: `
         <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
             <label for="username">Username</label>

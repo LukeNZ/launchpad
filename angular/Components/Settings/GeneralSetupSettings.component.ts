@@ -4,7 +4,7 @@ import {Livestream} from "../../Interfaces/Livestream";
 import {FormGroup} from "@angular/forms";
 
 @Component({
-    selector: 'tmt-general-setup-settings',
+    selector: 'lp-general-setup-settings',
     template: `
         <section>
             <h1>General Setup</h1>

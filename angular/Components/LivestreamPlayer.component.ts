@@ -3,7 +3,7 @@ import {SafeResourceUrl} from "@angular/platform-browser";
 import {GuardSharedService} from "../Services/GuardSharedService";
 
 @Component({
-    selector: 'tmt-livestream-player',
+    selector: 'lp-livestream-player',
     template: `
         <div class="control-corner" [hidden]="!isHovering" [movable]="elemRef" (movestart)="enableGuards()" (moveend)="disableGuards()"></div>
         <div class="livestream-guard" [hidden]="!isGuarded"></div>

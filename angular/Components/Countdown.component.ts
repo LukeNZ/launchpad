@@ -5,7 +5,7 @@ import {CountdownComponents} from "../Interfaces/CountdownComponents";
 var moment = require("moment-timezone");
 
 @Component({
-    selector:'tmt-countdown',
+    selector:'lp-countdown',
     template: `
         <table class="countdown">
             <tr *ngIf="!launchData.launch.isPaused">

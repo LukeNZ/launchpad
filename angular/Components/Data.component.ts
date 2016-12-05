@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 import {LaunchDataService} from "../Services/LaunchDataService";
 
 @Component({
-    selector:'tmt-data',
+    selector:'lp-data',
     template: `
         <nav>
             <ul>
@@ -11,9 +11,9 @@ import {LaunchDataService} from "../Services/LaunchDataService";
                 <li>Tweets & Images</li>
             </ul>
             <div>
-                <tmt-about-tab></tmt-about-tab>
-                <tmt-incoming-telemetry-tab></tmt-incoming-telemetry-tab>
-                <tmt-tweets-images-tab></tmt-tweets-images-tab>
+                <lp-about-tab></lp-about-tab>
+                <lp-incoming-telemetry-tab></lp-incoming-telemetry-tab>
+                <lp-tweets-images-tab></lp-tweets-images-tab>
             </div>
         </nav>
     `

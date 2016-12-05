@@ -1,7 +1,7 @@
 import {Component, Input} from "@angular/core";
 import {Launch} from "../../Interfaces/Launch";
 @Component({
-    selector: `tmt-introduction-settings`,
+    selector: `lp-introduction-settings`,
     template: `
         <h1>Introduction</h1>    
             <textarea name="introduction" [(ngModel)]="launch.introduction" placeholder="Introductory paragraph about the launch." minlength="100" maxlength="2000"></textarea>

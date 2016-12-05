@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 
 @Component({
-    selector: 'tmt-notification-settings',
+    selector: 'lp-notification-settings',
     template: `
         <h1>Notifications</h1>
         

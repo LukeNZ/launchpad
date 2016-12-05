@@ -3,10 +3,10 @@ import {LaunchDataService} from "../../Services/LaunchDataService";
 import {Status} from "../../Interfaces/Status";
 
 @Component({
-    selector: 'tmt-incoming-telemetry-tab',
+    selector: 'lp-incoming-telemetry-tab',
     template: `
         <ng-container *ngFor="let status of statuses">
-            <tmt-launch-status [launchStatus]="status" *ngIf="!status.isDeleted"></tmt-launch-status>
+            <lp-launch-status [launchStatus]="status" *ngIf="!status.isDeleted"></lp-launch-status>
         </ng-container>    
     `
 })

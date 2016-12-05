@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 import {NotificationBannerService} from "../Services/NotificationBannerService";
 
 @Component({
-    selector: 'tmt-notification-banner',
+    selector: 'lp-notification-banner',
     template: `
     <div class="notification-banner" [style.active]="hasNotification">
         <p>{{ notification }}</p>

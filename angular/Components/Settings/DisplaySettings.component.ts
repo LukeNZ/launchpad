@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 
 @Component({
-    selector: 'tmt-display-settings',
+    selector: 'lp-display-settings',
     template: `
         <h1>Display</h1>
         
