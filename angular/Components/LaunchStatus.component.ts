@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnInit, OnDestroy} from "@angular/core";
+import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRef} from "@angular/core";
 import {Status} from "../Interfaces/Status";
 import {CountdownComponentCalculator} from "../Services/CountdownComponentCalculator";
 var moment = require("moment-timezone");
@@ -21,7 +21,8 @@ var jstz = require('jstimezonedetect');
                 <li class="delete">Delete</li>
             </ul>
         </div>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 /**
  * We should use OnPush Change Detection in this class to reduce Angular 2 change detection cycles.
@@ -39,7 +40,7 @@ export class LaunchStatusComponent implements OnInit, OnDestroy {
 
     private _refreshIntervalId: number;
 
-    constructor() {}
+    constructor(private changeDetectorRef: ChangeDetectorRef) {}
 
     public ngOnInit() : void {
         this.setRelativeTime();
@@ -83,6 +84,7 @@ export class LaunchStatusComponent implements OnInit, OnDestroy {
      */
     public setRelativeTime() : void {
         this.relativeTime = moment(this.launchStatus.timestamp).from(moment());
+        this.changeDetectorRef.markForCheck();
     }
 
     /**
