@@ -1,48 +1,48 @@
-# Welcome to the r/SpaceX {{=it.launch.name}} Official Launch Discussion & Updates Thread!
+# Welcome to the r/SpaceX {{ launch.name }} Official Launch Discussion & Updates Thread!
 
-{{=it.launch.introduction}}
+{{- launch.introduction -}}
 
 ### Watching the launch live
 
 To watch the launch live, pick your preferred streaming provider from the table below. Can't pick? [Read about the differences](/r/spacex/wiki/faq/watching#wiki_i.27m_online._where_can_i_watch_the_launch.2C_what_streams_should_i_watch.2C_and_how_can_i_participate_in_the_discussion.3F).
 
-{{? it.livestreams }}
-| [r/SpaceX Live (Webcasts + Live Updates)](https://live.rspacex.com) |
+{% if livestreams %}
+| [r/SpaceX Launchpad (Webcasts + Live Updates)](https://live.rspacex.com) |
 | --- |
-{{? it.livestreams.filter(l => l.name === "SpaceX Hosted" && l.isAvailable) }}
+{%- if isLivestreamAvailable('SpaceX Hosted') %}
 | **[SpaceX Hosted Webcast (YouTube)](https://youtube.com/watch?v=)** |
-{{?}}
-{{? it.livestreams.filter(l => l.name === "SpaceX Technical" && l.isAvailable) }}
+{%- endif %}
+{%- if isLivestreamAvailable('SpaceX Technical') %}
 | **[SpaceX Technical Webcast (YouTube)](https://youtube.com/watch?v=)** |
-{{?}}
-{{? it.livestreams.filter(l => l.name === "NASA" && l.isAvailable) }}
+{%- endif %}
+{%- if isLivestreamAvailable('NASA') %}
 | **[NASA TV (YouTube)](https://youtube.com/watch?v=)** |
 | **[NASA TV (Ustream)](http://www.ustream.tv/nasahdtv)** |
-{{?}}
-{{?}}
+{%- endif %}
+{%- endif %}
 
-### Official Live Updates
+### Live Updates
 
 | Time | Countdown | Update |
 | --- |--- | --- |
-{{ for (var status in it.launchStatuses) { }}
-| {{=def.formattedUTCTime(status)}} | {{=def.relativeTime(status)}} | {{=status.text}} |
-{{ } }}
+{%- for status in launchStatuses %}
+| {{ formattedUTCTime(status) }} | {{ relativeTimeToLaunch(status) }} | {{ acronymize(status.text) }} |
+{%- endfor %}
 
-{{ for(var section in it.launch.descriptionSections) { }}
-### {{=section.title}}
+{%-for section in launch.descriptionSections %}
+### {{ section.title }}
 
-{{=section.description }}
-{{ } }}
+{{ section.description }}
+{%- endfor %}
 
 ### Useful Resources, Data, ♫, & FAQ
-{{ for (var resource in it.launch.resources) { }}
-{{? resource.note !== null}}
-* [{{=resource.title}}]({{=resource.url}}), {{=resource.note}}
-{{??}}
-* [{{=resource.title}}]({{=resource.url}})
-{{?}}
-{{ } }}
+{%- for resource in launch.resources -%}
+{%- if resource.note !== null -%}
+* [{{ resource.title }}]({{ resource.url }}), {{ resource.note }}
+{%- else -%}
+* [{{ resource.title }}]({{ resource.url }})
+{%- endif -%}
+{%- endfor -%}
 
 ### Participate in the discussion!
 
@@ -53,13 +53,3 @@ To watch the launch live, pick your preferred streaming provider from the table 
 ### Previous r/SpaceX Live Events
 
 Check out previous r/SpaceX Live events in the [Launch History page](http://www.reddit.com/r/spacex/wiki/launches) on our community Wiki.
-
-{{##def.formattedUTCTime = function(status) {
-    return moment().toString();
-}
-#}} 
-
-{{##def.relativeTime = function(status) {
-    return moment().toString();
-}
-#}}

@@ -33,7 +33,7 @@ export class CountdownComponent implements OnInit {
      * Runs the countdown processor.
      */
     public ngOnInit() : void {
-        setInterval(this.countdownProcessor.bind(this), 1000);
+        setInterval(() => this.countdownProcessor(), 1000);
     }
 
     /**

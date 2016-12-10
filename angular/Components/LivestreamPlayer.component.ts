@@ -1,5 +1,4 @@
 import {Component, Input, OnInit, HostListener, ElementRef} from "@angular/core";
-import {SafeResourceUrl} from "@angular/platform-browser";
 import {GuardSharedService} from "../Services/GuardSharedService";
 
 @Component({
@@ -7,14 +6,14 @@ import {GuardSharedService} from "../Services/GuardSharedService";
     template: `
         <div class="control-corner" [hidden]="!isHovering" [movable]="elemRef" (movestart)="enableGuards()" (moveend)="disableGuards()"></div>
         <div class="livestream-guard" [hidden]="!isGuarded"></div>
-        <iframe class="livestream nested-livestream"  [src]="video" frameborder="0" allowfullscreen></iframe>
+        <iframe class="livestream nested-livestream" [src]="video | sanitize:'resource'" frameborder="0" allowfullscreen></iframe>
     `
 })
 /**
  * @class
  */
 export class LivestreamPlayerComponent implements OnInit {
-    @Input() public video: SafeResourceUrl;
+    @Input() public video: string;
     @Input() public display: string;
     public isHovering : boolean = false;
     public isGuarded: boolean = false;

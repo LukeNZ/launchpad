@@ -1,5 +1,5 @@
-tmt-livestream {
-    display:block;
+lp-livestream {
+    display:flex;
     width:100vw;
     left:calc(-50vw + 50%);
     position:relative;
@@ -8,7 +8,7 @@ tmt-livestream {
     background-color:grey;
 }
 
-tmt-livestream-player {
+lp-livestream-player {
     display:block;
     position:absolute;
     z-index:50;

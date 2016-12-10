@@ -12,7 +12,7 @@ import {Status} from "../Interfaces/Status";
     selector:'lp-statusbar',
     template: `
         <div id="at-a-glance">
-            <p>{{ mostRecentMoment.momentType }}</p>
+            <p>{{ mostRecentMoment ? mostRecentMoment.momentType : "Upcoming" }}</p>
             <span>Last updated</span>
             <span>{{ launchData.statuses.length }} {{ launchData.statuses.length !== 1 ? "updates" : "update" }}</span>
         </div>

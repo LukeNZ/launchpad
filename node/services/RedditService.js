@@ -1,6 +1,7 @@
 const fs = require('fs');
 const snoowrap = require('snoowrap');
-const dot = require('dot');
+const nunjucks = require('nunjucks');
+const moment = require('moment');
 require('dotenv').config();
 var StoreService = require('../services/StoreService');
 
@@ -24,9 +25,6 @@ class RedditService {
             username: process.env.REDDIT_USERNAME,
             password: process.env.REDDIT_PASSWORD,
         });
-
-        // Preserve whitespace
-        dot.templateSettings.strip = false;
 
         this.store = new StoreService();
     }
@@ -58,7 +56,7 @@ class RedditService {
             .then(data => this.submitToReddit(data))
             .then(submission => {
                 // Store thread id
-                return this.store.setRedditThreadId(submission.id);
+                return this.store.setRedditThreadId(submission.name);
             })
             .then(okay => resolve(okay))
             .catch(err => reject(err));
@@ -93,15 +91,19 @@ class RedditService {
     }
 
     /**
+     *
+     *
      * @internal
      * @param data
      * @returns {Promise}
      */
     submitToReddit(data) {
-        return this.r.getSubreddit(this.subreddit).submitSelfpost({
-            title: data[0],
-            text: data[1],
-            sendReplies: false
+        return new Promise((resolve, reject) => {
+            this.r.getSubreddit(this.subreddit).submitSelfpost({
+                title: data[0],
+                text: data[1],
+                sendReplies: false
+            }).then(resolve);
         });
     }
 
@@ -112,7 +114,9 @@ class RedditService {
      * @returns {Promise}
      */
     editReddit(data) {
-        return this.r.getSubmission(data[1]).edit(data[0]);
+        return new Promise((resolve, reject) => {
+            return this.r.getSubmission(data[1]).edit(data[0]).then(resolve);
+        });
     }
 
     /**
@@ -123,16 +127,31 @@ class RedditService {
     render(values) {
         return new Promise((resolve, reject) => {
 
+            // Define functions used by template
+            values.formattedUTCTime = function(status) {
+                return status.name;
+            };
+
+            values.relativeTimeToLaunch = function(status) {
+                return status.name;
+            };
+
+            values.acronymize = function(status) {
+                return status.text;
+            };
+
+            values.isLivestreamAvailable = function(livestreamName) {
+                return values.livestreams.find(l => l.name === livestreamName).isAvailable;
+            };
+
+            // Check for existence of pre-compiled template and use it if we have it.
             if (this.template) {
-                let templateFn = dot.template(this.template);
-                return resolve(templateFn(values));
+                return resolve(nunjucks.renderString(this.template, values));
 
             } else {
                 fs.readFile('./files/launch-thread.md', 'utf8', (err, data) => {
                     this.template = data;
-
-                    let templateFn = dot.template(this.template);
-                    return resolve(templateFn(values));
+                    return resolve(nunjucks.renderString(this.template, values));
                 });
             }
         });

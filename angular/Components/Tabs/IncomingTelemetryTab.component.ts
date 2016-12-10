@@ -5,13 +5,14 @@ import {Status} from "../../Interfaces/Status";
 @Component({
     selector: 'lp-incoming-telemetry-tab',
     template: `
-        <ng-container *ngFor="let status of statuses">
-            <lp-launch-status [launchStatus]="status" *ngIf="!status.isDeleted"></lp-launch-status>
+        <ng-container *ngFor="let status of statuses; let i = index">
+            <lp-launch-status [launchStatus]="status" *ngIf="!status.isDeleted && i < limit"></lp-launch-status>
         </ng-container>    
     `
 })
 export class IncomingTelemetryTabComponent {
 
+    public limit: number = 50;
     public statuses : Status[];
 
     constructor(public launchData: LaunchDataService) {

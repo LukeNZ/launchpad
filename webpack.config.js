@@ -4,7 +4,7 @@ var path = require('path');
 module.exports = {
     entry: {
         'vendor': './angular/vendor.ts',
-        'tminusten': './angular/main.ts'
+        'launchpad': './angular/main.ts'
     },
     resolve: {
         extensions: ['', '.js', '.ts']

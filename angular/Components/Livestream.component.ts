@@ -1,7 +1,6 @@
 import {Component, ElementRef, OnInit, HostListener} from "@angular/core";
 import {AuthService} from "../Services/AuthService";
 import {AppDataService} from "../Services/AppDataService";
-import {Livestream} from "../Interfaces/Livestream";
 import {Dimension} from "../Interfaces/Dimension";
 import {Position} from "../Interfaces/Position";
 import {GuardSharedService} from "../Services/GuardSharedService";
@@ -10,14 +9,35 @@ import {UserPreferencesService} from "../Services/UserPreferencesService";
 @Component({
     selector:'lp-livestream',
     template: `      
-        <lp-livestream-player *ngFor="let livestream of visibleLivestreams; let i = index; trackBy: livestreamTrackByFn"
-        [display]="userPrefs.livestreamPositioningMode"
-        [video]="livestream.url | sanitize:'resource'"
-        [style.width.px]="calculateLivestreamWidth(livestream, i)" 
-        [style.height.px]="calculateLivestreamHeight(livestream, i)"
-        [style.left.px]="calculateLivestreamLeftOffset(livestream, i)"
-        [style.top.px]="calculateLivestreamTopOffset(livestream, i)"       
+        <lp-livestream-player
+        [video]="getLivestreamUrl('SpaceX Hosted')"
+        [style.order]="getOrder('SpaceX Hosted')"
+        [style.width.px]="calculateLivestreamWidth('SpaceX Hosted')" 
+        [style.height.px]="calculateLivestreamHeight('SpaceX Hosted')"
+        [style.left.px]="calculateLivestreamLeftOffset('SpaceX Hosted')"
+        [style.top.px]="calculateLivestreamTopOffset('SpaceX Hosted')"
+        [style.z-index]="calculateZIndex('SpaceX Hosted')"
         ></lp-livestream-player>
+        
+        <!--<lp-livestream-player
+        [video]="getLivestreamUrl('SpaceX Technical') | sanitize:'resource'"
+        [style.order]="getOrder('SpaceX Technical')"
+        [style.width.px]="calculateLivestreamWidth('SpaceX Technical')" 
+        [style.height.px]="calculateLivestreamHeight('SpaceX Technical')"
+        [style.left.px]="calculateLivestreamLeftOffset('SpaceX Technical')"
+        [style.top.px]="calculateLivestreamTopOffset('SpaceX Technical')"
+        [style.z-index]="calculateZIndex('SpaceX Technical')"
+        ></lp-livestream-player>
+        
+        <lp-livestream-player
+        [video]="getLivestreamUrl('NASA') | sanitize:'resource'"
+        [style.order]="getOrder('NASA')"
+        [style.width.px]="calculateLivestreamWidth('NASA')" 
+        [style.height.px]="calculateLivestreamHeight('NASA')"
+        [style.left.px]="calculateLivestreamLeftOffset('NASA')"
+        [style.top.px]="calculateLivestreamTopOffset('NASA')"
+        [style.z-index]="calculateZIndex('NASA')"
+        ></lp-livestream-player>-->
     `,
     providers: [GuardSharedService]
 })
@@ -33,8 +53,6 @@ export class LivestreamComponent implements OnInit {
         y: 60
     };
 
-    public visibleLivestreams: Livestream[];
-
     constructor(public elem: ElementRef,
                 public authService: AuthService,
                 public appData: AppDataService,
@@ -47,8 +65,6 @@ export class LivestreamComponent implements OnInit {
     public ngOnInit() : void {
         this.calculateElementDimensions();
         this.calculateNestedLivestreamDimensions();
-        this.visibleLivestreams = this.appData.availableLivestreams()
-            .filter(l => this.userPrefs.visibleLivestreams.indexOf(l.name) != -1);
     }
 
     /**
@@ -62,10 +78,6 @@ export class LivestreamComponent implements OnInit {
         this.calculateNestedLivestreamDimensions();
 
         let temp = this.userPrefs.visibleLivestreams;
-
-        this.visibleLivestreams.sort((a,b) => {
-            return temp.indexOf(a.name) < temp.indexOf(b.name) ? -1 : 1;
-        });
     }
 
     /**
@@ -115,11 +127,12 @@ export class LivestreamComponent implements OnInit {
     /**
      *
      * @param livestream
-     * @param index
      *
      * @returns {number}
      */
-    public calculateLivestreamWidth(livestream: Livestream, index: number) : number {
+    public calculateLivestreamWidth(livestream: string) : number {
+        let index = this.getOrder(livestream);
+
         if (this.userPrefs.livestreamPositioningMode === "nested") {
             if (index === 0) {
                 return this.componentSize.width;
@@ -131,11 +144,12 @@ export class LivestreamComponent implements OnInit {
     /**
      *
      * @param livestream
-     * @param index
      *
      * @returns {number}
      */
-    public calculateLivestreamHeight(livestream: Livestream, index: number) : number {
+    public calculateLivestreamHeight(livestream: string) : number {
+        let index = this.getOrder(livestream);
+
         if (this.userPrefs.livestreamPositioningMode === "nested") {
             if (index === 0) {
                 return this.componentSize.height;
@@ -147,11 +161,12 @@ export class LivestreamComponent implements OnInit {
     /**
      *
      * @param livestream
-     * @param index
      *
      * @returns {number}
      */
-    public calculateLivestreamLeftOffset(livestream: Livestream, index: number) : number {
+    public calculateLivestreamLeftOffset(livestream: string) : number {
+        let index = this.getOrder(livestream);
+
         if (this.userPrefs.livestreamPositioningMode === "nested") {
             if (index === 0) {
                 return 0;
@@ -165,11 +180,12 @@ export class LivestreamComponent implements OnInit {
      *
      *
      * @param livestream
-     * @param index
      *
      * @returns {number}
      */
-    public calculateLivestreamTopOffset(livestream: Livestream, index: number) : number {
+    public calculateLivestreamTopOffset(livestream: string) : number {
+        let index = this.getOrder(livestream);
+
         if (this.userPrefs.livestreamPositioningMode === "nested") {
             if (index === 0) {
                 return 0;
@@ -179,7 +195,20 @@ export class LivestreamComponent implements OnInit {
         }
     }
 
-    public livestreamTrackByFn(index: number, item: Livestream) : string {
-        return item.name;
+    public getLivestreamUrl(name: string) : string {
+        return this.appData.livestreams.filter(l => l.name === name)[0].url;
+    }
+
+    public getOrder(name: string) : number {
+        return this.userPrefs.visibleLivestreams.indexOf(name);
+    }
+
+    public calculateZIndex(name: string) : number {
+        let index = this.getOrder(name);
+
+        if (index === 0) {
+            return 1;
+        }
+        return 3;
     }
 }

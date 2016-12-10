@@ -79,7 +79,7 @@ export class HomeComponent implements OnInit {
             this.appData.isLoading = false;
         });
 
-        this.titleService.setTitle("T Minus Ten");
+        this.titleService.setTitle("Launchpad");
 
 
     }
