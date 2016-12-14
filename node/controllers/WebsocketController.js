@@ -131,6 +131,44 @@ class WebsocketController {
     }
 
     /**
+     *
+     *
+     * @param data
+     * @param socket
+     */
+    launchStatusDelete(data, socket) {
+        this.authenticationService.userHasPermission("moderator", data.token).then(user => {
+
+            this.store.log('msg:launchStatusDelete', data, user).then(idAndTimestamp => {
+                // Append the user, the timestamp, and the id as per the
+                // message architecture documentation
+                delete data.token;
+                data.id = idAndTimestamp.id;
+                data.user = user.username;
+                data.timestamp = idAndTimestamp.timestamp;
+
+                return this.store.getLaunchStatus(data.statusId);
+
+            }).then(status => {
+                status.isDeleted = true;
+                return this.store.setLaunchStatus(data.statusId, status);
+
+            }).then(response => {
+                // Emit the launch status
+                socket.broadcast.emit("msg:launchStatusDelete", data);
+                socket.emit("response:launchStatusDelete", {responseCode: 200, response: data });
+
+                // Update the Reddit thread
+                this.reddit.editThread();
+            });
+
+        }).catch(error => {
+            return socket.emit('response:launchStatusDelete', { responseCode: error.message });
+        });
+
+    }
+
+    /**
      * `msg:appStatus`. Called when a socket sends a message updating the status of the application. This
      * can be of the types "enableApp", "disableApp", "editLaunch", or "editMoments".
      *

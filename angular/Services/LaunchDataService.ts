@@ -35,6 +35,14 @@ export class LaunchDataService {
             this.addStatus(websocket.response);
         });
 
+        this.websocketService.launchStatusDeletionsStream().subscribe(websocket => {
+            this.deleteStatus()
+        });
+
+        this.websocketService.launchStatusDeletionsResponsesStream().subscribe(websocket => {
+
+        });
+
         this.websocketService.appStatusesStream().subscribe(websocket => {
             if (websocket.response.type === "enableApp") {
                 this.setLaunch(websocket.data);

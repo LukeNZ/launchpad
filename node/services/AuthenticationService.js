@@ -90,7 +90,7 @@ class AuthenticationService {
      *
      * @param token
      *
-     * @returns Promise
+     * @returns {Promise} Resolving to a user.
      */
     getUser(token) {
         let decoded = jwt.verify(token, process.env.APP_KEY);

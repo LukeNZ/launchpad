@@ -1,9 +1,13 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRef} from "@angular/core";
 import {Status} from "../Interfaces/Status";
 import {CountdownComponentCalculator} from "../Services/CountdownComponentCalculator";
-var moment = require("moment-timezone");
-var jstz = require('jstimezonedetect');
+import {AuthService} from "../Services/AuthService";
+const moment = require("moment-timezone");
+const jstz = require('jstimezonedetect');
 
+/**
+ * @class
+ */
 @Component({
     selector: 'lp-launch-status',
     template: `
@@ -16,23 +20,21 @@ var jstz = require('jstimezonedetect');
         <div class="launch-status-content">
             <p>{{ launchStatus.text | acronyms }}</p>
             
-            <ul class="launch-status-tools" *ngIf="">
-                <li class="request-edit">Request Edit</li>
-                <li class="delete">Delete</li>
+            <ul class="launch-status-tools">
+                <li class="request-edit" (click)="onEditRequest.emit(launchStatus.statusId)"
+                *ngIf="authData.hasPrivilegesPermission">Request Edit</li>
+                <li class="delete" (click)="onDelete.emit(launchStatus.statusId)" 
+                *ngIf="authData.hasModeratorPermission">Delete</li>
             </ul>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-/**
- * We should use OnPush Change Detection in this class to reduce Angular 2 change detection cycles.
- * @class
- */
 export class LaunchStatusComponent implements OnInit, OnDestroy {
     @Input() public launchStatus: Status;
     @Output() public onEditRequest: EventEmitter<string> = new EventEmitter<string>();
-    @Output() public onEdit: EventEmitter<string> = new EventEmitter<string>();
-    @Output() public onDelete: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() public onEdit: EventEmitter<number> = new EventEmitter<number>();
+    @Output() public onDelete: EventEmitter<number> = new EventEmitter<number>();
 
     private _relativeTimeToLaunch: string;
     private _formattedLocalTime: string;
@@ -40,11 +42,16 @@ export class LaunchStatusComponent implements OnInit, OnDestroy {
 
     private _refreshIntervalId: number;
 
-    constructor(private changeDetectorRef: ChangeDetectorRef) {}
+    constructor(private changeDetectorRef: ChangeDetectorRef, public authData: AuthService) {
+    }
 
+    /**
+     * On component initialization, we need to set the relative time, then set a timer to recheck the relative time
+     * every
+     */
     public ngOnInit() : void {
         this.setRelativeTime();
-        setInterval(() => {
+        this._refreshIntervalId = window.setInterval(() => {
             this.setRelativeTime();
         }, 5000);
     }
@@ -104,7 +111,10 @@ export class LaunchStatusComponent implements OnInit, OnDestroy {
         return this._formattedLocalTime;
     }
 
+    /**
+     * When this component is destroyed, remove the refresh interval timer with it.
+     */
     public ngOnDestroy() : void {
-
+        window.clearInterval(this._refreshIntervalId);
     }
 }

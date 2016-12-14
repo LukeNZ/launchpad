@@ -36,17 +36,44 @@ export class AuthService extends AbstractService {
     /**
      * Returns the token this user is authenticated with.
      *
-     * @returns {string}    The auth token.
+     * @returns {string} The auth token.
      */
     get authtoken() : string {
         return localStorage.getItem('auth:token');
     }
 
     /**
+     * Returns the array of permissions this user is authenticated with.
+     *
+     * @returns {string[]} Permissions.
+     */
+    get permissions() : string[] {
+        return JSON.parse(localStorage.getItem('auth:permissions'));
+    }
+
+    /**
+     * Does the logged in user have a moderator permission?
+     *
+     * @returns {boolean}
+     */
+    get hasModeratorPermission() : boolean {
+        return this.permissions.indexOf('moderator') != -1;
+    }
+
+    /**
+     * Does the logged in user have a privileges permission?
+     *
+     * @returns {boolean}
+     */
+    get hasPrivilegesPermission() : boolean {
+        return this.permissions.indexOf('privileges') != -1;
+    }
+
+    /**
      * Attempts to log the claimed identity of a user in. If successful, sets a token in the client,
      * if not; allows another attempt.
      *
-     * @param model  The username and password the user is attempting to login with.
+     * @param model {LoginModel} The username and password the user is attempting to login with.
      *
      * @returns {Observable<boolean>}
      */
@@ -54,9 +81,17 @@ export class AuthService extends AbstractService {
         return this.http.post('/api/auth/login', { username: model.username, password: model.password }, this.headers())
             .map(response => {
                 this._isLoggedIn = true;
+
+                // Set the authorization properties
                 let authorizationHeader = response.headers.get('Authorization');
                 let authToken = authorizationHeader.split(" ").pop();
-                localStorage.setItem('auth:token', authToken); // TODO: Figure out why PHPStorm does not like model.authtoken ("unresolved variable")
+                localStorage.setItem('auth:token', authToken);
+
+                // Set the permissions properties
+                let permissionsHeader = response.headers.get('Permissions');
+                let permissions = permissionsHeader.split(" ");
+                localStorage.setItem('auth:permissions', JSON.stringify(permissions));
+
                 return true;
             })
             .catch(this.handleError);
@@ -68,6 +103,7 @@ export class AuthService extends AbstractService {
      */
     public logout() : void {
         localStorage.removeItem('auth:token');
+        localStorage.removeItem('auth:permissions');
         this._isLoggedIn = false;
     }
 }

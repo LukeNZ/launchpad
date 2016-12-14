@@ -16,8 +16,11 @@ class AuthController {
      */
     login(request, response) {
         this.authenticationService.getJsonWebToken(request.body.username, request.body.password).then(token => {
-            response.set('Authorization', `bearer ${token}`);
-            response.status(204).end();
+            this.authenticationService.getUser(token).then(user => {
+                response.set('Authorization', `bearer ${token}`);
+                response.set('Permissions', user.permissions.join(" "));
+                response.status(204).end();
+            });
         }, error => {
             response.status(422).end();
         });

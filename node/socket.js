@@ -1,10 +1,10 @@
-var SocketServer = require('socket.io');
-var WebsocketController = require('./controllers/WebsocketController');
+const SocketServer = require('socket.io');
+const WebsocketController = require('./controllers/WebsocketController');
 
 module.exports = {
     createServer: function(server) {
-        var io = new SocketServer(server);
-        var websocket = new WebsocketController(io);
+        let io = new SocketServer(server);
+        let websocket = new WebsocketController(io);
 
         /**
          * Handle incoming events.
@@ -15,6 +15,8 @@ module.exports = {
             socket.on('msg:typingStatus', data => websocket.typingStatus(data, socket));
 
             socket.on('msg:launchStatusCreate', data => websocket.launchStatusCreate(data, socket));
+
+            socket.on('msg:launchStatusDelete', data => websocket.launchStatusDelete(data, socket));
 
             socket.on('msg:appStatus', data => websocket.appStatus(data, socket));
 

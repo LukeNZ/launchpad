@@ -1,6 +1,5 @@
 import {Injectable} from "@angular/core";
 import {AppDataService} from "./AppDataService";
-import {Livestream} from "../Interfaces/Livestream";
 
 /**
  * Service for sharing of user preferences data across the application, stored in local storeage.This includes data
